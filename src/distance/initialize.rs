@@ -9,7 +9,7 @@ use pyo3::types::{PyList, PyString, PyTuple};
 // Editop
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Editop {
     #[pyo3(get, set)]
@@ -111,7 +111,7 @@ impl Editop {
 // Opcode
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Opcode {
     #[pyo3(get, set)]
@@ -238,7 +238,7 @@ impl Opcode {
 // MatchingBlock
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone, Debug, PartialEq)]
 pub struct MatchingBlock {
     #[pyo3(get, set)]
@@ -269,7 +269,7 @@ impl MatchingBlock {
 // ScoreAlignment
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ScoreAlignment {
     #[pyo3(get, set)]
@@ -386,7 +386,7 @@ pub fn ops_to_matching_blocks(
 // Editops
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone)]
 pub struct Editops {
     pub ops: Vec<(String, usize, usize)>, // (tag, src_pos, dest_pos)
@@ -669,7 +669,7 @@ impl Editops {
 // Opcodes
 // ---------------------------------------------------------------------------
 
-#[pyclass(module = "rapidfuzz.distance._initialize_cpp")]
+#[pyclass(module = "rustfuzz")]
 #[derive(Clone)]
 pub struct Opcodes {
     pub ops: Vec<(String, usize, usize, usize, usize)>, // (tag, ss, se, ds, de)

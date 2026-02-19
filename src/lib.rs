@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// RapidFuzz Rust extension module
+// rustfuzz Rust extension module
 #![allow(warnings)]
 use pyo3::prelude::*;
 
