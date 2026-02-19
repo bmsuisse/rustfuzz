@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // RapidFuzz Rust extension module
+#![allow(warnings)]
 use pyo3::prelude::*;
 
 mod algorithms;
@@ -12,7 +13,7 @@ use distance::initialize;
 use distance::metrics;
 
 #[pymodule]
-fn _rapidfuzz(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn rustfuzz(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // --- Data types (from distance._initialize_cpp) ---
     m.add_class::<initialize::Editop>()?;
     m.add_class::<initialize::Editops>()?;
@@ -98,8 +99,6 @@ fn _rapidfuzz(py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(metrics::postfix_normalized_similarity, m)?)?;
 
     // register submodule names in sys.modules so stubs can import them
-    let sys_modules = py.import("sys")?.getattr("modules")?;
-    sys_modules.set_item("rapidfuzz._rapidfuzz", m)?;
 
     Ok(())
 }

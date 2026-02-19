@@ -1,12 +1,12 @@
 [package]
-name = "rapidfuzz"
+name = "rustfuzz"
 version = "3.14.3"
 edition = "2021"
 description = "rapid fuzzy string matching"
 license = "MIT"
 
 [lib]
-name = "_rapidfuzz"
+name = "rustfuzz"
 crate-type = ["cdylib"]
 
 [dependencies]
