@@ -9,7 +9,7 @@
 // - str+str or bytes+bytes are handled natively as slices of equal-len chars
 
 use pyo3::prelude::*;
-use pyo3::types::{PyBytes, PyList, PyString, PyTuple};
+use pyo3::types::{PyBytes, PyString};
 
 /// Opaque sequence type used across all algorithm functions.
 #[derive(Clone)]
@@ -20,6 +20,7 @@ pub enum Seq {
 }
 
 impl Seq {
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         match self {
             Seq::Str(v) => v.len(),
@@ -28,6 +29,7 @@ impl Seq {
         }
     }
 
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -42,6 +44,7 @@ impl Seq {
     }
 
     /// Compare individual elements
+    #[allow(dead_code)]
     pub fn elem(&self, i: usize) -> i64 {
         match self {
             Seq::Str(v) => v[i] as i64,

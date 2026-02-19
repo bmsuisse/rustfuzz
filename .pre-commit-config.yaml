@@ -12,11 +12,6 @@
 #
 # See https://github.com/pre-commit/pre-commit
 
-exclude: |
-    (?x)(
-        tools/sdist.patch
-    )
-
 repos:
 # Standard hooks
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -61,7 +56,6 @@ repos:
   - id: fix-ligatures
   - id: fix-smartquotes
 
-
 # Checking for common mistakes
 - repo: https://github.com/pre-commit/pygrep-hooks
   rev: "v1.10.0"
@@ -69,41 +63,6 @@ repos:
   - id: rst-backticks
   - id: rst-directive-colons
   - id: rst-inline-touching-normal
-
-
-# PyLint has native support - not always usable, but works for us
-- repo: https://github.com/PyCQA/pylint
-  rev: "v3.3.6"
-  hooks:
-  - id: pylint
-    files: ^pybind11
-
-# CMake formatting
-- repo: https://github.com/cheshirekow/cmake-format-precommit
-  rev: "v0.6.13"
-  hooks:
-  - id: cmake-format
-    additional_dependencies: [pyyaml]
-    types: [file]
-    files: (\.cmake|CMakeLists.txt)(.in)?$
-
-# Check static types with mypy
-#- repo: https://github.com/pre-commit/mirrors-mypy
-#  rev: "v0.971"
-#  hooks:
-#  - id: mypy
-#    args: []
-#    exclude: ^(tests|docs)/
-#    additional_dependencies: [nox, rich]
-
-# Checks the manifest for missing files (native support)
-- repo: https://github.com/mgedmin/check-manifest
-  rev: "0.50"
-  hooks:
-  - id: check-manifest
-    # This is a slow hook, so only run this if --hook-stage manual is passed
-    stages: [manual]
-    additional_dependencies: [cmake, ninja]
 
 - repo: https://github.com/charliermarsh/ruff-pre-commit
   rev: v0.11.5
@@ -117,7 +76,6 @@ repos:
   hooks:
   - id: codespell
     exclude: ".*/test_.*.py"
-    args: ["-x", ".codespell-ignore-lines"]
 
 # Check for common shell mistakes
 - repo: https://github.com/shellcheck-py/shellcheck-py
@@ -133,10 +91,3 @@ repos:
     language: pygrep
     entry: PyBind|Numpy|Cmake|CCache|PyTest
     exclude: ^\.pre-commit-config.yaml$
-
-# Clang format the codebase automatically
-- repo: https://github.com/pre-commit/mirrors-clang-format
-  rev: "v20.1.0"
-  hooks:
-  - id: clang-format
-    types_or: [c++, c]

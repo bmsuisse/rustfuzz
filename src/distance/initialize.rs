@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // PyO3 classes: Editop, Editops, Opcode, Opcodes, MatchingBlock, ScoreAlignment
 // Mirrors the Python _initialize_py.py interface exactly.
+#![allow(unused_variables, unused_assignments)]
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyString, PyTuple};
+use pyo3::types::{PyList, PyTuple};
 
 // ---------------------------------------------------------------------------
 // Editop
@@ -330,57 +331,6 @@ impl ScoreAlignment {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Helper: convert raw editop tuples to MatchingBlock list
-// ---------------------------------------------------------------------------
-
-pub fn ops_to_matching_blocks(
-    ops: &[(String, usize, usize)],
-    src_len: usize,
-    dest_len: usize,
-) -> Vec<MatchingBlock> {
-    let mut blocks = Vec::new();
-    let mut src_pos = 0usize;
-    let mut dest_pos = 0usize;
-
-    for (tag, sp, dp) in ops {
-        if *sp > src_pos || *dp > dest_pos {
-            // there's a matching block before this op
-            let block_len = dp.min(&(dest_pos + (sp - src_pos))) - &dest_pos;
-            if block_len > 0 {
-                blocks.push(MatchingBlock {
-                    a: src_pos,
-                    b: dest_pos,
-                    size: block_len,
-                });
-            }
-        }
-        match tag.as_str() {
-            "delete" => src_pos = sp + 1,
-            "insert" => dest_pos = dp + 1,
-            "replace" => {
-                src_pos = sp + 1;
-                dest_pos = dp + 1;
-            }
-            _ => {}
-        }
-    }
-    // trailing matching block
-    let trailing = (src_len - src_pos).min(dest_len - dest_pos);
-    if trailing > 0 {
-        blocks.push(MatchingBlock {
-            a: src_pos,
-            b: dest_pos,
-            size: trailing,
-        });
-    }
-    blocks.push(MatchingBlock {
-        a: src_len,
-        b: dest_len,
-        size: 0,
-    });
-    blocks
-}
 
 // ---------------------------------------------------------------------------
 // Editops
@@ -460,13 +410,6 @@ fn editops_from_list(
     Ok(Editops { ops, src_len, dest_len })
 }
 
-fn resolve_slice(idx: i64, len: usize) -> usize {
-    if idx < 0 {
-        (len as i64 + idx).max(0) as usize
-    } else {
-        (idx as usize).min(len)
-    }
-}
 
 #[pymethods]
 impl Editops {

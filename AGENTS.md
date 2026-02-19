@@ -11,43 +11,18 @@ RapidFuzz is a 1:1 Rust port of the original C++/Cython RapidFuzz for performanc
 ## Architecture
 
 ```
-src/rapidfuzz/          ← thin Python wrappers (re-export Rust symbols)
-  __init__.py           ← exposes: distance, fuzz, process, utils
-  fuzz.py               ← re-exports from _rapidfuzz (Rust ext module)
-  process.py            ← re-exports from _rapidfuzz
-  utils.py              ← re-exports from _rapidfuzz
-  distance/
-    __init__.py
-    _initialize.py      ← Editop, Editops, Opcode, Opcodes, MatchingBlock, ScoreAlignment
-    Levenshtein.py      ← re-exports from _rapidfuzz
-    Hamming.py          ← re-exports from _rapidfuzz
-    Indel.py            ← re-exports from _rapidfuzz
-    Jaro.py             ← re-exports from _rapidfuzz
-    JaroWinkler.py      ← re-exports from _rapidfuzz
-    LCSseq.py           ← re-exports from _rapidfuzz
-    OSA.py              ← re-exports from _rapidfuzz
-    DamerauLevenshtein.py
-    Prefix.py / Postfix.py
-src/              ← Rust source (Cargo workspace)
-  lib.rs          ← PyO3 module root, registers all submodules
-  fuzz.rs         ← ratio, partial_ratio, token_*, WRatio, QRatio
-  process.rs      ← extract, extractOne, extract_iter, cdist, cpdist
-  utils.rs        ← default_process
+src/                    ← Rust source (compiled to rustfuzz extension module)
+  lib.rs                ← PyO3 module root, registers all functions & classes
+  algorithms.rs         ← Core algorithm implementations (Myers, LCS, Jaro, etc.)
+  fuzz.rs               ← ratio, partial_ratio, token_*, WRatio, QRatio
+  utils.rs              ← default_process
+  types.rs              ← Seq type + Python object extraction helpers
   distance/
     mod.rs
-    initialize.rs ← Editop, Editops, Opcode, Opcodes, MatchingBlock, ScoreAlignment
-    levenshtein.rs
-    hamming.rs
-    indel.rs
-    jaro.rs
-    jaro_winkler.rs
-    lcs_seq.rs
-    osa.rs
-    damerau_levenshtein.rs
-    prefix.rs / postfix.rs
-    metrics.rs     ← common metrics helpers
+    initialize.rs       ← Editop, Editops, Opcode, Opcodes, MatchingBlock, ScoreAlignment
+    metrics.rs          ← All distance/similarity pyfunction wrappers
 Cargo.toml
-pyproject.toml    ← maturin build backend
+pyproject.toml          ← maturin build backend
 ```
 
 ## Public API Surface

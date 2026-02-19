@@ -405,45 +405,6 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
 // INDEL (insert/delete only, equivalent to LCS-based distance)
 // ===========================================================================
 
-/// LCS length via bit-parallel algorithm (Hyyro)
-fn lcs_length_bitvector(s1: &[i64], s2: &[i64]) -> usize {
-    if s1.is_empty() || s2.is_empty() {
-        return 0;
-    }
-    let len1 = s1.len();
-    let words = (len1 + 63) / 64;
-
-    let mut pm: HashMap<i64, Vec<u64>> = HashMap::new();
-    for (i, &c) in s1.iter().enumerate() {
-        let entry = pm.entry(c).or_insert_with(|| vec![0u64; words]);
-        entry[i / 64] |= 1u64 << (i % 64);
-    }
-
-    let mut m: Vec<u64> = vec![0u64; words];
-    let mut lcs = 0usize;
-
-    for &c in s2 {
-        let pm_c = pm.get(&c);
-        let mut carry = 0u64;
-        for w in 0..words {
-            let x = m[w] | pm_c.map(|p| p[w]).unwrap_or(0);
-            let y = m[w] & pm_c.map(|p| p[w]).unwrap_or(0);
-            let (t, c2) = y.overflowing_add(m[w]);
-            let (t, c3) = t.overflowing_add(carry);
-            carry = if c2 || c3 { 1 } else { 0 };
-            m[w] = x & !(t ^ m[w]);
-        }
-        lcs += m.iter().map(|w| w.count_ones() as usize).sum::<usize>()
-            - m[..words - 1]
-                .iter()
-                .map(|w| w.count_ones() as usize)
-                .sum::<usize>()
-            - m[words - 1].count_ones() as usize;
-    }
-
-    // Simpler: just count set bits in final m
-    m.iter().map(|w| w.count_ones() as usize).sum()
-}
 
 /// LCS length using simple DP (fallback, always correct)
 pub fn lcs_length(s1: &[i64], s2: &[i64]) -> usize {
@@ -753,7 +714,7 @@ pub fn damerau_levenshtein_distance(s1: &[i64], s2: &[i64]) -> usize {
     }
 
     let max_dist = m + n;
-    let mut d: HashMap<(i64, i64), usize> = HashMap::new();
+    let _d: HashMap<(i64, i64), usize> = HashMap::new();
 
     // Last occurrence of each character in s1
     let mut da: HashMap<i64, usize> = HashMap::new();

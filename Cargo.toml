@@ -6,7 +6,7 @@ description = "rapid fuzzy string matching"
 license = "MIT"
 
 [lib]
-name = "rustfuzz"
+name = "_rapidfuzz"
 crate-type = ["cdylib"]
 
 [dependencies]

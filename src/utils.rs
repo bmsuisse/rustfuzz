@@ -9,7 +9,8 @@ use pyo3::prelude::*;
 #[pyfunction]
 #[pyo3(signature = (s, *, processor=None))]
 pub fn default_process(s: &Bound<'_, PyAny>, processor: Option<PyObject>) -> PyResult<String> {
-    use pyo3::types::{PyBytes, PyString};
+    let _ = processor;
+    use pyo3::types::PyBytes;
 
     let text = if s.is_none() {
         return Ok(String::new());

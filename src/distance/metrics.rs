@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // PyO3 wrappers for all distance metric functions.
 // Each function handles: processor, score_cutoff, None/NaN inputs.
+#![allow(unused_variables)]
 
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
 
 use crate::algorithms as alg;
 use crate::distance::initialize::{Editops, Opcodes, raw_editops_to_opcodes_py, raw_editops_to_py};
-use crate::types::{extract_sequences, is_none, Seq};
+use crate::types::{extract_sequences, is_none};
 
 // ---------------------------------------------------------------------------
 // Macro to extract two sequences, returning early if either is None/NaN
@@ -840,6 +840,7 @@ pub fn prefix_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
+    let _ = score_cutoff;
     let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
     Ok(alg::prefix_similarity(&a.as_i64(), &b.as_i64()))
 }
@@ -907,6 +908,7 @@ pub fn postfix_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
+    let _ = score_cutoff;
     let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
     Ok(alg::postfix_similarity(&a.as_i64(), &b.as_i64()))
 }
