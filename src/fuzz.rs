@@ -116,7 +116,8 @@ fn partial_ratio_short_long(shorter: &[i64], longer: &[i64]) -> (f64, usize, usi
     let s_len = shorter.len();
     let l_len = longer.len();
     if s_len == 0 {
-        return (0.0, 0, 0);
+        // Both empty → perfect match (100); only shorter empty → no match (0)
+        return if l_len == 0 { (100.0, 0, 0) } else { (0.0, 0, 0) };
     }
     if l_len == 0 {
         return (0.0, 0, 0);
@@ -184,6 +185,11 @@ pub fn fuzz_partial_ratio(
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
     let av = a.as_i64();
     let bv = b.as_i64();
+
+    // Both empty → 100.0 (Python returns 100 for equal empty strings)
+    if av.is_empty() && bv.is_empty() {
+        return Ok(score_cutoff_check(100.0, score_cutoff));
+    }
 
     let score = if av.len() <= bv.len() {
         let mut s = partial_ratio_short_long(&av, &bv).0;

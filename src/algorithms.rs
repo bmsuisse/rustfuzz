@@ -236,7 +236,7 @@ pub fn levenshtein_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, 
     if m <= 127 {
         levenshtein_editops_bitvec(s1, s2, pfx)
     } else {
-        levenshtein_editops_dp(s1, s2, pfx)
+        levenshtein_editops_multiword(s1, s2, pfx)
     }
 }
 
@@ -313,31 +313,90 @@ fn levenshtein_editops_bitvec(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String
     ops
 }
 
-/// Standard DP backtracking for long strings (m > 127).
-/// Uses delete-preferred, then replace, which matches Python for most cases.
-fn levenshtein_editops_dp(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String, usize, usize)> {
+/// Multiword VP/VN bit-parallel editops for m > 127.
+/// Stores VP and VN for every column j, then backtracks exactly like levenshtein_editops_bitvec.
+/// This matches Python's arbitrary-precision integer approach for all string lengths.
+fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String, usize, usize)> {
     let m = s1.len();
     let n = s2.len();
-    let mut dp = vec![vec![0usize; n + 1]; m + 1];
-    for i in 0..=m { dp[i][0] = i; }
-    for j in 0..=n { dp[0][j] = j; }
-    for i in 1..=m {
-        for j in 1..=n {
-            dp[i][j] = if s1[i-1] == s2[j-1] { dp[i-1][j-1] }
-                       else { 1 + dp[i-1][j-1].min(dp[i-1][j]).min(dp[i][j-1]) };
-        }
+    let words = (m + 63) / 64;
+    let last_bits = if m % 64 == 0 { 64 } else { m % 64 };
+    let last_valid_mask: u64 = if last_bits == 64 { u64::MAX } else { (1u64 << last_bits) - 1 };
+
+    // Build pattern bitmasks
+    let mut pm: HashMap<i64, Vec<u64>> = HashMap::new();
+    for (i, &c) in s1.iter().enumerate() {
+        let entry = pm.entry(c).or_insert_with(|| vec![0u64; words]);
+        entry[i / 64] |= 1u64 << (i % 64);
     }
+
+    let mut vp: Vec<u64> = vec![u64::MAX; words];
+    let mut vn: Vec<u64> = vec![0u64; words];
+    vp[words - 1] = last_valid_mask;
+
+    // Store VP/VN for every column (each is a Vec<u64> of `words` words)
+    let mut matrix_vp: Vec<Vec<u64>> = Vec::with_capacity(n);
+    let mut matrix_vn: Vec<Vec<u64>> = Vec::with_capacity(n);
+
+    for &c in s2 {
+        let pm_c = pm.get(&c);
+        let mut add_carry: u64 = 0;
+        let mut hp_carry: u64 = 1;
+        let mut hn_carry: u64 = 0;
+        let mut new_vp = vec![0u64; words];
+        let mut new_vn = vec![0u64; words];
+
+        for w in 0..words {
+            let pm_j = pm_c.map(|p| p[w]).unwrap_or(0);
+            let pv = vp[w];
+            let nv = vn[w];
+            let pm_and_vp = pm_j & pv;
+            let (t, c1) = pm_and_vp.overflowing_add(add_carry);
+            let (sum, c2) = t.overflowing_add(pv);
+            add_carry = (c1 as u64) | (c2 as u64);
+            let d0 = (sum ^ pv) | (pm_j | nv);
+            let hp = nv | !(d0 | pv);
+            let hn = d0 & pv;
+            let hp_shifted = (hp << 1) | hp_carry;
+            let hn_shifted = (hn << 1) | hn_carry;
+            new_vp[w] = hn_shifted | !(d0 | hp_shifted);
+            new_vn[w] = hp_shifted & d0;
+            hp_carry = hp >> 63;
+            hn_carry = hn >> 63;
+        }
+        new_vp[words - 1] &= last_valid_mask;
+        new_vn[words - 1] &= last_valid_mask;
+        vp = new_vp.clone();
+        vn = new_vn.clone();
+        matrix_vp.push(new_vp);
+        matrix_vn.push(new_vn);
+    }
+
+    // Backtrack exactly like levenshtein_editops_bitvec but with multiword VP/VN
     let mut ops: Vec<(String, usize, usize)> = Vec::new();
-    let mut i = m; let mut j = n;
-    while i > 0 && j > 0 {
-        if dp[i][j] == dp[i-1][j] + 1 {
-            ops.push(("delete".to_string(), pfx+i-1, pfx+j)); i -= 1;
-        } else { j -= 1; i -= 1;
-            if s1[i] != s2[j] { ops.push(("replace".to_string(), pfx+i, pfx+j)); }
+    let mut col = m; // index into s1 (1-based)
+    let mut row = n; // index into s2 (1-based)
+
+    while row > 0 && col > 0 {
+        let word = (col - 1) / 64;
+        let bit = (col - 1) % 64;
+        if matrix_vp[row - 1][word] & (1u64 << bit) != 0 {
+            ops.push(("delete".to_string(), pfx + col - 1, pfx + row));
+            col -= 1;
+        } else {
+            row -= 1;
+            if row > 0 && matrix_vn[row - 1][word] & (1u64 << bit) != 0 {
+                ops.push(("insert".to_string(), pfx + col, pfx + row));
+            } else {
+                col -= 1;
+                if s1[col] != s2[row] {
+                    ops.push(("replace".to_string(), pfx + col, pfx + row));
+                }
+            }
         }
     }
-    while i > 0 { i -= 1; ops.push(("delete".to_string(), pfx+i, pfx)); }
-    while j > 0 { j -= 1; ops.push(("insert".to_string(), pfx, pfx+j)); }
+    while col > 0 { col -= 1; ops.push(("delete".to_string(), pfx + col, pfx)); }
+    while row > 0 { row -= 1; ops.push(("insert".to_string(), pfx, pfx + row)); }
     ops.reverse();
     ops
 }
@@ -597,7 +656,7 @@ pub fn jaro(s1: &[i64], s2: &[i64]) -> f64 {
     }
 
     let m = matches as f64;
-    let t = transpositions as f64 / 2.0;
+    let t = (transpositions / 2) as f64;
     (m / len1 as f64 + m / len2 as f64 + (m - t) / m) / 3.0
 }
 
