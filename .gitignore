@@ -30,3 +30,6 @@ bench_results/
 
 # temp files from benchmarks
 bench/temp/
+
+# Rust build artifacts
+target/

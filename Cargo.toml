@@ -1,0 +1,19 @@
+[package]
+name = "rapidfuzz"
+version = "3.14.3"
+edition = "2021"
+description = "rapid fuzzy string matching"
+license = "MIT"
+
+[lib]
+name = "_rapidfuzz"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310"] }
+rayon = "1.10"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
