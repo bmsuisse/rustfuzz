@@ -1,0 +1,21 @@
+site_name: rustfuzz Documentation
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - toc.integrate
+
+plugins:
+  - search
+  - mkdocs-jupyter
+
+nav:
+  - Home: index.md
+  - Cookbook:
+    - Introduction: cookbook/01_introduction.ipynb
+    - Advanced Matching: cookbook/02_advanced_matching.ipynb
+    - Benchmarks: cookbook/03_benchmarks.ipynb
