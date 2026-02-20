@@ -12,7 +12,7 @@ use distance::initialize;
 use distance::metrics;
 
 #[pymodule]
-fn _rapidfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // --- Data types (from distance._initialize_cpp) ---
     m.add_class::<initialize::Editop>()?;
     m.add_class::<initialize::Editops>()?;

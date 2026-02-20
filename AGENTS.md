@@ -1,18 +1,17 @@
-# RapidFuzz Agent Guidelines
+# rustfuzz Agent Guidelines
 
 ## Project Overview
 
-RapidFuzz is a 1:1 Rust port of the original C++/Cython RapidFuzz for performance. It uses:
+rustfuzz is a high-performance fuzzy string matching library implemented entirely in Rust, published as `rustfuzz` on PyPI. It uses:
 - **Rust** (via PyO3 + maturin) for all core fuzzy-matching algorithms
 - **Python** (3.10+) for the public API surface — thin wrappers that re-export Rust symbols
 - **uv** for Python package management
-- **rapidfuzz-rs** / `strsim` crates for low-level string algorithms where applicable
 
 ## Architecture
 
 ```
-src/                    ← Rust source (compiled to rustfuzz extension module)
-  lib.rs                ← PyO3 module root, registers all functions & classes
+src/                    ← Rust source (compiled as rustfuzz._rustfuzz)
+  lib.rs                ← PyO3 module root — fn _rustfuzz
   algorithms.rs         ← Core algorithm implementations (Myers, LCS, Jaro, etc.)
   fuzz.rs               ← ratio, partial_ratio, token_*, WRatio, QRatio
   utils.rs              ← default_process
@@ -21,24 +20,25 @@ src/                    ← Rust source (compiled to rustfuzz extension module)
     mod.rs
     initialize.rs       ← Editop, Editops, Opcode, Opcodes, MatchingBlock, ScoreAlignment
     metrics.rs          ← All distance/similarity pyfunction wrappers
-Cargo.toml
-pyproject.toml          ← maturin build backend
+rustfuzz/               ← Python package (thin wrappers, imports from ._rustfuzz)
+Cargo.toml              ← lib name = "_rustfuzz"
+pyproject.toml          ← module-name = "rustfuzz._rustfuzz"
 ```
 
 ## Public API Surface
 
-### `rapidfuzz.fuzz`
+### `rustfuzz.fuzz`
 `ratio`, `partial_ratio`, `partial_ratio_alignment`, `token_sort_ratio`, `token_set_ratio`,
 `token_ratio`, `partial_token_sort_ratio`, `partial_token_set_ratio`, `partial_token_ratio`,
 `WRatio`, `QRatio`
 
-### `rapidfuzz.process`
-`extract`, `extractOne`, `extract_iter`, `cdist`, `cpdist`
+### `rustfuzz.process`
+`extract`, `extractOne`, `extract_iter`, `cdist`
 
-### `rapidfuzz.utils`
+### `rustfuzz.utils`
 `default_process`
 
-### `rapidfuzz.distance`
+### `rustfuzz.distance`
 **Data types:** `Editop`, `Editops`, `Opcode`, `Opcodes`, `MatchingBlock`, `ScoreAlignment`
 
 **Per-metric (all modules):** `distance`, `similarity`, `normalized_distance`,
@@ -52,23 +52,21 @@ pyproject.toml          ← maturin build backend
 ### Always Use `uv`
 - **All Python commands MUST use `uv run`** — never use `.venv/bin/python` or bare `python`
 - Tests: `uv run pytest tests/ -x -q`
+- Benchmarks: `uv run pytest tests/test_benchmarks.py --benchmark-save=baseline`
+- Benchmark regression: `uv run pytest tests/test_benchmarks.py --benchmark-compare=baseline --benchmark-compare-fail=mean:10%`
 - Type checking: `uv run pyright`
-- Smoke test: `uv run python -c "import rapidfuzz; print(rapidfuzz.__version__)"`
+- Smoke test: `uv run python -c "import rustfuzz; print(rustfuzz.__version__)"`
 
 ### Build Workflow
 1. `cargo check` — fast compilation check
-2. `maturin develop --release` — build optimised `.so`
-3. Copy `.so` to in-tree location if needed (stale `.so` issue):
-   ```bash
-   cp .venv/lib/python3.*/site-packages/rapidfuzz/_rapidfuzz*.so \
-      src/rapidfuzz/_rapidfuzz*.so
-   ```
+2. `uv run maturin develop --release` — build optimised `.so`
 
 ### Pre-Commit Checklist
 1. `cargo check` — no Rust errors
-2. `maturin develop --release` + copy `.so` if needed
-3. `uv run pytest tests/ -x -q` — **all original tests must pass**
-4. `uv run pyright` — type checking passes
+2. `uv run maturin develop --release`
+3. `uv run pytest tests/ -x -q` — all tests must pass
+4. `uv run pytest tests/test_benchmarks.py --benchmark-compare=baseline --benchmark-compare-fail=mean:10%` — no regressions
+5. `uv run pyright` — type checking passes
 
 ### File Size Limit
 - No file should exceed 1000 lines of code
@@ -79,12 +77,9 @@ pyproject.toml          ← maturin build backend
 - Create a branch for each feature/algorithm group
 
 ### Implementation Strategy
-- Use `RAPIDFUZZ_IMPLEMENTATION=python` env var to run against pure-Python fallback as a
-  reference during development
-- Each metric module (`Levenshtein`, `Hamming`, etc.) should have parity with the
-  `*_py.py` pure-Python implementation — use those as the correctness reference
-- `scorer_flags` / `get_scorer_flags` attributes must be preserved for `process.cdist`
-  compatibility
+- Each metric module (`Levenshtein`, `Hamming`, etc.) must agree with the reference algorithms
+- `process.cdist` consumes any scorer callable accepting `(str, str, **kwargs) -> float`
+- Benchmarks baseline is saved in `.benchmarks/` — commit it so CI can compare
 
 ## Releasing a New Version
 
@@ -123,5 +118,6 @@ categorization:
 cargo check
 uv run maturin develop --release
 uv run pytest tests/ -x -q
+uv run pytest tests/test_benchmarks.py --benchmark-compare=baseline --benchmark-compare-fail=mean:10%
 uv run pyright
 ```

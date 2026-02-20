@@ -41,7 +41,7 @@ Issues = "https://github.com/bmsuisse/rustfuzz/issues"
 
 [tool.maturin]
 python-source = "."
-module-name = "rapidfuzz._rapidfuzz"
+module-name = "rustfuzz._rustfuzz"
 features = ["pyo3/extension-module"]
 
 [dependency-groups]
@@ -51,13 +51,14 @@ dev = [
   "hypothesis>=6.0",
   "pyright>=1.1",
   "ruff>=0.9",
+  "pytest-benchmark>=5.2.3",
 ]
 
 [tool.black]
 line-length = 120
 
 [tool.pyright]
-include = ["rapidfuzz"]
+include = ["rustfuzz"]
 pythonVersion = "3.10"
 
 [tool.pytest.ini_options]

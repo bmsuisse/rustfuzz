@@ -1,14 +1,14 @@
-"""Smoke tests for the rapidfuzz Python API surface."""
+"""Smoke tests for the rustfuzz Python API surface."""
 
 from __future__ import annotations
 
 import pytest
 
-import rapidfuzz
-import rapidfuzz.fuzz as fuzz
-import rapidfuzz.process as process
-import rapidfuzz.utils as utils
-from rapidfuzz.distance import (
+import rustfuzz
+import rustfuzz.fuzz as fuzz
+import rustfuzz.process as process
+import rustfuzz.utils as utils
+from rustfuzz.distance import (
     DamerauLevenshtein,
     Hamming,
     Indel,
@@ -20,7 +20,7 @@ from rapidfuzz.distance import (
     Postfix,
     Prefix,
 )
-from rapidfuzz.distance._initialize import (
+from rustfuzz.distance._initialize import (
     Editop,
     Editops,
     MatchingBlock,
@@ -34,8 +34,8 @@ from rapidfuzz.distance._initialize import (
 # Meta
 # ---------------------------------------------------------------------------
 def test_version() -> None:
-    assert isinstance(rapidfuzz.__version__, str)
-    assert rapidfuzz.__version__ != ""
+    assert isinstance(rustfuzz.__version__, str)
+    assert rustfuzz.__version__ != ""
 
 
 # ---------------------------------------------------------------------------

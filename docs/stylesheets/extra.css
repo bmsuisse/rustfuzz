@@ -1,0 +1,39 @@
+/* ── rustfuzz docs — purple/green theme overrides ── */
+
+:root {
+  --md-primary-fg-color: #a855f7;
+  --md-accent-fg-color:  #22c55e;
+}
+
+/* Gradient header */
+.md-header {
+  background: linear-gradient(135deg, #1a0533 0%, #0f172a 100%);
+  box-shadow: 0 2px 16px rgba(168, 85, 247, 0.25);
+}
+
+/* Logo breathing animation */
+.md-header__button.md-logo img {
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(168,85,247,0.4)); }
+  50%       { transform: scale(1.06); filter: drop-shadow(0 0 10px rgba(34,197,94,0.5)); }
+}
+
+/* Nav tab active indicator */
+.md-tabs__link--active {
+  border-bottom: 2px solid #22c55e;
+}
+
+/* Code blocks */
+.md-typeset code {
+  background: #1a0533;
+  color: #c084fc;
+  border-radius: 4px;
+}
+
+/* Table header */
+.md-typeset table:not([class]) th {
+  background: linear-gradient(90deg, #1a0533, #0f172a);
+  color: #d8b4fe;
+}

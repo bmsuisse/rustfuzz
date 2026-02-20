@@ -1,44 +1,88 @@
-# RustFuzz 🦀✨
+<p align="center">
+  <img src="docs/logo.svg" alt="rustfuzz logo" width="320"/>
+</p>
 
-[![PyPI version](https://badge.fury.io/py/rustfuzz.svg)](https://badge.fury.io/py/rustfuzz)
-[![Documentation Status](https://readthedocs.org/projects/rustfuzz/badge/?version=latest)](https://rustfuzz.readthedocs.io/en/latest/?badge=latest)
-[![Tests](https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml/badge.svg)](https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <a href="https://badge.fury.io/py/rustfuzz"><img src="https://badge.fury.io/py/rustfuzz.svg" alt="PyPI version"/></a>
+  <a href="https://bmsuisse.github.io/rustfuzz/"><img src="https://img.shields.io/badge/docs-online-a855f7" alt="Docs"/></a>
+  <a href="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml"><img src="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml/badge.svg" alt="Tests"/></a>
+  <img src="https://img.shields.io/badge/License-MIT-22c55e.svg" alt="MIT License"/>
+  <img src="https://img.shields.io/badge/Rust-powered-a855f7?logo=rust" alt="Rust powered"/>
+</p>
 
-**RustFuzz** is a blazing fast string matching library for Python, implemented entirely in Rust. 🚀
+---
 
-It serves as a high-performance Rust port of the popular `rapidfuzz` library, bringing memory safety and incredible speed to your fuzzy string matching tasks. Whether you are dealing with deduplication, record linkage, or simple spell checking, RustFuzz is engineered to deliver results instantaneously.
+**rustfuzz** is a blazing-fast fuzzy string matching library for Python — implemented entirely in **Rust**. 🚀
+
+Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 
 ## Features
 
-- **Blazing Fast**: Leverages the power of Rust string slices and optimized algorithms to outperform native Python and C++ implementations.
-- **Pythonic API**: Designed to be a drop-in replacement for `rapidfuzz`, maintaining familiar interfaces so you don't have to rewrite your existing code.
-- **Memory Safe**: Say goodbye to segfaults and buffer overflows. The core logic is built on Rust's strong guarantees.
-- **Easy Installation**: Distributed as pre-compiled wheels for all major platforms. Just `pip install` and go! No Rust compiler needed.
+| | |
+|---|---|
+| ⚡ **Blazing Fast** | Core algorithms written in Rust — no Python overhead, no GIL bottlenecks |
+| 🧠 **Smart Matching** | Ratio, partial ratio, token sort/set, Levenshtein, Jaro-Winkler, and more |
+| 🔒 **Memory Safe** | Rust's borrow checker guarantees — no segfaults, no buffer overflows |
+| 🐍 **Pythonic API** | Clean, typed Python interface. Import and go |
+| 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.13 on all major platforms |
 
 ## Installation
 
-Install RustFuzz using `pip`:
-
 ```sh
 pip install rustfuzz
-```
-
-Or using `uv` for insanely fast resolution:
-
-```sh
+# or, with uv (recommended — much faster):
 uv pip install rustfuzz
 ```
 
 ## Quick Start
-```python
-import rustfuzz
 
-# Calculate string similarity ratio
-score = rustfuzz.fuzz_ratio("this is a test", "this is a test!")
-print(f"Similarity: {score}%")
+```python
+import rustfuzz.fuzz as fuzz
+from rustfuzz.distance import Levenshtein
+
+# Fuzzy ratio
+print(fuzz.ratio("hello world", "hello wrold"))          # ~96.0
+
+# Partial ratio (substring match)
+print(fuzz.partial_ratio("hello", "say hello world"))    # 100.0
+
+# Token-order-insensitive match
+print(fuzz.token_sort_ratio("fuzzy wuzzy", "wuzzy fuzzy")) # 100.0
+
+# Levenshtein distance
+print(Levenshtein.distance("kitten", "sitting"))         # 3
+
+# Normalised similarity [0.0 – 1.0]
+print(Levenshtein.normalized_similarity("kitten", "kitten")) # 1.0
 ```
+
+### Batch extraction
+
+```python
+from rustfuzz import process
+
+choices = ["New York", "New Orleans", "Newark", "Los Angeles"]
+print(process.extractOne("new york", choices))
+# ('New York', 100.0, 0)
+
+print(process.extract("new", choices, limit=3))
+# [('Newark', ...), ('New York', ...), ('New Orleans', ...)]
+```
+
+## Supported Algorithms
+
+| Module | Algorithms |
+|--------|------------|
+| `rustfuzz.fuzz` | `ratio`, `partial_ratio`, `token_sort_ratio`, `token_set_ratio`, `token_ratio`, `WRatio`, `QRatio`, `partial_token_*` |
+| `rustfuzz.distance` | `Levenshtein`, `Hamming`, `Indel`, `Jaro`, `JaroWinkler`, `LCSseq`, `OSA`, `DamerauLevenshtein`, `Prefix`, `Postfix` |
+| `rustfuzz.process` | `extract`, `extractOne`, `extract_iter`, `cdist` |
+| `rustfuzz.utils` | `default_process` |
 
 ## Documentation
 
-For a comprehensive guide on advanced usage, benchmarks, and interactive examples, please check out our [Cookbook Documentation 📚](https://bmsuisse.github.io/rustfuzz/).
+Full cookbook with interactive examples:
+👉 **[bmsuisse.github.io/rustfuzz](https://bmsuisse.github.io/rustfuzz/)**
+
+## License
+
+MIT © [BM Suisse](https://github.com/bmsuisse)
