@@ -2308,7 +2308,7 @@ wheels = [
 
 [[package]]
 name = "rustfuzz"
-version = "3.14.3"
+version = "0.1.0"
 source = { editable = "." }
 
 [package.optional-dependencies]
