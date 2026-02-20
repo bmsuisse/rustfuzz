@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="300" height="80" role="img" aria-label="rustfuzz logo">
+  <defs>
+    <!-- Purple-to-green gradient for the crab / accent -->
+    <linearGradient id="grad-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shimmer gradient that pans across the text -->
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#a855f7"/>
+      <stop offset="40%"  stop-color="#c084fc"/>
+      <stop offset="60%"  stop-color="#86efac"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+      <animateTransform attributeName="gradientTransform" type="translate"
+        from="-1 0" to="1 0" dur="3s" repeatCount="indefinite"/>
+    </linearGradient>
+
+    <!-- Clip to the text shape so the shimmer only shows inside letters -->
+    <clipPath id="text-clip">
+      <text x="78" y="52" font-family="'Segoe UI', 'Inter', system-ui, sans-serif"
+            font-size="38" font-weight="800" letter-spacing="-1">rustfuzz</text>
+    </clipPath>
+
+    <!-- Pulse animation for the crab body -->
+    <radialGradient id="body-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ── Crab icon ── -->
+  <g transform="translate(6, 8)" filter="url(#glow)">
+
+    <!-- Body -->
+    <ellipse cx="31" cy="36" rx="18" ry="14" fill="url(#grad-pg)">
+      <animate attributeName="ry" values="14;15.5;14" dur="2s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- Eyes -->
+    <circle cx="24" cy="28" r="4" fill="#1a0533">
+      <animate attributeName="cy" values="28;27;28" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="38" cy="28" r="4" fill="#1a0533">
+      <animate attributeName="cy" values="28;27;28" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="24.8" cy="27.2" r="1.5" fill="#d8b4fe"/>
+    <circle cx="38.8" cy="27.2" r="1.5" fill="#d8b4fe"/>
+
+    <!-- Claws left -->
+    <path d="M13 30 Q4 26 3 20 Q7 17 10 22 L13 28Z" fill="#a855f7">
+      <animateTransform attributeName="transform" type="rotate"
+        from="0 13 30" to="-8 13 30" dur="1.8s" repeatCount="indefinite"
+        values="0 13 30;-8 13 30;0 13 30"/>
+    </path>
+    <!-- Claw tip left -->
+    <circle cx="4" cy="19" r="3" fill="#22c55e">
+      <animate attributeName="r" values="3;3.6;3" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Claws right -->
+    <path d="M49 30 Q58 26 59 20 Q55 17 52 22 L49 28Z" fill="#a855f7">
+      <animateTransform attributeName="transform" type="rotate"
+        from="0 49 30" to="8 49 30" dur="1.8s" repeatCount="indefinite"
+        values="0 49 30;8 49 30;0 49 30"/>
+    </path>
+    <!-- Claw tip right -->
+    <circle cx="58" cy="19" r="3" fill="#22c55e">
+      <animate attributeName="r" values="3;3.6;3" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Legs left: 3 legs -->
+    <line x1="18" y1="40" x2="8"  y2="52" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 18 40;5 18 40;0 18 40" dur="1.4s" repeatCount="indefinite"/>
+    </line>
+    <line x1="16" y1="44" x2="5"  y2="54" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 16 44;-5 16 44;0 16 44" dur="1.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="18" y1="48" x2="10" y2="58" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 18 48;5 18 48;0 18 48" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+
+    <!-- Legs right: 3 legs -->
+    <line x1="44" y1="40" x2="54" y2="52" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 44 40;-5 44 40;0 44 40" dur="1.4s" repeatCount="indefinite"/>
+    </line>
+    <line x1="46" y1="44" x2="57" y2="54" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 46 44;5 46 44;0 46 44" dur="1.6s" repeatCount="indefinite"/>
+    </line>
+    <line x1="44" y1="48" x2="52" y2="58" stroke="#7e22ce" stroke-width="2.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate"
+        values="0 44 48;-5 44 48;0 44 48" dur="1.5s" repeatCount="indefinite"/>
+    </line>
+
+    <!-- Speed lines -->
+    <g opacity="0">
+      <line x1="62" y1="30" x2="72" y2="30" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="63" y1="35" x2="71" y2="35" stroke="#a855f7" stroke-width="1"   stroke-linecap="round"/>
+      <line x1="62" y1="40" x2="70" y2="40" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+      <animate attributeName="opacity" values="0;0.7;0" dur="2.5s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <!-- ── Text ── -->
+  <!-- Background fill (dark, so shimmer pops) -->
+  <rect x="78" y="16" width="215" height="46" fill="none"/>
+
+  <!-- Shimmering fill clipped to letter shapes -->
+  <rect x="0" y="0" width="600" height="80" fill="url(#shimmer)" clip-path="url(#text-clip)"/>
+
+  <!-- Crisp text outline (slight shadow depth) -->
+  <text x="80" y="53" font-family="'Segoe UI','Inter',system-ui,sans-serif"
+        font-size="38" font-weight="800" letter-spacing="-1"
+        fill="none" stroke="#0f0319" stroke-width="4" stroke-linejoin="round" opacity="0.5">rustfuzz</text>
+
+  <!-- Main text -->
+  <text x="78" y="52" font-family="'Segoe UI','Inter',system-ui,sans-serif"
+        font-size="38" font-weight="800" letter-spacing="-1"
+        fill="url(#shimmer)">rustfuzz</text>
+
+  <!-- Tagline -->
+  <text x="79" y="68" font-family="'Segoe UI','Inter',system-ui,sans-serif"
+        font-size="10" font-weight="500" letter-spacing="2.5"
+        fill="#a855f7" opacity="0.75">BLAZING FAST · PURE RUST</text>
+</svg>

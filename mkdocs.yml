@@ -1,6 +1,16 @@
-site_name: rustfuzz Documentation
+site_name: rustfuzz
+site_url: https://bmsuisse.github.io/rustfuzz/
+repo_url: https://github.com/bmsuisse/rustfuzz
+repo_name: bmsuisse/rustfuzz
+
 theme:
   name: material
+  logo: logo.svg
+  favicon: logo.svg
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: green
   features:
     - navigation.tabs
     - navigation.indexes
@@ -8,6 +18,10 @@ theme:
     - search.suggest
     - search.highlight
     - toc.integrate
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
 
 plugins:
   - search

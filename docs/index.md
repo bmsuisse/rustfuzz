@@ -1,21 +1,57 @@
-# Welcome to RustFuzz 🦀✨
+<p align="center">
+  <img src="logo.svg" alt="rustfuzz" width="320"/>
+</p>
 
-`rustfuzz` is a blazing fast string matching library implemented entirely in Rust, built specifically for integration with Python. 
+<p align="center">
+  <em>Blazing-fast fuzzy string matching — implemented entirely in Rust.</em>
+</p>
 
-By porting the core algorithms of `rapidfuzz` to Rust, we provide an implementation that achieves incredible performance speedups while maintaining a familiar, easy-to-use Python API. It's the perfect choice for heavy-duty deduplication, record linkage, and natural language processing tasks.
+---
 
-## Why RustFuzz?
+## Why rustfuzz?
 
-- **Uncompromising Speed**: Core matching algorithms are optimized in Rust, providing a significant performance boost over traditional Python implementations.
-- **Memory Safety**: Backed by Rust's strict compiler guarantees, ensuring your applications run reliably without unexpected memory errors.
-- **Drop-in Compatibility**: Designed to integrate seamlessly into your current data pipelines with minimal to no code changes.
+| | |
+|---|---|
+| ⚡ **Speed** | Rust core — significantly faster than Python or C++ string matching |
+| 🔒 **Safety** | No segfaults, no buffer overflows — Rust's memory model enforces correctness |
+| 🐍 **Simple API** | Drop-in typed Python interface — `import rustfuzz.fuzz as fuzz` and go |
+| 📦 **No build step** | Pre-compiled wheels for Python 3.10–3.13 on Linux, macOS, and Windows |
+
+## Installation
+
+```sh
+pip install rustfuzz
+# or with uv:
+uv pip install rustfuzz
+```
+
+## Quick Example
+
+```python
+import rustfuzz.fuzz as fuzz
+from rustfuzz.distance import Levenshtein, JaroWinkler
+from rustfuzz import process
+
+# Similarity ratios
+fuzz.ratio("hello world", "hello wrold")          # ~96.0
+fuzz.partial_ratio("hello", "say hello world")    # 100.0
+fuzz.token_sort_ratio("fuzzy wuzzy", "wuzzy fuzzy") # 100.0
+
+# Edit distance
+Levenshtein.distance("kitten", "sitting")         # 3
+JaroWinkler.similarity("martha", "marhta")        # ~0.96
+
+# Batch matching
+process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
+# ('New York', 100.0, 0)
+```
 
 ## Cookbook Recipes 🧑‍🍳
 
-Learn how to leverage `rustfuzz` effectively through our interactive Jupyter Notebook cookbooks:
+| Recipe | Description |
+|--------|-------------|
+| [Introduction](cookbook/01_introduction.ipynb) | Get started — basic matching and terminology |
+| [Advanced Matching](cookbook/02_advanced_matching.ipynb) | Partial ratios, token sorts, score cutoffs |
+| [Benchmarks](cookbook/03_benchmarks.ipynb) | Speed comparisons vs other libraries |
 
-1. [**Introduction to RustFuzz**](cookbook/01_introduction.ipynb): Get started with basic matching functions and terminology.
-2. [**Advanced Matching Ratios**](cookbook/02_advanced_matching.ipynb): Dive deep into partial ratios, token sorts, and set ratios.
-3. [**Performance Benchmarks**](cookbook/03_benchmarks.ipynb): See the blazing speed of RustFuzz visualized and compared against other libraries.
-
-Start exploring the recipes from the navigation menu on the left!
+Start exploring from the navigation menu on the left!
