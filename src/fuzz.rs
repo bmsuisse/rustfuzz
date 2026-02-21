@@ -143,6 +143,14 @@ fn partial_ratio_ordered(shorter: &[u64], longer: &[u64]) -> f64 {
 }
 
 fn partial_ratio_vecs(av: &Seq<'_>, bv: &Seq<'_>) -> f64 {
+    // ASCII fast path — bypass Vec<u64> entirely
+    if let (Seq::Ascii(a), Seq::Ascii(b)) = (av, bv) {
+        let (needle, haystack) = if a.len() <= b.len() { (*a, *b) } else { (*b, *a) };
+        if needle.len() <= 64 {
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+        }
+        // Large needle — fall through to Vec<u64> path
+    }
     if av.len() <= bv.len() {
         let mut s = partial_ratio_ordered(&av.to_u64(), &bv.to_u64());
         if s != 100.0 && av.len() == bv.len() {
@@ -156,6 +164,16 @@ fn partial_ratio_vecs(av: &Seq<'_>, bv: &Seq<'_>) -> f64 {
 }
 
 fn partial_ratio_str(s1: &str, s2: &str) -> f64 {
+    // ASCII fast path: BitPal sliding window, no Vec<u64> allocation
+    if s1.is_ascii() && s2.is_ascii() {
+        let b1 = s1.as_bytes();
+        let b2 = s2.as_bytes();
+        // Guaranteed: needle <= 64 for typical token strings
+        let (needle, haystack) = if b1.len() <= b2.len() { (b1, b2) } else { (b2, b1) };
+        if needle.len() <= 64 {
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+        }
+    }
     let sv1: Vec<u64> = s1.chars().map(|c| c as u64).collect();
     let sv2: Vec<u64> = s2.chars().map(|c| c as u64).collect();
     if sv1.len() <= sv2.len() { partial_ratio_ordered(&sv1, &sv2) } else { partial_ratio_ordered(&sv2, &sv1) }
