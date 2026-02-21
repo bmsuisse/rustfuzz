@@ -94,7 +94,7 @@ fn build_token_set_strings_borrow(t0: &str, diff: &[&str]) -> String {
     }
 }
 
-/// Returns (token_sort_score, token_set_score).
+/// Returns (token_sort_score, token_set_score). Uncutoff variant.
 fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
     let tsr = indel_score_100(&tokens_sort_key(s1), &tokens_sort_key(s2));
     let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
@@ -110,6 +110,99 @@ fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
     };
     (tsr, tset)
 }
+
+/// Score-cutoff-aware token_sort_and_set: mirrors rf's token_ratio which accepts
+/// a score_cutoff. Skips indel_score_100 calls that can't possibly beat cutoff.
+fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64) -> (f64, f64) {
+    let s1k = tokens_sort_key(s1);
+    let s2k = tokens_sort_key(s2);
+    // Pass cutoff so indel_normalized_sim can short-circuit
+    let av = Seq::Ascii(s1k.as_bytes());
+    let bv = Seq::Ascii(s2k.as_bytes());
+    let tsr = if s1k.is_ascii() && s2k.is_ascii() {
+        indel_normalized_sim(&av, &bv, Some(score_cutoff)) * 100.0
+    } else {
+        indel_score_100(&s1k, &s2k)
+    };
+    if tsr == 100.0 { return (tsr, 100.0); }
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    let t0 = join_tokens(&intersect);
+    let t1 = build_token_set_strings_borrow(&t0, &diff1);
+    let t2 = build_token_set_strings_borrow(&t0, &diff2);
+    let cutoff = score_cutoff.max(tsr);
+    let tset = if intersect.is_empty() {
+        let av = Seq::Ascii(t1.as_bytes());
+        let bv = Seq::Ascii(t2.as_bytes());
+        if t1.is_ascii() && t2.is_ascii() {
+            indel_normalized_sim(&av, &bv, Some(cutoff)) * 100.0
+        } else {
+            indel_score_100(&t1, &t2)
+        }
+    } else {
+        // With shared intersection tokens are always ASCII
+        let r01 = indel_score_100(&t0, &t1);
+        if r01 == 100.0 { return (tsr, 100.0); }
+        let r02 = indel_score_100(&t0, &t2);
+        if r02 == 100.0 { return (tsr, 100.0); }
+        let r12 = indel_score_100(&t1, &t2);
+        r01.max(r02).max(r12)
+    };
+    (tsr, tset)
+}
+
+/// partial_ratio_vecs with score_cutoff — enables early exit in BitPal inner loop
+fn partial_ratio_vecs_sc(av: &Seq<'_>, bv: &Seq<'_>, score_cutoff: f64) -> f64 {
+    // ASCII fast path — cutoff-aware
+    if let (Seq::Ascii(a), Seq::Ascii(b)) = (av, bv) {
+        let (needle, haystack) = if a.len() <= b.len() { (*a, *b) } else { (*b, *a) };
+        if needle.len() <= 64 {
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+        }
+    }
+    // Fallback: Vec<u64> path without cutoff (cutoff would require per-window tracking)
+    partial_ratio_vecs(av, bv)
+}
+
+/// partial_token_ratio with score_cutoff — mirrors rf's partial_token_ratio:
+/// avoids computing the second partial_ratio if sorted tokens equal diff tokens,
+/// and propagates score_cutoff between the two partial_ratio calls.
+fn partial_token_ratio_sc(s1: &str, s2: &str, score_cutoff: f64) -> f64 {
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    // Early exit: common word found
+    if !intersect.is_empty() { return 100.0; }
+    if diff1.is_empty() && diff2.is_empty() { return 0.0; }
+
+    let s1_sorted: Vec<&str> = {
+        let mut t: Vec<&str> = s1.split_whitespace().collect();
+        t.sort_unstable(); t.dedup(); t
+    };
+    let s2_sorted: Vec<&str> = {
+        let mut t: Vec<&str> = s2.split_whitespace().collect();
+        t.sort_unstable(); t.dedup(); t
+    };
+
+    let s1j = join_tokens(&s1_sorted);
+    let s2j = join_tokens(&s2_sorted);
+    let result = partial_ratio_str(&s1j, &s2j);
+    if result == 100.0 { return 100.0; }
+
+    // Only compute second call if diffs differ from sorted (rf optimization)
+    let same1 = s1_sorted.len() == diff1.len();
+    let same2 = s2_sorted.len() == diff2.len();
+    if same1 && same2 { return result; }
+
+    let sc2 = score_cutoff.max(result);
+    let d1j = join_tokens(&diff1);
+    let d2j = join_tokens(&diff2);
+    result.max(partial_ratio_str_cutoff(&d1j, &d2j, sc2))
+}
+
+/// partial_ratio_str with score_cutoff threshold — returns 0 if result < cutoff
+fn partial_ratio_str_cutoff(s1: &str, s2: &str, score_cutoff: f64) -> f64 {
+    let result = partial_ratio_str(s1, s2);
+    if result < score_cutoff { 0.0 } else { result }
+}
+
 
 fn partial_ratio_short_long(shorter: &[u64], longer: &[u64]) -> (f64, usize, usize) {
     let s_len = shorter.len();
@@ -441,27 +534,45 @@ pub fn fuzz_wratio(
     let bv = extract_single(&b_obj)?;
     if av.is_empty() || bv.is_empty() { return Ok(0.0); }
 
-    let unbase_scale: f64 = 0.95;
-    let sc = score_cutoff.unwrap_or(0.0);
-    let base = indel_normalized_sim(&av, &bv, score_cutoff) * 100.0;
-    let len_ratio = av.len().max(bv.len()) as f64 / av.len().min(bv.len()) as f64;
-    let s1_str = av.to_string_lossy();
-    let s2_str = bv.to_string_lossy();
+    const UNBASE_SCALE: f64 = 0.95;
+    let mut sc = score_cutoff.unwrap_or(0.0);
 
-    let end_ratio = if len_ratio < 1.5 {
-        let (tsr, tset) = token_sort_and_set(&s1_str, &s2_str);
-        base.max(tsr.max(tset) * unbase_scale)
+    let len_ratio = av.len().max(bv.len()) as f64 / av.len().min(bv.len()) as f64;
+
+    // Stage 1: base ratio — always computed first
+    let mut end_ratio = indel_normalized_sim(&av, &bv, score_cutoff) * 100.0;
+
+    if end_ratio == 100.0 { return Ok(end_ratio); }
+
+    if len_ratio < 1.5 {
+        // Short strings: token_ratio can beat base — propagate cutoff
+        let s1_str = av.to_string_lossy();
+        let s2_str = bv.to_string_lossy();
+        sc = sc.max(end_ratio) / UNBASE_SCALE;
+        let (tsr, tset) = token_sort_and_set_cutoff(&s1_str, &s2_str, sc);
+        let tr = tsr.max(tset);
+        if tr > 0.0 {
+            end_ratio = end_ratio.max(tr * UNBASE_SCALE);
+        }
     } else {
         let partial_scale: f64 = if len_ratio <= 8.0 { 0.9 } else { 0.6 };
-        let pr = partial_ratio_vecs(&av, &bv);
-        let mut er = base.max(pr * partial_scale);
-        let ptsr = partial_ratio_str(&tokens_sort_key(&s1_str), &tokens_sort_key(&s2_str));
-        let ptset = partial_token_set_score(&s1_str, &s2_str);
-        er = er.max(ptsr.max(ptset) * unbase_scale * partial_scale);
-        er
-    };
+        let s1_str = av.to_string_lossy();
+        let s2_str = bv.to_string_lossy();
 
-    Ok(score_cutoff_check(end_ratio, Some(sc)))
+        // Stage 2: partial_ratio — propagate cutoff so it can skip
+        sc = sc.max(end_ratio) / partial_scale;
+        let pr = partial_ratio_vecs_sc(&av, &bv, sc);
+        end_ratio = end_ratio.max(pr * partial_scale);
+
+        if end_ratio == 100.0 { return Ok(end_ratio); }
+
+        // Stage 3: partial_token_ratio — propagate cutoff again
+        sc = sc.max(end_ratio) / UNBASE_SCALE;
+        let ptr = partial_token_ratio_sc(&s1_str, &s2_str, sc);
+        end_ratio = end_ratio.max(ptr * UNBASE_SCALE * partial_scale);
+    }
+
+    Ok(score_cutoff_check(end_ratio, score_cutoff))
 }
 
 #[pyfunction]
