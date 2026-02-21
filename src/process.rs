@@ -2,6 +2,7 @@
 // Batch processing utilities using native Rust implementations.
 
 use pyo3::prelude::*;
+use rayon::prelude::*;
 
 use crate::fuzz::{
     fuzz_ratio, fuzz_qratio, fuzz_wratio, fuzz_partial_ratio,
@@ -111,8 +112,58 @@ pub fn extract(
         query.clone()
     };
 
+
+
+
+
+    // Pre-calculate L1 Character bounds for early rejection natively
+    let mut q_hist = [0i32; 256];
+    let mut q_is_ascii = false;
+    let mut q_len = 0;
+    
+    if let Ok(q_seq) = crate::types::extract_single(&processed_query) {
+        if let crate::types::Seq::Ascii(slice) = q_seq {
+            q_is_ascii = true;
+            q_len = slice.len();
+            for &c in slice {
+                q_hist[c as usize] += 1;
+            }
+        }
+    }
     for (idx, choice_res) in iter.enumerate() {
+
         let choice = choice_res?;
+
+        // Fast L1 Bounds Rejection (Only for ASCII matching)
+        if q_is_ascii && score_cutoff.is_some() {
+            let cutoff = score_cutoff.unwrap();
+            if let Ok(crate::types::Seq::Ascii(slice)) = crate::types::extract_single(&choice) {
+                // Determine `max_dist` dynamically from `cutoff` assuming Ratio
+                // length sum
+                let lensum = q_len + slice.len();
+                if lensum > 0 {
+                    let mut max_dist = lensum as f64 * (1.0 - cutoff / 100.0);
+                    if max_dist < 0.0 { max_dist = 0.0; }
+                    let allowed_edits = max_dist.floor() as usize;
+
+                    // Compute L1 diff
+                    let mut hist_diff = 0;
+                    let mut c_hist = [0i32; 256];
+                    for &c in slice {
+                        c_hist[c as usize] += 1;
+                    }
+                    for i in 0..256 {
+                        hist_diff += (q_hist[i] - c_hist[i]).abs();
+                    }
+                    
+                    // If the character disparity is strictly larger than total errors allowed,
+                    // we can mathematically skip this string completely!
+                    if (hist_diff as usize) > allowed_edits {
+                        continue;
+                    }
+                }
+            }
+        }
         
         let score = execute_scorer(
             py,
@@ -177,4 +228,6 @@ pub fn extract_iter(
 ) -> PyResult<Vec<(PyObject, f64, usize)>> {
     extract(py, query, choices, scorer_name, scorer_obj, processor, None, score_cutoff)
 }
+
+
 

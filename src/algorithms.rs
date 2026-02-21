@@ -492,6 +492,39 @@ fn levenshtein_editops_multiword<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize
 
 
 /// LCS length using bit-parallel algorithm (Crochemore et al.)
+pub fn lcs_length_64_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
+    let m = s1.len();
+    let n = s2.len();
+    let mut pm = PatternMask64::new();
+    for (i, &c) in s1.iter().enumerate() {
+        pm.insert(c, 1u64 << i);
+    }
+    let mut v = !0u64;
+    let mask = if m == 64 { !0u64 } else { (1u64 << m) - 1 };
+    
+    // Compute required LCS to stay within max_dist
+    let required_lcs = max_dist.map(|d| {
+        let diff = m + n;
+        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+    });
+
+    for (i, &c) in s2.iter().enumerate() {
+        let x = pm.get(c);
+        let u = v & x;
+        v = (v.wrapping_add(u)) | (v & !x);
+        
+        if let Some(req) = required_lcs {
+            let current_lcs = (!v & mask).count_ones() as usize;
+            let remaining = n - 1 - i;
+            if current_lcs + remaining < req {
+                // Cannot possibly reach the required LCS
+                return 0; // Return 0 LCS so the distance formula evaluates > max_dist
+            }
+        }
+    }
+    (!v & mask).count_ones() as usize
+}
+
 pub fn lcs_length_64<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let mut pm = PatternMask64::new();
     for (i, &c) in s1.iter().enumerate() {
@@ -509,6 +542,59 @@ pub fn lcs_length_64<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
 }
 
 /// Multiword bit-parallel LCS for m > 64
+fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
+    let m = s1.len();
+    let n = s2.len();
+    let words = (m + 63) / 64;
+    let mut pm = PatternMaskMulti::new(words);
+    for (i, &c) in s1.iter().enumerate() {
+        pm.set_bit(c, i / 64, i % 64);
+    }
+
+    let mut v = vec![!0u64; words];
+    let last_bits = if m % 64 == 0 { 64 } else { m % 64 };
+    let mask = if last_bits == 64 { !0u64 } else { (1u64 << last_bits) - 1 };
+
+    let required_lcs = max_dist.map(|d| {
+        let diff = m + n;
+        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+    });
+
+    for (i, &c) in s2.iter().enumerate() {
+        let pm_c = pm.get(c);
+        let mut carry = 0u64;
+        let mut next_v = vec![0u64; words];
+        for w in 0..words {
+            let x = pm_c[w];
+            let u = v[w] & x;
+            let (sum1, c1) = v[w].overflowing_add(u);
+            let (sum2, c2) = sum1.overflowing_add(carry);
+            carry = (c1 as u64) | (c2 as u64);
+            next_v[w] = sum2 | (v[w] & !x);
+        }
+        v = next_v;
+
+        if let Some(req) = required_lcs {
+            let mut current_lcs = 0;
+            for w in 0..words - 1 {
+                current_lcs += (!v[w]).count_ones() as usize;
+            }
+            current_lcs += (!v[words - 1] & mask).count_ones() as usize;
+            let remaining = n - 1 - i;
+            if current_lcs + remaining < req {
+                return 0; // Early abort
+            }
+        }
+    }
+    
+    let mut zeros = 0;
+    for w in 0..words - 1 {
+        zeros += (!v[w]).count_ones() as usize;
+    }
+    zeros += (!v[words - 1] & mask).count_ones() as usize;
+    zeros
+}
+
 fn lcs_length_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let m = s1.len();
     let words = (m + 63) / 64;
@@ -543,26 +629,89 @@ fn lcs_length_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     zeros
 }
 
-pub fn lcs_length<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
+pub fn lcs_length<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
     if s1.is_empty() || s2.is_empty() {
         return 0;
     }
     if s1.len() <= 64 {
-        lcs_length_64(s1, s2)
+        lcs_length_64_bounded(s1, s2, max_dist)
     } else {
-        lcs_length_multiword(s1, s2)
+        lcs_length_multiword_bounded(s1, s2, max_dist)
     }
 }
 
-pub fn indel_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
+pub fn indel_distance<T: HashableChar>(s1: &[T], s2: &[T], score_cutoff: Option<usize>) -> usize {
+    // If the minimum possible distance (length difference) is already greater than cutoff, abort.
+    let len_diff = s1.len().abs_diff(s2.len());
+    if let Some(cutoff) = score_cutoff {
+        if len_diff > cutoff {
+            return usize::MAX;
+        }
+        
+        // Fast Histogram L1 Pre-Filter
+        // Minimum edits = sum(abs(count(s1, c) - count(s2, c)))
+        // We only do this fast path if T happens to be u8 (ASCII) which we can cast via Any trick,
+        // OR we can just use trait `Into<u32>` to index a 256-bin array safely.
+        let mut hist1 = [0i32; 256];
+        let mut hist2 = [0i32; 256];
+        let mut can_use_hist = true;
+        
+        for &c in s1 {
+            if let Some(u) = c.as_usize() {
+                if u < 256 {
+                    hist1[u] += 1;
+                } else {
+                    can_use_hist = false;
+                    break;
+                }
+            } else {
+                can_use_hist = false;
+                break;
+            }
+        }
+        if can_use_hist {
+            for &c in s2 {
+                if let Some(u) = c.as_usize() {
+                    if u < 256 {
+                        hist2[u] += 1;
+                    } else {
+                        can_use_hist = false;
+                        break;
+                    }
+                } else {
+                    can_use_hist = false;
+                    break;
+                }
+            }
+        }
+        
+        if can_use_hist {
+            let mut l1_dist = 0;
+            for i in 0..256 {
+                l1_dist += (hist1[i] - hist2[i]).abs();
+            }
+            if (l1_dist as usize) > cutoff {
+                return usize::MAX; // Statistically impossible to meet threshold
+            }
+        }
+    }
+
     let pfx = common_prefix(s1, s2);
     let s1 = &s1[pfx..];
     let s2 = &s2[pfx..];
     let sfx = common_suffix(s1, s2);
     let s1 = &s1[..s1.len() - sfx];
     let s2 = &s2[..s2.len() - sfx];
-    let lcs = lcs_length(s1, s2);
-    s1.len() + s2.len() - 2 * lcs
+    let lcs = lcs_length(s1, s2, score_cutoff);
+    let dist = s1.len() + s2.len() - 2 * lcs;
+    
+    // Validate final distance against the cutoff
+    if let Some(cutoff) = score_cutoff {
+        if dist > cutoff {
+            return usize::MAX;
+        }
+    }
+    dist
 }
 
 /// Build indel editops via LCS backtrack
@@ -768,18 +917,18 @@ pub fn jaro_winkler<T: HashableChar>(s1: &[T], s2: &[T], prefix_weight: f64) -> 
 // LCSseq
 // ===========================================================================
 
-pub fn lcs_seq_similarity<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
+pub fn lcs_seq_similarity<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
     let pfx = common_prefix(s1, s2);
     let s1t = &s1[pfx..];
     let s2t = &s2[pfx..];
     let sfx = common_suffix(s1t, s2t);
     let s1t = &s1t[..s1t.len() - sfx];
     let s2t = &s2t[..s2t.len() - sfx];
-    pfx + sfx + lcs_length(s1t, s2t)
+    pfx + sfx + lcs_length(s1t, s2t, max_dist)
 }
 
-pub fn lcs_seq_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
-    let sim = lcs_seq_similarity(s1, s2);
+pub fn lcs_seq_distance<T: HashableChar>(s1: &[T], s2: &[T], score_cutoff: Option<usize>) -> usize {
+    let sim = lcs_seq_similarity(s1, s2, score_cutoff);
     s1.len().max(s2.len()) - sim
 }
 

@@ -429,7 +429,9 @@ pub fn indel_distance(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
+    let max_v = av.len() + bv.len();
+    let max_dist = score_cutoff;
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv, max_dist);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -450,7 +452,9 @@ pub fn indel_similarity(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
+    let max_v = av.len() + bv.len();
+    let max_dist = score_cutoff;
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv, max_dist);
     let max_v = av.len() + bv.len();
     let sim = max_v.saturating_sub(dist);
     Ok(sim)
@@ -473,7 +477,9 @@ pub fn indel_normalized_distance(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
+    let max_v = av.len() + bv.len();
+    let max_dist = score_cutoff.map(|c| (max_v as f64 * c).floor() as usize);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv, max_dist);
     let max_v = av.len() + bv.len();
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -496,7 +502,9 @@ pub fn indel_normalized_similarity(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
+    let max_v = av.len() + bv.len();
+    let max_dist = score_cutoff.map(|c| (max_v as f64 * c).floor() as usize);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv, max_dist);
     let max_v = av.len() + bv.len();
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -723,7 +731,7 @@ pub fn lcs_seq_distance(
     let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
     let a = extract_single(&a_obj)?;
     let b = extract_single(&b_obj)?;
-    let dist = dispatch_metric!(alg::lcs_seq_distance, &a, &b);
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &a, &b, None);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -742,7 +750,7 @@ pub fn lcs_seq_similarity(
     let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
     let a = extract_single(&a_obj)?;
     let b = extract_single(&b_obj)?;
-    Ok(dispatch_metric!(alg::lcs_seq_similarity, &a, &b))
+    Ok(dispatch_metric!(alg::lcs_seq_similarity, &a, &b, None))
 }
 
 #[pyfunction]
@@ -762,7 +770,9 @@ pub fn lcs_seq_normalized_distance(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv);
+    let max_v = av.len().max(bv.len());
+    let max_dist = score_cutoff.map(|c| (max_v as f64 * c).floor() as usize);
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv, max_dist);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -785,7 +795,9 @@ pub fn lcs_seq_normalized_similarity(
     let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv);
+    let max_v = av.len().max(bv.len());
+    let max_dist = score_cutoff.map(|c| (max_v as f64 * c).floor() as usize);
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv, max_dist);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))

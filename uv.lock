@@ -2398,13 +2398,26 @@ wheels = [
 
 [[package]]
 name = "rustfuzz"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 
 [package.optional-dependencies]
 all = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "hypothesis" },
+    { name = "maturin" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pyright" },
+    { name = "pytest" },
+    { name = "pytest-benchmark" },
+    { name = "rapidfuzz" },
+    { name = "ruff" },
 ]
 docs = [
     { name = "jupyter" },
@@ -2415,37 +2428,27 @@ docs = [
     { name = "plotly" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "hypothesis" },
-    { name = "maturin" },
-    { name = "pyright" },
-    { name = "pytest" },
-    { name = "pytest-benchmark" },
-    { name = "rapidfuzz" },
-    { name = "ruff" },
-]
-
 [package.metadata]
-requires-dist = [
-    { name = "jupyter", marker = "extra == 'docs'" },
-    { name = "mkdocs-jupyter", marker = "extra == 'docs'" },
-    { name = "mkdocs-material", marker = "extra == 'docs'" },
-    { name = "numpy", marker = "extra == 'all'" },
-    { name = "pandas", marker = "extra == 'docs'" },
-    { name = "plotly", marker = "extra == 'docs'" },
-]
-provides-extras = ["all", "docs"]
+requires-dist = [{ name = "numpy", marker = "extra == 'all'" }]
+provides-extras = ["all"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "hypothesis", specifier = ">=6.0" },
     { name = "maturin", specifier = ">=1.9,<2" },
+    { name = "numpy" },
     { name = "pyright", specifier = ">=1.1" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "pytest-benchmark", specifier = ">=5.2.3" },
     { name = "rapidfuzz", specifier = ">=3.0.0" },
     { name = "ruff", specifier = ">=0.9" },
+]
+docs = [
+    { name = "jupyter" },
+    { name = "mkdocs-jupyter" },
+    { name = "mkdocs-material" },
+    { name = "pandas" },
+    { name = "plotly" },
 ]
 
 [[package]]

@@ -7,19 +7,37 @@ use pyo3::prelude::*;
 
 use crate::algorithms as alg;
 use crate::distance::initialize::ScoreAlignment;
-use crate::types::{get_processed_args, extract_single, Seq, is_none};
+use crate::types::{get_processed_args, extract_single, is_none};
 use crate::dispatch_metric;
 
 // ---------------------------------------------------------------------------
 // Internal: normalized indel similarity (same as fuzz.ratio / 100)
 // ---------------------------------------------------------------------------
 
-fn indel_normalized_sim(av: &crate::types::Seq<'_>, bv: &crate::types::Seq<'_>) -> f64 {
+fn indel_normalized_sim(av: &crate::types::Seq<'_>, bv: &crate::types::Seq<'_>, score_cutoff: Option<f64>) -> f64 {
     let lensum = av.len() + bv.len();
     if lensum == 0 {
         return 1.0;
     }
-    let dist = dispatch_metric!(alg::indel_distance, av, bv);
+    
+    let max_dist = score_cutoff.map(|mut c| {
+        // e.g. cutoff = 90.0
+        // max_dist = lensum - (cutoff / 100.0 * lensum)
+        if c > 100.0 { c = 100.0; }
+        let allowed = lensum as f64 * (1.0 - c / 100.0);
+        // We can safely floor or ceil depending on bounds.
+        // We floor it (or cast to usize directly which truncates).
+        allowed.floor() as usize
+    });
+    
+    // dispatch_metric passes exactly args. 
+    // We updated `inject_bounds.py` to allow passing score_cutoff to `indel_distance`.
+    let dist = dispatch_metric!(alg::indel_distance, av, bv, max_dist);
+    
+    if dist == usize::MAX {
+        return 0.0; // Early exit cutoff fallback
+    }
+    
     1.0 - (dist as f64 / lensum as f64)
 }
 
@@ -78,7 +96,7 @@ fn str_to_i64_vec(s: &str) -> Vec<u64> {
 fn indel_score_100(s1: &str, s2: &str) -> f64 {
     let av = str_to_i64_vec(s1);
     let bv = str_to_i64_vec(s2);
-    norm_sim_to_score(indel_normalized_sim(&crate::types::Seq::U64(av), &crate::types::Seq::U64(bv)))
+    norm_sim_to_score(indel_normalized_sim(&crate::types::Seq::U64(av), &crate::types::Seq::U64(bv), None))
 }
 
 // ===========================================================================
@@ -100,7 +118,7 @@ pub fn fuzz_ratio(
     let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
     let av = extract_single(&a_obj)?;
     let bv = extract_single(&b_obj)?;
-    let score = norm_sim_to_score(indel_normalized_sim(&av, &bv));
+    let score = norm_sim_to_score(indel_normalized_sim(&av, &bv, score_cutoff));
     Ok(score_cutoff_check(score, score_cutoff))
 }
 
@@ -129,7 +147,7 @@ fn partial_ratio_short_long(shorter: &[u64], longer: &[u64]) -> (f64, usize, usi
     let mut best_end = 0usize;
 
     let score_fn = |shorter: &[u64], window: &[u64]| -> f64 {
-        let dist = alg::indel_distance(shorter, window);
+        let dist = alg::indel_distance(shorter, window, None);
         let lensum = shorter.len() + window.len();
         if lensum == 0 { 100.0 } else { (1.0 - dist as f64 / lensum as f64) * 100.0 }
     };
@@ -570,7 +588,7 @@ pub fn fuzz_wratio(
     let sc = score_cutoff.unwrap_or(0.0);
 
     // basic ratio
-    let base = norm_sim_to_score(indel_normalized_sim(&av, &bv));
+    let base = norm_sim_to_score(indel_normalized_sim(&av, &bv, score_cutoff));
 
     let len1 = av.len();
     let len2 = bv.len();
@@ -657,6 +675,20 @@ pub fn fuzz_qratio(
         return Ok(0.0);
     }
 
-    let score = norm_sim_to_score(indel_normalized_sim(&av, &bv));
+    let score = norm_sim_to_score(indel_normalized_sim(&av, &bv, score_cutoff));
     Ok(score_cutoff_check(score, score_cutoff))
+}
+
+// Expose the raw execution block
+pub fn execute_scorer_raw(
+    stype: crate::process::ScorerType,
+    s1: &crate::types::Seq<'_>,
+    s2: &crate::types::Seq<'_>,
+    score_cutoff: Option<f64>,
+) -> f64 {
+    use crate::process::ScorerType::*;
+    match stype {
+        Ratio => norm_sim_to_score(score_cutoff_check(indel_normalized_sim(s1, s2, score_cutoff), score_cutoff)),
+        _ => 0.0 // Placeholder
+    }
 }
