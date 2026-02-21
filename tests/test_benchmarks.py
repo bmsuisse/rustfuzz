@@ -13,6 +13,20 @@ A 10% regression on any benchmark will fail the run.
 from __future__ import annotations
 
 import pytest
+import rapidfuzz.fuzz as rf_fuzz
+from rapidfuzz import process as rf_process
+from rapidfuzz.distance import (
+    OSA as rf_OSA,
+    DamerauLevenshtein as rf_DamerauLevenshtein,
+    Hamming as rf_Hamming,
+    Indel as rf_Indel,
+    Jaro as rf_Jaro,
+    JaroWinkler as rf_JaroWinkler,
+    LCSseq as rf_LCSseq,
+    Levenshtein as rf_Levenshtein,
+    Postfix as rf_Postfix,
+    Prefix as rf_Prefix,
+)
 
 import rustfuzz.fuzz as fuzz
 from rustfuzz import process
@@ -66,37 +80,64 @@ CHOICES = [
 def test_fuzz_ratio_short(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.ratio, SHORT_A, SHORT_B)
 
+def test_rf_fuzz_ratio_short(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.ratio, SHORT_A, SHORT_B)
+
 
 def test_fuzz_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.ratio, MEDIUM_A, MEDIUM_B)
+
+def test_rf_fuzz_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.ratio, MEDIUM_A, MEDIUM_B)
 
 
 def test_fuzz_ratio_long(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.ratio, LONG_A, LONG_B)
 
+def test_rf_fuzz_ratio_long(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.ratio, LONG_A, LONG_B)
+
 
 def test_fuzz_partial_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.partial_ratio, MEDIUM_A, MEDIUM_B)
+
+def test_rf_fuzz_partial_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.partial_ratio, MEDIUM_A, MEDIUM_B)
 
 
 def test_fuzz_token_sort_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.token_sort_ratio, MEDIUM_A, MEDIUM_B)
 
+def test_rf_fuzz_token_sort_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.token_sort_ratio, MEDIUM_A, MEDIUM_B)
+
 
 def test_fuzz_token_set_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.token_set_ratio, MEDIUM_A, MEDIUM_B)
+
+def test_rf_fuzz_token_set_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.token_set_ratio, MEDIUM_A, MEDIUM_B)
 
 
 def test_fuzz_token_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.token_ratio, MEDIUM_A, MEDIUM_B)
 
+def test_rf_fuzz_token_ratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.token_ratio, MEDIUM_A, MEDIUM_B)
+
 
 def test_fuzz_wratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.WRatio, MEDIUM_A, MEDIUM_B)
 
+def test_rf_fuzz_wratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.WRatio, MEDIUM_A, MEDIUM_B)
+
 
 def test_fuzz_qratio_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(fuzz.QRatio, MEDIUM_A, MEDIUM_B)
+
+def test_rf_fuzz_qratio_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_fuzz.QRatio, MEDIUM_A, MEDIUM_B)
 
 
 # ---------------------------------------------------------------------------
@@ -105,13 +146,22 @@ def test_fuzz_qratio_medium(benchmark: pytest.FixtureRequest) -> None:
 def test_levenshtein_distance_short(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Levenshtein.distance, SHORT_A, SHORT_B)
 
+def test_rf_levenshtein_distance_short(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Levenshtein.distance, SHORT_A, SHORT_B)
+
 
 def test_levenshtein_distance_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Levenshtein.distance, MEDIUM_A, MEDIUM_B)
 
+def test_rf_levenshtein_distance_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Levenshtein.distance, MEDIUM_A, MEDIUM_B)
+
 
 def test_levenshtein_distance_long(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Levenshtein.distance, LONG_A, LONG_B)
+
+def test_rf_levenshtein_distance_long(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Levenshtein.distance, LONG_A, LONG_B)
 
 
 def test_levenshtein_normalized_similarity_medium(
@@ -119,13 +169,24 @@ def test_levenshtein_normalized_similarity_medium(
 ) -> None:
     benchmark(Levenshtein.normalized_similarity, MEDIUM_A, MEDIUM_B)
 
+def test_rf_levenshtein_normalized_similarity_medium(
+    benchmark: pytest.FixtureRequest,
+) -> None:
+    benchmark(rf_Levenshtein.normalized_similarity, MEDIUM_A, MEDIUM_B)
+
 
 def test_levenshtein_editops_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Levenshtein.editops, MEDIUM_A, MEDIUM_B)
 
+def test_rf_levenshtein_editops_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Levenshtein.editops, MEDIUM_A, MEDIUM_B)
+
 
 def test_levenshtein_opcodes_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Levenshtein.opcodes, MEDIUM_A, MEDIUM_B)
+
+def test_rf_levenshtein_opcodes_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Levenshtein.opcodes, MEDIUM_A, MEDIUM_B)
 
 
 # ---------------------------------------------------------------------------
@@ -134,37 +195,64 @@ def test_levenshtein_opcodes_medium(benchmark: pytest.FixtureRequest) -> None:
 def test_hamming_distance_short(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Hamming.distance, SHORT_A, SHORT_B)
 
+def test_rf_hamming_distance_short(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Hamming.distance, SHORT_A, SHORT_B)
+
 
 def test_indel_distance_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Indel.distance, MEDIUM_A, MEDIUM_B)
+
+def test_rf_indel_distance_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Indel.distance, MEDIUM_A, MEDIUM_B)
 
 
 def test_jaro_similarity_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Jaro.similarity, MEDIUM_A, MEDIUM_B)
 
+def test_rf_jaro_similarity_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Jaro.similarity, MEDIUM_A, MEDIUM_B)
+
 
 def test_jaro_winkler_similarity_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(JaroWinkler.similarity, MEDIUM_A, MEDIUM_B)
+
+def test_rf_jaro_winkler_similarity_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_JaroWinkler.similarity, MEDIUM_A, MEDIUM_B)
 
 
 def test_lcs_seq_distance_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(LCSseq.distance, MEDIUM_A, MEDIUM_B)
 
+def test_rf_lcs_seq_distance_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_LCSseq.distance, MEDIUM_A, MEDIUM_B)
+
 
 def test_osa_distance_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(OSA.distance, MEDIUM_A, MEDIUM_B)
+
+def test_rf_osa_distance_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_OSA.distance, MEDIUM_A, MEDIUM_B)
 
 
 def test_damerau_levenshtein_distance_medium(benchmark: pytest.FixtureRequest) -> None:
     benchmark(DamerauLevenshtein.distance, MEDIUM_A, MEDIUM_B)
 
+def test_rf_damerau_levenshtein_distance_medium(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_DamerauLevenshtein.distance, MEDIUM_A, MEDIUM_B)
+
 
 def test_prefix_distance_short(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Prefix.distance, SHORT_A, SHORT_B)
 
+def test_rf_prefix_distance_short(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Prefix.distance, SHORT_A, SHORT_B)
+
 
 def test_postfix_distance_short(benchmark: pytest.FixtureRequest) -> None:
     benchmark(Postfix.distance, SHORT_A, SHORT_B)
+
+def test_rf_postfix_distance_short(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_Postfix.distance, SHORT_A, SHORT_B)
 
 
 # ---------------------------------------------------------------------------
@@ -173,13 +261,25 @@ def test_postfix_distance_short(benchmark: pytest.FixtureRequest) -> None:
 def test_process_extract(benchmark: pytest.FixtureRequest) -> None:
     benchmark(process.extract, "new york", CHOICES, limit=5)
 
+def test_rf_process_extract(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_process.extract, "new york", CHOICES, limit=5)
+
 
 def test_process_extract_one(benchmark: pytest.FixtureRequest) -> None:
     benchmark(process.extractOne, "new york", CHOICES)
+
+def test_rf_process_extract_one(benchmark: pytest.FixtureRequest) -> None:
+    benchmark(rf_process.extractOne, "new york", CHOICES)
 
 
 def test_process_extract_iter(benchmark: pytest.FixtureRequest) -> None:
     def _run() -> None:
         list(process.extract_iter("new york", CHOICES))
+
+    benchmark(_run)
+
+def test_rf_process_extract_iter(benchmark: pytest.FixtureRequest) -> None:
+    def _run() -> None:
+        list(rf_process.extract_iter("new york", CHOICES))
 
     benchmark(_run)
