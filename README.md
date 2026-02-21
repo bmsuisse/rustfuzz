@@ -29,11 +29,11 @@ Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 
 ```mermaid
 flowchart LR
-    R["🔍 Research\nProfiler output\n& algorithm gaps"]
-    B["🦀 Build\nRust implementation\nvia PyO3"]
-    T["✅ Test\nAll tests must pass\nbefore proceeding"]
-    BM["📊 Benchmark\nvs RapidFuzz\nNumbers don't lie"]
-    RP["🔁 Repeat\nFind the next\nbottleneck"]
+    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
+    B["🦀 Build<br>Rust implementation<br>via PyO3"]
+    T["✅ Test<br>All tests must pass<br>before proceeding"]
+    BM["📊 Benchmark<br>vs RapidFuzz<br>Numbers don't lie"]
+    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
 
     R --> B --> T --> BM --> RP --> R
 
@@ -55,6 +55,8 @@ The goal: match or exceed RapidFuzz's throughput on `ratio`, `partial_ratio`, `t
 | 🔒 **Memory Safe** | Rust's borrow checker guarantees — no segfaults, no buffer overflows |
 | 🐍 **Pythonic API** | Clean, typed Python interface. Import and go |
 | 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.13 on all major platforms |
+| 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
+| 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
 
 ## Installation
 

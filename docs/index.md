@@ -25,11 +25,11 @@ Every feature and optimisation went through the same cycle:
 
 ```mermaid
 flowchart LR
-    R["🔍 Research\nProfiler output\n& algorithm gaps"]
-    B["🦀 Build\nRust core\nvia PyO3"]
-    T["✅ Test\nAll tests must pass\nbefore proceeding"]
-    BM["📊 Benchmark\nvs RapidFuzz\n& record results"]
-    RP["🔁 Repeat\nFind the next\nbottleneck"]
+    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
+    B["🦀 Build<br>Rust core<br>via PyO3"]
+    T["✅ Test<br>All tests must pass<br>before proceeding"]
+    BM["📊 Benchmark<br>vs RapidFuzz<br>& record results"]
+    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
 
     R --> B --> T --> BM --> RP --> R
 
@@ -69,6 +69,8 @@ RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optim
 | 🔒 **Memory Safe** | Rust's borrow checker — no segfaults, no buffer overflows |
 | 🐍 **Pythonic API** | Typed Python interface — `import rustfuzz.fuzz as fuzz` and go |
 | 📦 **No Build Step** | Pre-compiled wheels for Python 3.10–3.13 on Linux, macOS, and Windows |
+| 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
+| 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs |
 
 ---
 
