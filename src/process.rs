@@ -5,6 +5,9 @@ use crate::fuzz::{
     fuzz_partial_ratio, fuzz_partial_token_ratio, fuzz_partial_token_set_ratio,
     fuzz_partial_token_sort_ratio, fuzz_qratio, fuzz_ratio, fuzz_token_ratio,
     fuzz_token_set_ratio, fuzz_token_sort_ratio, fuzz_wratio,
+    partial_ratio_bytes, token_sort_ratio_bytes, partial_token_sort_ratio_bytes,
+    token_set_ratio_bytes, partial_token_set_ratio_bytes,
+    token_ratio_bytes, partial_token_ratio_bytes,
 };
 
 #[derive(Clone, Copy)]
@@ -24,6 +27,7 @@ pub enum ScorerType {
 
 impl ScorerType {
     pub fn from_str(name: &str) -> Self {
+        let name = name.strip_prefix("fuzz_").unwrap_or(name);
         match name {
             "ratio" => ScorerType::Ratio,
             "qratio" => ScorerType::QRatio,
@@ -83,6 +87,7 @@ pub fn execute_scorer(
 /// SAFETY: raw must be a valid borrowed ptr (GIL held, object alive).
 #[inline(always)]
 unsafe fn score_raw(
+    stype: ScorerType,
     raw: *mut pyo3::ffi::PyObject,
     q_slice: &[u8],
     q_hist: &[i32; 256],
@@ -112,37 +117,7 @@ unsafe fn score_raw(
         return None;
     }
 
-    let q_len = q_slice.len();
-    let lensum = q_len + c_slice.len();
-    if lensum == 0 {
-        return if score_cutoff.map_or(true, |co| 100.0 >= co) {
-            Some((100.0, c_slice))
-        } else { None };
-    }
-
-    let allowed_edits = score_cutoff
-        .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
-
-    if let Some(max_ed) = allowed_edits {
-        // Length diff fast exit
-        if q_slice.len().abs_diff(c_slice.len()) > max_ed { return None; }
-        // L1 histogram pre-filter
-        let mut c_hist = [0i32; 256];
-        for &c in c_slice { c_hist[c as usize] += 1; }
-        let diff: i32 = (0..256usize).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
-        if diff as usize > max_ed { return None; }
-    }
-
-    let dist = if use_pm {
-        let lcs = crate::algorithms::lcs_from_pm64(q_pm, q_len, c_slice, allowed_edits);
-        (q_len + c_slice.len()) - 2 * lcs
-    } else {
-        crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
-    };
-
-    if dist == usize::MAX { return None; }
-    let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
-    if score_cutoff.map_or(true, |c| score >= c) {
+    if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist, q_pm, use_pm, score_cutoff) {
         let static_slice: &'static [u8] = std::mem::transmute(c_slice);
         Some((score, static_slice))
     } else {
@@ -154,6 +129,7 @@ unsafe fn score_raw(
 /// Used by the Rayon parallel path in extract_parallel.
 #[inline(always)]
 fn score_bytes_parallel(
+    stype: ScorerType,
     c_slice: &[u8],
     q_slice: &[u8],
     q_hist: &[i32; 256],
@@ -161,32 +137,48 @@ fn score_bytes_parallel(
     use_pm: bool,
     score_cutoff: Option<f64>,
 ) -> Option<f64> {
-    let q_len = q_slice.len();
-    let lensum = q_len + c_slice.len();
-    if lensum == 0 {
-        return if score_cutoff.map_or(true, |co| 100.0 >= co) { Some(100.0) } else { None };
+    if matches!(stype, ScorerType::Ratio | ScorerType::QRatio) {
+        let q_len = q_slice.len();
+        let lensum = q_len + c_slice.len();
+        if lensum == 0 {
+            return if score_cutoff.map_or(true, |co| 100.0 >= co) { Some(100.0) } else { None };
+        }
+
+        let allowed_edits = score_cutoff
+            .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
+
+        if let Some(max_ed) = allowed_edits {
+            if q_slice.len().abs_diff(c_slice.len()) > max_ed { return None; }
+            let mut c_hist = [0i32; 256];
+            for &c in c_slice { c_hist[c as usize] += 1; }
+            let diff: i32 = q_hist.iter().zip(c_hist.iter()).map(|(&q, &c)| (q - c).abs()).sum();
+            if diff as usize > max_ed { return None; }
+        }
+
+        let dist = if use_pm {
+            let lcs = crate::algorithms::lcs_from_pm64(q_pm, q_len, c_slice, allowed_edits);
+            (q_len + c_slice.len()) - 2 * lcs
+        } else {
+            crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+        };
+
+        if dist == usize::MAX { return None; }
+        let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+        return if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None };
     }
 
-    let allowed_edits = score_cutoff
-        .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
-
-    if let Some(max_ed) = allowed_edits {
-        if q_slice.len().abs_diff(c_slice.len()) > max_ed { return None; }
-        let mut c_hist = [0i32; 256];
-        for &c in c_slice { c_hist[c as usize] += 1; }
-        let diff: i32 = (0..256usize).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
-        if diff as usize > max_ed { return None; }
-    }
-
-    let dist = if use_pm {
-        let lcs = crate::algorithms::lcs_from_pm64(q_pm, q_len, c_slice, allowed_edits);
-        (q_len + c_slice.len()) - 2 * lcs
-    } else {
-        crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+    let score = match stype {
+         ScorerType::WRatio => wratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::PartialRatio => partial_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::TokenSortRatio => token_sort_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::PartialTokenSortRatio => partial_token_sort_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::TokenSetRatio => token_set_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::PartialTokenSetRatio => partial_token_set_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::TokenRatio => token_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::PartialTokenRatio => partial_token_ratio_bytes(q_slice, c_slice, score_cutoff),
+         _ => 0.0,
     };
-
-    if dist == usize::MAX { return None; }
-    let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+    
     if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None }
 }
 
@@ -247,8 +239,8 @@ pub fn extract(
             if let Ok(list) = choices.downcast::<pyo3::types::PyList>() {
                 let n = list.len();
 
-                // --- Rayon parallel path for large lists (ratio scorer only) ---
-                if n >= PARALLEL_THRESHOLD && use_pm && matches!(stype, ScorerType::Ratio | ScorerType::QRatio) {
+                // --- Rayon parallel path for large lists ---
+                if n >= PARALLEL_THRESHOLD {
                     // Phase 1: extract byte slices without GIL refcount changes
                     let list_ptr = list.as_ptr();
                     let mut slices: Vec<Option<&'static [u8]>> = Vec::with_capacity(n);
@@ -279,7 +271,7 @@ pub fn extract(
                     let scores: Vec<Option<f64>> = py.allow_threads(|| {
                         slices.par_iter().map(|opt| {
                             opt.and_then(|c_slice| {
-                                score_bytes_parallel(c_slice, q_slice, q_hist_ref, q_pm_ref, true, score_cutoff)
+                                score_bytes_parallel(stype, c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, score_cutoff)
                             })
                         }).collect()
                     });
@@ -301,7 +293,7 @@ pub fn extract(
                 let list_ptr = list.as_ptr();
                 for idx in 0..n {
                     let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
-                    if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
                         results.push((obj, score, idx));
                     }
@@ -311,7 +303,7 @@ pub fn extract(
                 let n = tup.len();
                 for idx in 0..n {
                     let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, idx as isize) };
-                    if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
                         results.push((obj, score, idx));
                     }
@@ -326,7 +318,7 @@ pub fn extract(
                 loop {
                     let has_next = unsafe { pyo3::ffi::PyDict_Next(dict_ptr, &mut ppos, &mut key_ptr, &mut val_ptr) };
                     if has_next == 0 { break; }
-                    if let Some((score, _)) = unsafe { score_raw(val_ptr, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,val_ptr, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(val_ptr); PyObject::from_owned_ptr(py, val_ptr) };
                         results.push((obj, score, idx));
                     }
@@ -337,7 +329,7 @@ pub fn extract(
                 for (idx, item_res) in choices.try_iter()?.enumerate() {
                     let item = item_res?;
                     let raw = item.as_ptr();
-                    if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         results.push((item.clone().unbind(), score, idx));
                     }
                 }
@@ -362,7 +354,7 @@ pub fn extract(
                         let allowed_edits = (lensum as f64 * (1.0 - cutoff / 100.0)).max(0.0).floor() as usize;
                         let mut c_hist = [0i32; 256];
                         for &c in slice { c_hist[c as usize] += 1; }
-                        let hist_diff: i32 = (0..256).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
+                        let hist_diff: i32 = q_hist.iter().zip(c_hist.iter()).map(|(&q, &c)| (q - c).abs()).sum();
                         if hist_diff as usize > allowed_edits { continue; }
                     }
                 }
@@ -424,7 +416,7 @@ pub fn cdist(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<(Vec<f64>, usize, usize)> {
-    let _stype = ScorerType::from_str(scorer_name);
+    let stype = ScorerType::from_str(scorer_name);
 
     // Collect and process queries
     let q_list: Vec<PyObject> = queries.try_iter()?
@@ -490,7 +482,7 @@ pub fn cdist(
                     _ => return 0.0,
                 };
                 let score = score_bytes_parallel(
-                    cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff
+                    stype, cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff
                 );
                 score.unwrap_or(0.0)
             }).collect::<Vec<f64>>()

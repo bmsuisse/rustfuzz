@@ -157,4 +157,20 @@ def cdist(
     return matrix.reshape((rows, cols))
 
 
-__all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist"]
+def dedupe(
+    choices: Iterable[Any],
+    *,
+    threshold: int = 2,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+) -> list[Any]:
+    """
+    Deduplicate a list of choices using a BK-Tree.
+    Note: Threshold is absolute Levenshtein distance (max allowed edits),
+    default 2. Not a percentage score.
+    """
+    from . import _rustfuzz
+    bktree = _rustfuzz.BKTree()
+    return bktree.dedupe(list(choices), threshold)
+
+__all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]

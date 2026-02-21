@@ -8,7 +8,7 @@ use crate::types::{extract_single, get_processed_args, Seq};
 
 #[pyfunction]
 #[pyo3(signature = (s1, s2, *, open_penalty=1.0, extend_penalty=0.5, processor=None, score_cutoff=None))]
-pub fn distance(
+pub fn gotoh_distance(
     py: Python<'_>,
     s1: &Bound<'_, PyAny>,
     s2: &Bound<'_, PyAny>,
@@ -48,6 +48,6 @@ pub fn distance(
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(distance, m)?)?;
+    m.add_function(wrap_pyfunction!(gotoh_distance, m)?)?;
     Ok(())
 }

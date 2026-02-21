@@ -592,3 +592,106 @@ pub fn fuzz_qratio(
     let score = indel_normalized_sim(&av, &bv, score_cutoff) * 100.0;
     Ok(score_cutoff_check(score, score_cutoff))
 }
+
+// --- Raw bytes dispatchers for process.rs Rayon multi-threading ---
+pub(crate) fn ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let av = Seq::Ascii(q);
+    let bv = Seq::Ascii(c);
+    indel_normalized_sim(&av, &bv, cutoff) * 100.0
+}
+
+
+pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let av = Seq::Ascii(q);
+    let bv = Seq::Ascii(c);
+    if av.is_empty() || bv.is_empty() { return 0.0; }
+    
+    const UNBASE_SCALE: f64 = 0.95;
+    let mut sc = cutoff.unwrap_or(0.0);
+    let len_ratio = av.len().max(bv.len()) as f64 / av.len().min(bv.len()) as f64;
+    let mut end_ratio = ratio_bytes(q, c, cutoff);
+    if end_ratio == 100.0 { return end_ratio; }
+
+    let q_str = unsafe { std::str::from_utf8_unchecked(q) };
+    let c_str = unsafe { std::str::from_utf8_unchecked(c) };
+
+    if len_ratio < 1.5 {
+        sc = sc.max(end_ratio) / UNBASE_SCALE;
+        let (tsr, tset) = token_sort_and_set_cutoff(q_str, c_str, sc);
+        let tr = tsr.max(tset);
+        if tr > 0.0 { end_ratio = end_ratio.max(tr * UNBASE_SCALE); }
+    } else {
+        let partial_scale: f64 = if len_ratio <= 8.0 { 0.9 } else { 0.6 };
+        sc = sc.max(end_ratio) / partial_scale;
+        let pr = partial_ratio_vecs_sc(&av, &bv, sc);
+        end_ratio = end_ratio.max(pr * partial_scale);
+        if end_ratio == 100.0 { return end_ratio; }
+
+        sc = sc.max(end_ratio) / UNBASE_SCALE;
+        let ptr = partial_token_ratio_sc(q_str, c_str, sc);
+        end_ratio = end_ratio.max(ptr * UNBASE_SCALE * partial_scale);
+    }
+    score_cutoff_check(end_ratio, cutoff)
+}
+
+pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let av = Seq::Ascii(q);
+    let bv = Seq::Ascii(c);
+    if q.is_empty() || c.is_empty() { return 0.0; }
+    let score = if q.len() <= c.len() {
+        if q.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(q, c) } else { partial_ratio_vecs(&av, &bv) }
+    } else {
+        if c.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(c, q) } else { partial_ratio_vecs(&av, &bv) }
+    };
+    score_cutoff_check(score, cutoff)
+}
+
+pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let score = indel_score_100(&tokens_sort_key(sq), &tokens_sort_key(sc));
+    score_cutoff_check(score, cutoff)
+}
+
+pub(crate) fn token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc);
+    if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() { return 0.0; }
+    let t0 = join_tokens(&intersect);
+    let t1 = build_token_set_strings_borrow(&t0, &diff1);
+    let t2 = build_token_set_strings_borrow(&t0, &diff2);
+    let score = if intersect.is_empty() { indel_score_100(&t1, &t2) } else {
+        indel_score_100(&t0, &t1).max(indel_score_100(&t0, &t2)).max(indel_score_100(&t1, &t2))
+    };
+    score_cutoff_check(score, cutoff)
+}
+
+pub(crate) fn token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let (tsr, tset) = token_sort_and_set(sq, sc);
+    score_cutoff_check(tsr.max(tset), cutoff)
+}
+
+pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let score = partial_ratio_str(&tokens_sort_key(sq), &tokens_sort_key(sc));
+    score_cutoff_check(score, cutoff)
+}
+
+pub(crate) fn partial_token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let score = partial_token_set_score(sq, sc);
+    score_cutoff_check(score, cutoff)
+}
+
+pub(crate) fn partial_token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+    let sq = unsafe { std::str::from_utf8_unchecked(q) };
+    let sc = unsafe { std::str::from_utf8_unchecked(c) };
+    let ptsr = partial_ratio_str(&tokens_sort_key(sq), &tokens_sort_key(sc));
+    let ptset = partial_token_set_score(sq, sc);
+    score_cutoff_check(ptsr.max(ptset), cutoff)
+}

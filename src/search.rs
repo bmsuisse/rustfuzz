@@ -139,7 +139,7 @@ impl BM25Index {
     #[pyo3(signature = (query, n=5, bm25_candidates=50, fuzzy_weight=0.3))]
     pub fn get_top_n_fuzzy(
         &self,
-        py: Python<'_>,
+        _py: Python<'_>,
         query: &str,
         n: usize,
         bm25_candidates: usize,
@@ -204,10 +204,10 @@ impl BM25Index {
     ) -> Vec<(String, f64)> {
         use crate::algorithms::indel_distance;
 
-        let mut candidates_n = bm25_candidates.max(n * 10);
+        let candidates_n = bm25_candidates.max(n * 10);
 
         // BM25 ranking
-        let mut bm25_results = self.get_top_n(query, candidates_n);
+        let bm25_results = self.get_top_n(query, candidates_n);
         
         // If BM25 yields nothing (e.g. completely misspelled), we must rank the entire corpus
         // using fuzzy match, effectively treating the BM25 rank as tied at the bottom for all docs.

@@ -27,7 +27,7 @@ macro_rules! dispatch_metric {
 }
 
 use crate::distance::initialize::{Editops, Opcodes, raw_editops_to_opcodes_py, raw_editops_to_py};
-use crate::types::{get_processed_args, extract_single, is_none, raw_opcodes_to_editops_py};
+use crate::types::{get_processed_args, extract_single, is_none};
 
 // ---------------------------------------------------------------------------
 // Macro to extract two sequences, returning early if either is None/NaN

@@ -769,12 +769,10 @@ pub fn hamming_distance<T: HashableChar>(s1: &[T], s2: &[T], pad: bool) -> usize
             dist += 1;
         }
     }
-    if pad {
-        dist += max_len - min_len;
-    } else if s1.len() != s2.len() {
-        return usize::MAX;
+    match min_len {
+        0 => if pad { max_len } else { 0 },
+        _ => dist + if pad { max_len - min_len } else { 0 },
     }
-    dist
 }
 
 pub fn hamming_editops_trace<T: HashableChar>(s1: &[T], s2: &[T]) -> Vec<(String, usize, usize)> {
@@ -1001,4 +999,60 @@ pub fn normalized_distance(dist: usize, max_dist: usize) -> f64 {
 
 pub fn normalized_similarity(dist: usize, max_dist: usize) -> f64 {
     1.0 - normalized_distance(dist, max_dist)
+}
+
+// ---------------------------------------------------------------------------
+// Gotoh Alignment (Affine Gap Penalty)
+// ---------------------------------------------------------------------------
+
+pub fn gotoh_distance<T: HashableChar>(
+    s1: &[T],
+    s2: &[T],
+    open_penalty: usize,
+    extend_penalty: usize,
+) -> usize {
+    let m = s1.len();
+    let n = s2.len();
+    
+    if m == 0 {
+        return if n == 0 { 0 } else { open_penalty + n * extend_penalty };
+    }
+    if n == 0 {
+        return open_penalty + m * extend_penalty;
+    }
+
+    let mut dp = vec![0usize; n + 1];
+    let mut p_gap = vec![0usize; n + 1];
+    
+    dp[0] = 0;
+    p_gap[0] = 0;
+    for j in 1..=n {
+        dp[j] = open_penalty + j * extend_penalty;
+        p_gap[j] = dp[j] + open_penalty; 
+    }
+    
+    for i in 1..=m {
+        let mut prev_dp = dp[0];
+        dp[0] = open_penalty + i * extend_penalty;
+        let mut row_gap = dp[0] + open_penalty;
+        
+        for j in 1..=n {
+            let match_cost = if s1[i - 1] == s2[j - 1] { 0 } else { 100 };
+            
+            p_gap[j] = (dp[j] + open_penalty + extend_penalty)
+                        .min(p_gap[j] + extend_penalty);
+                        
+            row_gap = (dp[j - 1] + open_penalty + extend_penalty)
+                       .min(row_gap + extend_penalty);
+            
+            let current_dp = (prev_dp + match_cost)
+                             .min(p_gap[j])
+                             .min(row_gap);
+            
+            prev_dp = dp[j];
+            dp[j] = current_dp;
+        }
+    }
+    
+    dp[n]
 }

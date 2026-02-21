@@ -7,12 +7,14 @@ from __future__ import annotations
 from . import (  # noqa: F401
     OSA,
     DamerauLevenshtein,
+    Gotoh,
     Hamming,
     Indel,
     Jaro,
     JaroWinkler,
     LCSseq,
     Levenshtein,
+    NGram,
     Postfix,
     Prefix,
     Soundex,
@@ -36,4 +38,6 @@ __all__ = [
     "OSA",
     "Postfix",
     "Prefix",
+    "Gotoh",
+    "NGram",
 ]

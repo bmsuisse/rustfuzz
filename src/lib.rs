@@ -103,6 +103,8 @@ fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     distance::phonetic::register(&m)?;
     distance::gotoh::register(&m)?;
+    distance::ngram::register(&m)?;
+    distance::bktree::register(&m)?;
 
     Ok(())
 }
