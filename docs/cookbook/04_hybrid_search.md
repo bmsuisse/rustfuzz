@@ -1,0 +1,143 @@
+# Vector Databases & Hybrid Search
+
+`rustfuzz` provides a lightning-fast native `BM25Okapi` search index that evaluates massive scale datasets dynamically outside the Python GIL.
+
+When combined with dense vector embeddings (e.g. OpenAI, Cohere) from a Vector Database, you can create a state-of-the-art **Hybrid Search** pipeline. Rustfuzz's `HybridSearch` class natively runs **Reciprocal Rank Fusion (RRF)** to fuse sparse keyword rankings and dense semantic similarities into a unified result limit.
+
+Below are comprehensive examples of integrating `rustfuzz` with your favorite Vector DB.
+
+---
+
+## 1. Qdrant
+
+Qdrant is a high-performance, Rust-native vector database. Because both `rustfuzz` and `Qdrant` run on compiled native engines, they make an exceptionally fast hybrid pipeline.
+
+```python
+from qdrant_client import QdrantClient
+from rustfuzz.search import HybridSearch
+
+# Initialize Qdrant and extract embeddings
+client = QdrantClient(path="path/to/qdrant_db")
+records = client.scroll(collection_name="my_documents", limit=10000)[0]
+
+corpus = [r.payload["text"] for r in records]
+embeddings = [r.vector for r in records]
+
+# Initialize Rustfuzz Hybrid Search Engine
+search_engine = HybridSearch(corpus=corpus, embeddings=embeddings)
+
+# Query Qdrant for the vector 
+query_text = "apple macbook pro"
+query_vector = embed_model.encode(query_text) # Using your embedding model
+
+# Run native RRF Fusion!
+top_results = search_engine.search(query_text, query_embedding=query_vector, n=5)
+
+for doc, score in top_results:
+    print(f"[{score:.3f}] - {doc}")
+```
+
+---
+
+## 2. LanceDB
+
+LanceDB is an easy-to-use serverless vector database that natively integrates with Pandas and Polars.
+
+```python
+import lancedb
+from rustfuzz.search import HybridSearch
+
+db = lancedb.connect("~/.lancedb")
+table = db.open_table("documents")
+
+# Read into Pandas
+df = table.to_pandas()
+corpus = df["text"].tolist()
+embeddings = df["vector"].tolist()
+
+search_engine = HybridSearch(corpus=corpus, embeddings=embeddings)
+
+# Run Query
+query_vector = embed_model.encode("machine learning pipelines")
+results = search_engine.search(
+    query="machine learning pipelines", 
+    query_embedding=query_vector, 
+    n=10, 
+    rrf_k=60
+)
+```
+
+---
+
+## 3. FAISS (Meta)
+
+FAISS is the classic library for efficient similarity search. Using FAISS for the dense retrieval and `rustfuzz` for sparse RRF provides extreme performance.
+
+```python
+import faiss
+import numpy as np
+from rustfuzz.search import HybridSearch
+
+# Assuming vectors is a numpy array of shape (N, D)
+vectors = np.random.random((10000, 384)).astype("float32")
+corpus = [f"Document {i}" for i in range(10000)]
+
+# Build FAISS Index
+index = faiss.IndexFlatL2(384)
+index.add(vectors)
+
+# Build Rustfuzz 
+search_engine = HybridSearch(corpus=corpus, embeddings=vectors.tolist())
+
+# Query
+query_vector = np.random.random((1, 384)).astype("float32")
+results = search_engine.search("document 100", query_embedding=query_vector)
+```
+
+---
+
+## 4. pgvector (PostgreSQL)
+
+If your architecture is backed by Postgres, `pgvector` adds powerful vector search directly into SQL.
+
+```python
+import psycopg2
+from rustfuzz.search import HybridSearch
+
+conn = psycopg2.connect("dbname=postgres user=postgres")
+cur = conn.cursor()
+
+# Export from SQL
+cur.execute("SELECT text, embedding FROM documents")
+rows = cur.fetchall()
+
+corpus = [row[0] for row in rows]
+embeddings = [eval(row[1]) for row in rows] # Convert vector string array to list
+
+search_engine = HybridSearch(corpus=corpus, embeddings=embeddings)
+
+# Search
+results = search_engine.search("database scaling", query_embedding=query_vector)
+```
+
+---
+
+## 5. ZVec (Alibaba)
+
+[ZVec](https://github.com/alibaba/zvec) is an ultra-fast vector search engine. Integrate it seamlessly:
+
+```python
+import zvec
+from rustfuzz.search import HybridSearch
+
+# Retrieve vectors from ZVec
+collection = zvec.Collection("zvec_docs")
+data = collection.fetch_all()
+
+search_engine = HybridSearch(
+    corpus=[d.text for d in data], 
+    embeddings=[d.vector for d in data]
+)
+
+results = search_engine.search("alibaba cloud optimization", query_embedding=query_vector)
+```

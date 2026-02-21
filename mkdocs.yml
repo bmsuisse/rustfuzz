@@ -48,3 +48,5 @@ nav:
     - Introduction: cookbook/01_introduction.ipynb
     - Advanced Matching: cookbook/02_advanced_matching.ipynb
     - Benchmarks: cookbook/03_benchmarks.ipynb
+    - Vector DB Hybrid Search: cookbook/04_hybrid_search.md
+    - LangChain Integration: cookbook/05_langchain.md
