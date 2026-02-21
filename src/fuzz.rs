@@ -29,6 +29,12 @@ fn score_cutoff_check(score: f64, cutoff: Option<f64>) -> f64 {
 }
 
 fn indel_score_100(s1: &str, s2: &str) -> f64 {
+    // ASCII fast path: use Seq::Ascii to avoid Vec<u64> allocation
+    if s1.is_ascii() && s2.is_ascii() {
+        let av = Seq::Ascii(s1.as_bytes());
+        let bv = Seq::Ascii(s2.as_bytes());
+        return indel_normalized_sim(&av, &bv, None) * 100.0;
+    }
     let av: Vec<u64> = s1.chars().map(|c| c as u64).collect();
     let bv: Vec<u64> = s2.chars().map(|c| c as u64).collect();
     indel_normalized_sim(&Seq::U64(av), &Seq::U64(bv), None) * 100.0

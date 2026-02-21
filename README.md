@@ -8,13 +8,41 @@
   <a href="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml"><img src="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml/badge.svg" alt="Tests"/></a>
   <img src="https://img.shields.io/badge/License-MIT-22c55e.svg" alt="MIT License"/>
   <img src="https://img.shields.io/badge/Rust-powered-a855f7?logo=rust" alt="Rust powered"/>
+  <img src="https://img.shields.io/badge/Built%20by-AI-6366f1?logo=google" alt="Built by AI"/>
 </p>
+
+---
+
+> **🤖 This project was built entirely by AI.**
+>
+> The idea was simple: could an AI agent beat [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — one of the fastest fuzzy matching libraries in the world — by writing a Rust-backed Python library from scratch, guided only by benchmarks?
+>
+> The development loop was: **Research → Build → Benchmark → Repeat.**
 
 ---
 
 **rustfuzz** is a blazing-fast fuzzy string matching library for Python — implemented entirely in **Rust**. 🚀
 
 Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
+
+## The Challenge: Beat RapidFuzz
+
+```mermaid
+flowchart LR
+    R[🔍 Research\nProfiler output\n& algorithm gaps]
+    B[🦀 Build\nRust implementation\nvia PyO3]
+    BM[📊 Benchmark\nvs RapidFuzz\npython -m pytest bench]
+    RP[🔁 Repeat\nfind next\nbottleneck]
+
+    R --> B --> BM --> RP --> R
+
+    style R fill:#6366f1,color:#fff,stroke:none
+    style B fill:#a855f7,color:#fff,stroke:none
+    style BM fill:#22c55e,color:#fff,stroke:none
+    style RP fill:#f59e0b,color:#fff,stroke:none
+```
+
+The goal: match or exceed RapidFuzz's throughput on `ratio`, `partial_ratio`, `token_sort_ratio`, and `process.extract` — all from Python. Each iteration starts with profiling, identifies the hottest path, and rewrites it deeper into Rust.
 
 ## Features
 
@@ -80,7 +108,7 @@ print(process.extract("new", choices, limit=3))
 
 ## Documentation
 
-Full cookbook with interactive examples:
+Full cookbook with interactive examples and benchmark results:
 👉 **[bmsuisse.github.io/rustfuzz](https://bmsuisse.github.io/rustfuzz/)**
 
 ## License
