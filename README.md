@@ -29,15 +29,17 @@ Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 
 ```mermaid
 flowchart LR
-    R[🔍 Research\nProfiler output\n& algorithm gaps]
-    B[🦀 Build\nRust implementation\nvia PyO3]
-    BM[📊 Benchmark\nvs RapidFuzz\npython -m pytest bench]
-    RP[🔁 Repeat\nfind next\nbottleneck]
+    R["🔍 Research\nProfiler output\n& algorithm gaps"]
+    B["🦀 Build\nRust implementation\nvia PyO3"]
+    T["✅ Test\nAll tests must pass\nbefore proceeding"]
+    BM["📊 Benchmark\nvs RapidFuzz\nNumbers don't lie"]
+    RP["🔁 Repeat\nFind the next\nbottleneck"]
 
-    R --> B --> BM --> RP --> R
+    R --> B --> T --> BM --> RP --> R
 
     style R fill:#6366f1,color:#fff,stroke:none
     style B fill:#a855f7,color:#fff,stroke:none
+    style T fill:#ef4444,color:#fff,stroke:none
     style BM fill:#22c55e,color:#fff,stroke:none
     style RP fill:#f59e0b,color:#fff,stroke:none
 ```

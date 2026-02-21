@@ -27,13 +27,15 @@ Every feature and optimisation went through the same cycle:
 flowchart LR
     R["🔍 Research\nProfiler output\n& algorithm gaps"]
     B["🦀 Build\nRust core\nvia PyO3"]
+    T["✅ Test\nAll tests must pass\nbefore proceeding"]
     BM["📊 Benchmark\nvs RapidFuzz\n& record results"]
-    RP["🔁 Repeat\nfind the next\nbottleneck"]
+    RP["🔁 Repeat\nFind the next\nbottleneck"]
 
-    R --> B --> BM --> RP --> R
+    R --> B --> T --> BM --> RP --> R
 
     style R fill:#6366f1,color:#fff,stroke:none
     style B fill:#a855f7,color:#fff,stroke:none
+    style T fill:#ef4444,color:#fff,stroke:none
     style BM fill:#22c55e,color:#fff,stroke:none
     style RP fill:#f59e0b,color:#fff,stroke:none
 ```
@@ -42,6 +44,7 @@ Each iteration asked:
 
 - **Research** — where is the remaining Python overhead? What does the profiler show?
 - **Build** — move that hot path into Rust. Eliminate copies, reduce allocations, avoid iterator protocol overhead.
+- **Test** — the full test suite must pass before proceeding. No broken correctness, no skipped edge cases.
 - **Benchmark** — run head-to-head comparisons vs RapidFuzz. Numbers don't lie.
 - **Repeat** — the next bottleneck is always waiting.
 

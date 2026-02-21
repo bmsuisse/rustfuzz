@@ -50,22 +50,41 @@ fn tokens_sort_key(s: &str) -> String {
     tokens.join(" ")
 }
 
-fn tokens_to_set_intersection_diff(
-    s1: &str,
-    s2: &str,
-) -> (Vec<String>, Vec<String>, Vec<String>) {
-    let tokens1: std::collections::HashSet<&str> = s1.split_whitespace().collect();
-    let tokens2: std::collections::HashSet<&str> = s2.split_whitespace().collect();
-    let mut intersection: Vec<String> = tokens1.intersection(&tokens2).map(|s| s.to_string()).collect();
-    let mut diff1: Vec<String> = tokens1.difference(&tokens2).map(|s| s.to_string()).collect();
-    let mut diff2: Vec<String> = tokens2.difference(&tokens1).map(|s| s.to_string()).collect();
-    intersection.sort_unstable();
-    diff1.sort_unstable();
-    diff2.sort_unstable();
+fn tokens_to_set_intersection_diff<'a>(
+    s1: &'a str,
+    s2: &'a str,
+) -> (Vec<&'a str>, Vec<&'a str>, Vec<&'a str>) {
+    // Sort-merge instead of HashSet — eliminates hash-table allocation + hash overhead
+    // O(n log n) sort, O(n+m) merge — much better cache locality for small token sets
+    let mut t1: Vec<&str> = s1.split_whitespace().collect();
+    let mut t2: Vec<&str> = s2.split_whitespace().collect();
+    t1.sort_unstable();
+    t2.sort_unstable();
+    t1.dedup();
+    t2.dedup();
+
+    let mut intersection = Vec::new();
+    let mut diff1 = Vec::new();
+    let mut diff2 = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < t1.len() && j < t2.len() {
+        match t1[i].cmp(t2[j]) {
+            std::cmp::Ordering::Equal => { intersection.push(t1[i]); i += 1; j += 1; }
+            std::cmp::Ordering::Less  => { diff1.push(t1[i]); i += 1; }
+            std::cmp::Ordering::Greater => { diff2.push(t2[j]); j += 1; }
+        }
+    }
+    diff1.extend_from_slice(&t1[i..]);
+    diff2.extend_from_slice(&t2[j..]);
     (intersection, diff1, diff2)
 }
 
-fn build_token_set_strings(t0: &str, diff: &[String]) -> String {
+fn join_tokens(tokens: &[&str]) -> String {
+    tokens.join(" ")
+}
+
+
+fn build_token_set_strings_borrow(t0: &str, diff: &[&str]) -> String {
     if diff.is_empty() {
         t0.to_string()
     } else if t0.is_empty() {
@@ -79,9 +98,9 @@ fn build_token_set_strings(t0: &str, diff: &[String]) -> String {
 fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
     let tsr = indel_score_100(&tokens_sort_key(s1), &tokens_sort_key(s2));
     let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
-    let t0 = intersect.join(" ");
-    let t1 = build_token_set_strings(&t0, &diff1);
-    let t2 = build_token_set_strings(&t0, &diff2);
+    let t0 = join_tokens(&intersect);
+    let t1 = build_token_set_strings_borrow(&t0, &diff1);
+    let t2 = build_token_set_strings_borrow(&t0, &diff2);
     let tset = if intersect.is_empty() {
         indel_score_100(&t1, &t2)
     } else {
@@ -186,19 +205,16 @@ fn partial_ratio_str(s1: &str, s2: &str) -> f64 {
 }
 
 fn partial_token_set_score(s1: &str, s2: &str) -> f64 {
-    let tokens_a: std::collections::HashSet<&str> = s1.split_whitespace().collect();
-    let tokens_b: std::collections::HashSet<&str> = s2.split_whitespace().collect();
-    if tokens_a.is_empty() || tokens_b.is_empty() {
+    // Use sort-merge instead of HashSet — same interface, no hash table
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
         return 0.0;
     }
-    if tokens_a.intersection(&tokens_b).next().is_some() {
+    if !intersect.is_empty() {
         return 100.0;
     }
-    let mut diff_ab: Vec<&str> = tokens_a.iter().copied().collect();
-    diff_ab.sort_unstable();
-    let mut diff_ba: Vec<&str> = tokens_b.iter().copied().collect();
-    diff_ba.sort_unstable();
-    partial_ratio_str(&diff_ab.join(" "), &diff_ba.join(" "))
+    // No intersection — compare sorted diff1 vs diff2
+    partial_ratio_str(&join_tokens(&diff1), &join_tokens(&diff2))
 }
 
 
@@ -328,9 +344,9 @@ pub fn fuzz_token_set_ratio(
     if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
         return Ok(0.0);
     }
-    let t0 = intersect.join(" ");
-    let t1 = build_token_set_strings(&t0, &diff1);
-    let t2 = build_token_set_strings(&t0, &diff2);
+    let t0 = join_tokens(&intersect);
+    let t1 = build_token_set_strings_borrow(&t0, &diff1);
+    let t2 = build_token_set_strings_borrow(&t0, &diff2);
     let score = if intersect.is_empty() {
         indel_score_100(&t1, &t2)
     } else {
