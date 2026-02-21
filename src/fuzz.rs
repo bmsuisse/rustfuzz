@@ -7,18 +7,19 @@ use pyo3::prelude::*;
 
 use crate::algorithms as alg;
 use crate::distance::initialize::ScoreAlignment;
-use crate::types::{extract_sequences, is_none};
+use crate::types::{get_processed_args, extract_single, Seq, is_none};
+use crate::dispatch_metric;
 
 // ---------------------------------------------------------------------------
 // Internal: normalized indel similarity (same as fuzz.ratio / 100)
 // ---------------------------------------------------------------------------
 
-fn indel_normalized_sim(av: &[i64], bv: &[i64]) -> f64 {
+fn indel_normalized_sim(av: &crate::types::Seq<'_>, bv: &crate::types::Seq<'_>) -> f64 {
     let lensum = av.len() + bv.len();
     if lensum == 0 {
         return 1.0;
     }
-    let dist = alg::indel_distance(av, bv);
+    let dist = dispatch_metric!(alg::indel_distance, av, bv);
     1.0 - (dist as f64 / lensum as f64)
 }
 
@@ -70,14 +71,14 @@ fn tokens_to_set_intersection_diff(
     (intersection, diff1, diff2)
 }
 
-fn str_to_i64_vec(s: &str) -> Vec<i64> {
-    s.chars().map(|c| c as i64).collect()
+fn str_to_i64_vec(s: &str) -> Vec<u64> {
+    s.chars().map(|c| c as u64).collect()
 }
 
 fn indel_score_100(s1: &str, s2: &str) -> f64 {
     let av = str_to_i64_vec(s1);
     let bv = str_to_i64_vec(s2);
-    norm_sim_to_score(indel_normalized_sim(&av, &bv))
+    norm_sim_to_score(indel_normalized_sim(&crate::types::Seq::U64(av), &crate::types::Seq::U64(bv)))
 }
 
 // ===========================================================================
@@ -96,9 +97,9 @@ pub fn fuzz_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a;
-    let bv = b;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let av = extract_single(&a_obj)?;
+    let bv = extract_single(&b_obj)?;
     let score = norm_sim_to_score(indel_normalized_sim(&av, &bv));
     Ok(score_cutoff_check(score, score_cutoff))
 }
@@ -112,7 +113,7 @@ pub fn fuzz_ratio(
 ///   Loop 1: prefix overhangs (shorter vs longer[:i] for i < s_len)
 ///   Loop 2: exact-size windows (shorter vs longer[i:i+s_len])
 ///   Loop 3: suffix overhangs (shorter vs longer[i:] for i > l_len-s_len)
-fn partial_ratio_short_long(shorter: &[i64], longer: &[i64]) -> (f64, usize, usize) {
+fn partial_ratio_short_long(shorter: &[u64], longer: &[u64]) -> (f64, usize, usize) {
     let s_len = shorter.len();
     let l_len = longer.len();
     if s_len == 0 {
@@ -127,7 +128,7 @@ fn partial_ratio_short_long(shorter: &[i64], longer: &[i64]) -> (f64, usize, usi
     let mut best_start = 0usize;
     let mut best_end = 0usize;
 
-    let score_fn = |shorter: &[i64], window: &[i64]| -> f64 {
+    let score_fn = |shorter: &[u64], window: &[u64]| -> f64 {
         let dist = alg::indel_distance(shorter, window);
         let lensum = shorter.len() + window.len();
         if lensum == 0 { 100.0 } else { (1.0 - dist as f64 / lensum as f64) * 100.0 }
@@ -182,9 +183,9 @@ pub fn fuzz_partial_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a;
-    let bv = b;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let av = extract_single(&a_obj)?;
+    let bv = extract_single(&b_obj)?;
 
     // Both empty → 100.0 (Python returns 100 for equal empty strings)
     if av.is_empty() && bv.is_empty() {
@@ -192,15 +193,15 @@ pub fn fuzz_partial_ratio(
     }
 
     let score = if av.len() <= bv.len() {
-        let mut s = partial_ratio_short_long(&av, &bv).0;
+        let mut s = partial_ratio_short_long(&av.to_u64(), &bv.to_u64()).0;
         // When equal length, Python also tries the reversed order
         if s != 100.0 && av.len() == bv.len() {
-            let s2_rev = partial_ratio_short_long(&bv, &av).0;
+            let s2_rev = partial_ratio_short_long(&bv.to_u64(), &av.to_u64()).0;
             if s2_rev > s { s = s2_rev; }
         }
         s
     } else {
-        partial_ratio_short_long(&bv, &av).0
+        partial_ratio_short_long(&bv.to_u64(), &av.to_u64()).0
     };
     Ok(score_cutoff_check(score, score_cutoff))
 }
@@ -217,16 +218,16 @@ pub fn fuzz_partial_ratio_alignment(
     if is_none(s1) || is_none(s2) {
         return Ok(None);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a;
-    let bv = b;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let av = extract_single(&a_obj)?;
+    let bv = extract_single(&b_obj)?;
     let s1_is_shorter = av.len() <= bv.len();
 
     let (score, src_start, src_end, dest_start, dest_end) = if s1_is_shorter {
-        let (s, ds, de) = partial_ratio_short_long(&av, &bv);
+        let (s, ds, de) = partial_ratio_short_long(&av.to_u64(), &bv.to_u64());
         // When equal length, Python also tries reversed order
         if s != 100.0 && av.len() == bv.len() {
-            let (s2, ds2, de2) = partial_ratio_short_long(&bv, &av);
+            let (s2, ds2, de2) = partial_ratio_short_long(&bv.to_u64(), &av.to_u64());
             if s2 > s {
                 // res2 uses longer=av as dest, shorter=bv as src
                 // Python returns: ScoreAlignment(res2.score, res2.dest_start, res2.dest_end, res2.src_start, res2.src_end)
@@ -239,7 +240,7 @@ pub fn fuzz_partial_ratio_alignment(
         }
         (s, 0, av.len(), ds, de)
     } else {
-        let (s, ds, de) = partial_ratio_short_long(&bv, &av);
+        let (s, ds, de) = partial_ratio_short_long(&bv.to_u64(), &av.to_u64());
         (s, ds, de, 0, bv.len())
     };
 
@@ -273,7 +274,9 @@ pub fn fuzz_token_sort_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     // Requires string input: convert back via chars
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
@@ -283,11 +286,8 @@ pub fn fuzz_token_sort_ratio(
     Ok(score_cutoff_check(score, score_cutoff))
 }
 
-fn seq_to_string(seq: &crate::types::Seq) -> String {
-    seq
-        .iter()
-        .filter_map(|&c| char::from_u32(c as u32))
-        .collect()
+fn seq_to_string(seq: &crate::types::Seq<'_>) -> String {
+    seq.to_string_lossy()
 }
 
 // ===========================================================================
@@ -306,7 +306,9 @@ pub fn fuzz_token_set_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
 
@@ -360,7 +362,9 @@ pub fn fuzz_token_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
 
@@ -415,18 +419,16 @@ pub fn fuzz_partial_token_sort_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
     let sorted1 = tokens_sort_key(&s1_str);
     let sorted2 = tokens_sort_key(&s2_str);
-    let av = str_to_i64_vec(&sorted1);
-    let bv = str_to_i64_vec(&sorted2);
-    let score = if av.len() <= bv.len() {
-        partial_ratio_short_long(&av, &bv).0
-    } else {
-        partial_ratio_short_long(&bv, &av).0
-    };
+    let sv1 = str_to_i64_vec(&sorted1);
+    let sv2 = str_to_i64_vec(&sorted2);
+    let score = if sv1.len() <= sv2.len() { partial_ratio_short_long(&sv1, &sv2).0 } else { partial_ratio_short_long(&sv2, &sv1).0 };
     Ok(score_cutoff_check(score, score_cutoff))
 }
 
@@ -446,7 +448,9 @@ pub fn fuzz_partial_token_set_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
 
@@ -502,20 +506,18 @@ pub fn fuzz_partial_token_ratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let s1_str = seq_to_string(&a);
     let s2_str = seq_to_string(&b);
 
     // partial_token_sort_ratio
     let sorted1 = tokens_sort_key(&s1_str);
     let sorted2 = tokens_sort_key(&s2_str);
-    let av = str_to_i64_vec(&sorted1);
-    let bv = str_to_i64_vec(&sorted2);
-    let ptsr = if av.len() <= bv.len() {
-        partial_ratio_short_long(&av, &bv).0
-    } else {
-        partial_ratio_short_long(&bv, &av).0
-    };
+    let sv1 = str_to_i64_vec(&sorted1);
+    let sv2 = str_to_i64_vec(&sorted2);
+    let ptsr = if sv1.len() <= sv2.len() { partial_ratio_short_long(&sv1, &sv2).0 } else { partial_ratio_short_long(&sv2, &sv1).0 };
 
     // partial_token_set_ratio
     let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(&s1_str, &s2_str);
@@ -556,9 +558,9 @@ pub fn fuzz_wratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.clone();
-    let bv = b.clone();
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let av = extract_single(&a_obj)?;
+    let bv = extract_single(&b_obj)?;
 
     if av.is_empty() || bv.is_empty() {
         return Ok(0.0);
@@ -578,8 +580,8 @@ pub fn fuzz_wratio(
         len2 as f64 / len1 as f64
     };
 
-    let s1_str = seq_to_string(&a);
-    let s2_str = seq_to_string(&b);
+    let s1_str = seq_to_string(&av);
+    let s2_str = seq_to_string(&bv);
 
     let end_ratio;
 
@@ -598,11 +600,7 @@ pub fn fuzz_wratio(
     } else {
         // partial ratio branch
         let partial_scale: f64 = if len_ratio <= 8.0 { 0.9 } else { 0.6 };
-        let pr = if av.len() <= bv.len() {
-            partial_ratio_short_long(&av, &bv).0
-        } else {
-            partial_ratio_short_long(&bv, &av).0
-        };
+        let pr = if av.len() <= bv.len() { partial_ratio_short_long(&av.to_u64(), &bv.to_u64()).0 } else { partial_ratio_short_long(&bv.to_u64(), &av.to_u64()).0 };
         let mut er = base.max(pr * partial_scale);
 
         // partial_token_ratio branch
@@ -651,9 +649,9 @@ pub fn fuzz_qratio(
     if is_none(s1) || is_none(s2) {
         return Ok(0.0);
     }
-    let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a;
-    let bv = b;
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let av = extract_single(&a_obj)?;
+    let bv = extract_single(&b_obj)?;
 
     if av.is_empty() || bv.is_empty() {
         return Ok(0.0);

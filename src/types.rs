@@ -1,100 +1,81 @@
 // SPDX-License-Identifier: MIT
-// Input type extraction: converts Python objects to Vec<i64> for algorithm use.
-//
-// Follows conv_sequences semantics from _common_py.py:
-// - str -> list of ord() codepoints (i64)
-// - bytes -> list of byte values (i64)
-// - array('u'/'w') -> list of ord() codepoints (i64)
-// - other sequences -> list of hash values (i64)
-// - str+str or bytes+bytes are handled natively as slices of equal-len chars
+// Input type extraction: zero-copy sequence wrappers
 
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyString};
 
-/// We just alias Seq to Vec<i64> to avoid changing every single algorithm signature right now.
-/// This prevents the double-allocation of `Vec<u32>` to `Vec<i64>`.
-pub type Seq = Vec<i64>;
+#[derive(Clone, Debug)]
+pub enum Seq<'a> {
+    Ascii(&'a [u8]),
+    U32(Vec<u32>),
+    U64(Vec<u64>),
+}
 
-fn extract_single(obj: &Bound<'_, PyAny>) -> PyResult<Seq> {
-    // str -> codepoints directly to i64
+pub fn extract_single<'a>(obj: &'a Bound<'a, PyAny>) -> PyResult<Seq<'a>> {
     if let Ok(s) = obj.downcast::<PyString>() {
         // FAST PATH: PyString can expose internal ASCII/utf8 buffers without allocation
-        // PyO3's safe `.to_str()` checks UTF-8 validity which is slow.
-        // We can unsafely grab the bytes and map them. Since Python strings are valid.
         unsafe {
             let py_str = s.as_ptr();
             let mut length: isize = 0;
-            // PyUnicode_AsUTF8AndSize is fast and returns a pointer to the UTF-8 buffer
             let ptr = pyo3::ffi::PyUnicode_AsUTF8AndSize(py_str, &mut length);
             if !ptr.is_null() {
                 let slice = std::slice::from_raw_parts(ptr as *const u8, length as usize);
                 if slice.is_ascii() {
-                    let chars: Vec<i64> = slice.iter().map(|&c| c as i64).collect();
-                    return Ok(chars);
-                } else {
-                    let st = std::str::from_utf8_unchecked(slice);
-                    let chars: Vec<i64> = st.chars().map(|c| c as i64).collect();
-                    return Ok(chars);
+                    return Ok(Seq::Ascii(slice));
                 }
             }
         }
+        // Fallback: collect codepoints
+        let st = s.to_str()?;
+        return Ok(Seq::U32(st.chars().map(|c| c as u32).collect()));
     }
-    // bytes -> raw bytes directly to i64
+    
+    // bytes -> raw bytes exactly
     if let Ok(b) = obj.downcast::<PyBytes>() {
-        let bytes: Vec<i64> = b.as_bytes().iter().map(|&x| x as i64).collect();
-        return Ok(bytes);
+        return Ok(Seq::Ascii(b.as_bytes()));
     }
+    
     // Try to iterate as a sequence
     if let Ok(seq) = obj.try_iter() {
-        let mut result: Vec<i64> = Vec::new();
+        let mut result: Vec<u64> = Vec::new();
         for item in seq {
             let item = item?;
-            // Single character string -> use ord()
             if let Ok(s) = item.downcast::<PyString>() {
                 let st = s.to_str()?;
-                let chars: Vec<char> = st.chars().collect();
-                if chars.len() == 1 {
-                    result.push(chars[0] as i64);
+                let mut iter = st.chars();
+                if let (Some(ch), None) = (iter.next(), iter.next()) {
+                    result.push(ch as u64);
                     continue;
                 }
             }
-            // integer -> use directly
-            if let Ok(i) = item.extract::<i64>() {
+            if let Ok(i) = item.extract::<u64>() {
                 result.push(i);
                 continue;
             }
-            // fallback: hash
-            result.push(item.hash()? as i64);
+            result.push(item.hash()? as u64);
         }
-        return Ok(result);
+        return Ok(Seq::U64(result));
     }
     Err(pyo3::exceptions::PyTypeError::new_err(
         "expected str, bytes, or sequence",
     ))
 }
 
-/// Extract both sequences, applying conv_sequences semantics:
-pub fn extract_sequences(
-    py: Python<'_>,
-    s1: &Bound<'_, PyAny>,
-    s2: &Bound<'_, PyAny>,
+pub fn get_processed_args<'py>(
+    py: Python<'py>,
+    s1: &Bound<'py, PyAny>,
+    s2: &Bound<'py, PyAny>,
     processor: &Option<PyObject>,
-) -> PyResult<(Seq, Seq)> {
-    let (s1_obj, s2_obj) = if let Some(proc) = processor {
+) -> PyResult<(Bound<'py, PyAny>, Bound<'py, PyAny>)> {
+    if let Some(proc) = processor {
         let p1 = proc.call1(py, (s1,))?.into_bound(py);
         let p2 = proc.call1(py, (s2,))?.into_bound(py);
-        (p1, p2)
+        Ok((p1, p2))
     } else {
-        (s1.clone(), s2.clone())
-    };
-
-    let a = extract_single(&s1_obj)?;
-    let b = extract_single(&s2_obj)?;
-    
-    Ok((a, b))
+        Ok((s1.clone(), s2.clone()))
+    }
 }
 
-/// Quick check if a Python object is None, NaN, or pandas.NA
 pub fn is_none(obj: &Bound<'_, PyAny>) -> bool {
     if obj.is_none() {
         return true;
@@ -102,9 +83,40 @@ pub fn is_none(obj: &Bound<'_, PyAny>) -> bool {
     if let Ok(f) = obj.extract::<f64>() {
         return f.is_nan();
     }
-    // pandas.NA: check by repr
+    // pandas.NA
     if let Ok(r) = obj.str() {
         return r.to_str().map(|s| s == "<NA>").unwrap_or(false);
     }
     false
+}
+
+impl<'a> Seq<'a> {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Seq::Ascii(v) => v.is_empty(),
+            Seq::U32(v) => v.is_empty(),
+            Seq::U64(v) => v.is_empty(),
+        }
+    }
+    pub fn len(&self) -> usize {
+        match self {
+            Seq::Ascii(v) => v.len(),
+            Seq::U32(v) => v.len(),
+            Seq::U64(v) => v.len(),
+        }
+    }
+    pub fn to_u64(&self) -> Vec<u64> {
+        match self {
+            Seq::Ascii(v) => v.iter().map(|&c| c as u64).collect(),
+            Seq::U32(v)   => v.iter().map(|&c| c as u64).collect(),
+            Seq::U64(v)   => v.clone(),
+        }
+    }
+    pub fn to_string_lossy(&self) -> String {
+        match self {
+            Seq::Ascii(v) => String::from_utf8_lossy(v).into_owned(),
+            Seq::U32(v)   => v.iter().filter_map(|&c| char::from_u32(c)).collect(),
+            Seq::U64(_)   => String::new(),
+        }
+    }
 }

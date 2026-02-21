@@ -6,31 +6,33 @@
 use pyo3::prelude::*;
 
 use crate::algorithms as alg;
+
+
+
+#[macro_export]
+macro_rules! dispatch_metric {
+    ($func:path, $s1:expr, $s2:expr $(, $args:expr)*) => {
+        match ($s1, $s2) {
+            (crate::types::Seq::Ascii(a), crate::types::Seq::Ascii(b)) => $func(*a, *b $(, $args)*),
+            (crate::types::Seq::Ascii(a), crate::types::Seq::U32(b)) => $func(&a.iter().map(|&x| x as u32).collect::<Vec<_>>(), b $(, $args)*),
+            (crate::types::Seq::Ascii(a), crate::types::Seq::U64(b)) => $func(&a.iter().map(|&x| x as u64).collect::<Vec<_>>(), b $(, $args)*),
+            (crate::types::Seq::U32(a), crate::types::Seq::Ascii(b)) => $func(a, &b.iter().map(|&x| x as u32).collect::<Vec<_>>() $(, $args)*),
+            (crate::types::Seq::U32(a), crate::types::Seq::U32(b)) => $func(a, b $(, $args)*),
+            (crate::types::Seq::U32(a), crate::types::Seq::U64(b)) => $func(&a.iter().map(|&x| x as u64).collect::<Vec<_>>(), b $(, $args)*),
+            (crate::types::Seq::U64(a), crate::types::Seq::Ascii(b)) => $func(a, &b.iter().map(|&x| x as u64).collect::<Vec<_>>() $(, $args)*),
+            (crate::types::Seq::U64(a), crate::types::Seq::U32(b)) => $func(a, &b.iter().map(|&x| x as u64).collect::<Vec<_>>() $(, $args)*),
+            (crate::types::Seq::U64(a), crate::types::Seq::U64(b)) => $func(a, b $(, $args)*),
+        }
+    };
+}
+
 use crate::distance::initialize::{Editops, Opcodes, raw_editops_to_opcodes_py, raw_editops_to_py};
-use crate::types::{extract_sequences, is_none};
+use crate::types::{get_processed_args, extract_single, is_none};
 
 // ---------------------------------------------------------------------------
 // Macro to extract two sequences, returning early if either is None/NaN
 // ---------------------------------------------------------------------------
-macro_rules! get_seqs {
-    ($py:expr, $s1:expr, $s2:expr, $proc:expr, $none_val:expr) => {{
-        if is_none($s1) || is_none($s2) {
-            return Ok($none_val);
-        }
-        extract_sequences($py, $s1, $s2, $proc)?
-    }};
-}
 
-macro_rules! get_seqs_editops {
-    ($py:expr, $s1:expr, $s2:expr, $proc:expr) => {{
-        if is_none($s1) || is_none($s2) {
-            return Err(pyo3::exceptions::PyTypeError::new_err(
-                "expected str, bytes, or sequence",
-            ));
-        }
-        extract_sequences($py, $s1, $s2, $proc)?
-    }};
-}
 
 // ---------------------------------------------------------------------------
 // Score cutoff helpers
@@ -66,11 +68,16 @@ pub fn levenshtein_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let w = weights.unwrap_or((1, 1, 1));
-    let dist = alg::levenshtein(&av, &bv, w);
+    let dist = dispatch_metric!(alg::levenshtein, &av, &bv, w);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -84,7 +91,12 @@ pub fn levenshtein_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let w = weights.unwrap_or((1, 1, 1));
@@ -98,7 +110,7 @@ pub fn levenshtein_similarity(
     } else {
         max_v = max_v.min(len1 * rep + (len2 - len1) * ins);
     }
-    let dist = alg::levenshtein(&av, &bv, w);
+    let dist = dispatch_metric!(alg::levenshtein, &av, &bv, w);
     let sim = max_v.saturating_sub(dist);
     Ok(sim)
 }
@@ -113,7 +125,12 @@ pub fn levenshtein_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let w = weights.unwrap_or((1, 1, 1));
@@ -127,7 +144,7 @@ pub fn levenshtein_normalized_distance(
     } else {
         max_v = max_v.min(len1 * rep + (len2 - len1) * ins);
     }
-    let dist = alg::levenshtein(&av, &bv, w);
+    let dist = dispatch_metric!(alg::levenshtein, &av, &bv, w);
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)).min(1.0))
 }
@@ -142,7 +159,12 @@ pub fn levenshtein_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let w = weights.unwrap_or((1, 1, 1));
@@ -156,7 +178,7 @@ pub fn levenshtein_normalized_similarity(
     } else {
         max_v = max_v.min(len1 * rep + (len2 - len1) * ins);
     }
-    let dist = alg::levenshtein(&av, &bv, w);
+    let dist = dispatch_metric!(alg::levenshtein, &av, &bv, w);
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
 }
@@ -169,12 +191,19 @@ pub fn levenshtein_editops(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Editops> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::levenshtein_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::levenshtein_editops_trace, &av, &bv);
     raw_editops_to_py(py, ops, src_len, dest_len)
 }
 
@@ -186,12 +215,19 @@ pub fn levenshtein_opcodes(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Opcodes> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::levenshtein_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::levenshtein_editops_trace, &av, &bv);
     raw_editops_to_opcodes_py(py, ops, src_len, dest_len)
 }
 
@@ -209,7 +245,12 @@ pub fn hamming_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -217,7 +258,7 @@ pub fn hamming_distance(
             "Sequences are not the same length.",
         ));
     }
-    let dist = alg::hamming_distance(&av, &bv, pad);
+    let dist = dispatch_metric!(alg::hamming_distance, &av, &bv, pad);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -231,7 +272,12 @@ pub fn hamming_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -239,7 +285,7 @@ pub fn hamming_similarity(
             "Sequences are not the same length.",
         ));
     }
-    let dist = alg::hamming_distance(&av, &bv, pad);
+    let dist = dispatch_metric!(alg::hamming_distance, &av, &bv, pad);
     let max_v = av.len().max(bv.len());
     Ok(max_v.saturating_sub(dist))
 }
@@ -254,7 +300,12 @@ pub fn hamming_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -262,7 +313,7 @@ pub fn hamming_normalized_distance(
             "Sequences are not the same length.",
         ));
     }
-    let dist = alg::hamming_distance(&av, &bv, pad);
+    let dist = dispatch_metric!(alg::hamming_distance, &av, &bv, pad);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -278,7 +329,12 @@ pub fn hamming_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -286,7 +342,7 @@ pub fn hamming_normalized_similarity(
             "Sequences are not the same length.",
         ));
     }
-    let dist = alg::hamming_distance(&av, &bv, pad);
+    let dist = dispatch_metric!(alg::hamming_distance, &av, &bv, pad);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -301,7 +357,14 @@ pub fn hamming_editops(
     pad: bool,
     processor: Option<PyObject>,
 ) -> PyResult<Editops> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -311,7 +374,7 @@ pub fn hamming_editops(
     }
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::hamming_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::hamming_editops_trace, &av, &bv);
     raw_editops_to_py(py, ops, src_len, dest_len)
 }
 
@@ -324,7 +387,14 @@ pub fn hamming_opcodes(
     pad: bool,
     processor: Option<PyObject>,
 ) -> PyResult<Opcodes> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     if !pad && av.len() != bv.len() {
@@ -334,7 +404,7 @@ pub fn hamming_opcodes(
     }
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::hamming_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::hamming_editops_trace, &av, &bv);
     raw_editops_to_opcodes_py(py, ops, src_len, dest_len)
 }
 
@@ -351,10 +421,15 @@ pub fn indel_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::indel_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -367,10 +442,15 @@ pub fn indel_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::indel_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
     let max_v = av.len() + bv.len();
     let sim = max_v.saturating_sub(dist);
     Ok(sim)
@@ -385,10 +465,15 @@ pub fn indel_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::indel_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
     let max_v = av.len() + bv.len();
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -403,10 +488,15 @@ pub fn indel_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::indel_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::indel_distance, &av, &bv);
     let max_v = av.len() + bv.len();
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -420,12 +510,19 @@ pub fn indel_editops(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Editops> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::indel_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::indel_editops_trace, &av, &bv);
     raw_editops_to_py(py, ops, src_len, dest_len)
 }
 
@@ -437,12 +534,19 @@ pub fn indel_opcodes(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Opcodes> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::indel_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::indel_editops_trace, &av, &bv);
     raw_editops_to_opcodes_py(py, ops, src_len, dest_len)
 }
 
@@ -459,8 +563,13 @@ pub fn jaro_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
-    let sim = alg::jaro(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro, &a, &b);
     let dist = 1.0 - sim;
     Ok(check_sim_f64_cutoff(dist, score_cutoff.map(|c| 1.0 - c)))
 }
@@ -474,8 +583,13 @@ pub fn jaro_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
-    let sim = alg::jaro(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro, &a, &b);
     Ok(check_sim_f64_cutoff(sim, score_cutoff))
 }
 
@@ -488,8 +602,13 @@ pub fn jaro_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
-    let sim = alg::jaro(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro, &a, &b);
     let dist = 1.0 - sim;
     Ok(check_sim_f64_cutoff(dist, score_cutoff.map(|c| 1.0 - c)))
 }
@@ -520,8 +639,13 @@ pub fn jaro_winkler_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
-    let sim = alg::jaro_winkler(&a, &b, prefix_weight);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro_winkler, &a, &b, prefix_weight);
     let dist = 1.0 - sim;
     Ok(check_sim_f64_cutoff(dist, score_cutoff.map(|c| 1.0 - c)))
 }
@@ -536,8 +660,13 @@ pub fn jaro_winkler_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
-    let sim = alg::jaro_winkler(&a, &b, prefix_weight);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro_winkler, &a, &b, prefix_weight);
     Ok(check_sim_f64_cutoff(sim, score_cutoff))
 }
 
@@ -551,8 +680,13 @@ pub fn jaro_winkler_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
-    let sim = alg::jaro_winkler(&a, &b, prefix_weight);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let sim = dispatch_metric!(alg::jaro_winkler, &a, &b, prefix_weight);
     let dist = 1.0 - sim;
     Ok(check_sim_f64_cutoff(dist, score_cutoff.map(|c| 1.0 - c)))
 }
@@ -583,8 +717,13 @@ pub fn lcs_seq_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    let dist = alg::lcs_seq_distance(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &a, &b);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -597,8 +736,13 @@ pub fn lcs_seq_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    Ok(alg::lcs_seq_similarity(&a, &b))
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    Ok(dispatch_metric!(alg::lcs_seq_similarity, &a, &b))
 }
 
 #[pyfunction]
@@ -610,10 +754,15 @@ pub fn lcs_seq_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::lcs_seq_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -628,10 +777,15 @@ pub fn lcs_seq_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::lcs_seq_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::lcs_seq_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -645,12 +799,19 @@ pub fn lcs_seq_editops(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Editops> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::lcs_seq_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::lcs_seq_editops_trace, &av, &bv);
     raw_editops_to_py(py, ops, src_len, dest_len)
 }
 
@@ -662,12 +823,19 @@ pub fn lcs_seq_opcodes(
     s2: &Bound<'_, PyAny>,
     processor: Option<PyObject>,
 ) -> PyResult<Opcodes> {
-    let (a, b) = get_seqs_editops!(py, s1, s2, &processor);
+    if is_none(s1) || is_none(s2) {
+        return Err(pyo3::exceptions::PyTypeError::new_err(
+            "expected str, bytes, or sequence",
+        ));
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
     let src_len = av.len();
     let dest_len = bv.len();
-    let ops = alg::lcs_seq_editops_trace(&av, &bv);
+    let ops = dispatch_metric!(alg::lcs_seq_editops_trace, &av, &bv);
     raw_editops_to_opcodes_py(py, ops, src_len, dest_len)
 }
 
@@ -684,8 +852,13 @@ pub fn osa_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    let dist = alg::osa_distance(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let dist = dispatch_metric!(alg::osa_distance, &a, &b);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -698,10 +871,15 @@ pub fn osa_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::osa_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::osa_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     Ok(max_v.saturating_sub(dist))
 }
@@ -715,10 +893,15 @@ pub fn osa_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::osa_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::osa_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -733,10 +916,15 @@ pub fn osa_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::osa_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::osa_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -755,8 +943,13 @@ pub fn damerau_levenshtein_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    let dist = alg::damerau_levenshtein_distance(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let dist = dispatch_metric!(alg::damerau_levenshtein_distance, &a, &b);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -769,10 +962,15 @@ pub fn damerau_levenshtein_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::damerau_levenshtein_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::damerau_levenshtein_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     Ok(max_v.saturating_sub(dist))
 }
@@ -786,10 +984,15 @@ pub fn damerau_levenshtein_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::damerau_levenshtein_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::damerau_levenshtein_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -804,10 +1007,15 @@ pub fn damerau_levenshtein_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::damerau_levenshtein_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::damerau_levenshtein_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -826,8 +1034,13 @@ pub fn prefix_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    let dist = alg::prefix_distance(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let dist = dispatch_metric!(alg::prefix_distance, &a, &b);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -841,8 +1054,13 @@ pub fn prefix_similarity(
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
     let _ = score_cutoff;
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    Ok(alg::prefix_similarity(&a, &b))
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    Ok(dispatch_metric!(alg::prefix_similarity, &a, &b))
 }
 
 #[pyfunction]
@@ -854,10 +1072,15 @@ pub fn prefix_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::prefix_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::prefix_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -872,10 +1095,15 @@ pub fn prefix_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::prefix_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::prefix_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))
@@ -894,8 +1122,13 @@ pub fn postfix_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    let dist = alg::postfix_distance(&a, &b);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    let dist = dispatch_metric!(alg::postfix_distance, &a, &b);
     Ok(check_dist_cutoff(dist, score_cutoff))
 }
 
@@ -909,8 +1142,13 @@ pub fn postfix_similarity(
     score_cutoff: Option<usize>,
 ) -> PyResult<usize> {
     let _ = score_cutoff;
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0usize);
-    Ok(alg::postfix_similarity(&a, &b))
+    if is_none(s1) || is_none(s2) {
+        return Ok(0usize);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
+    Ok(dispatch_metric!(alg::postfix_similarity, &a, &b))
 }
 
 #[pyfunction]
@@ -922,10 +1160,15 @@ pub fn postfix_normalized_distance(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 1.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(1.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::postfix_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::postfix_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let nd = alg::normalized_distance(dist, max_v);
     Ok(check_sim_f64_cutoff(nd, score_cutoff.map(|c| 1.0 - c)))
@@ -940,10 +1183,15 @@ pub fn postfix_normalized_similarity(
     processor: Option<PyObject>,
     score_cutoff: Option<f64>,
 ) -> PyResult<f64> {
-    let (a, b) = get_seqs!(py, s1, s2, &processor, 0.0f64);
+    if is_none(s1) || is_none(s2) {
+        return Ok(0.0f64);
+    }
+    let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
+    let a = extract_single(&a_obj)?;
+    let b = extract_single(&b_obj)?;
     let av = a;
     let bv = b;
-    let dist = alg::postfix_distance(&av, &bv);
+    let dist = dispatch_metric!(alg::postfix_distance, &av, &bv);
     let max_v = av.len().max(bv.len());
     let ns = alg::normalized_similarity(dist, max_v);
     Ok(check_sim_f64_cutoff(ns, score_cutoff))

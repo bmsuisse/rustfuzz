@@ -5,14 +5,101 @@
 
 use std::collections::HashMap;
 
+pub trait HashableChar: Copy + Eq + std::hash::Hash + Ord {
+    fn as_usize(&self) -> Option<usize>;
+}
+impl HashableChar for u8 {
+    #[inline] fn as_usize(&self) -> Option<usize> { Some(*self as usize) }
+}
+impl HashableChar for u32 {
+    #[inline] fn as_usize(&self) -> Option<usize> { if *self < 256 { Some(*self as usize) } else { None } }
+}
+impl HashableChar for u64 {
+    #[inline] fn as_usize(&self) -> Option<usize> { if *self < 256 { Some(*self as usize) } else { None } }
+}
+
+
 // ---------------------------------------------------------------------------
+
+// ===========================================================================
+// Fast Lookup Pattern Masks (Bypasses HashMap for ASCII/u8)
+// ===========================================================================
+
+pub struct PatternMask64<T: HashableChar> {
+    ascii: [u64; 256],
+    fallback: std::collections::HashMap<T, u64>,
+}
+
+impl<T: HashableChar> PatternMask64<T> {
+    #[inline(always)]
+    pub fn new() -> Self {
+        PatternMask64 { ascii: [0; 256], fallback: std::collections::HashMap::new() }
+    }
+    
+    #[inline(always)]
+    pub fn insert(&mut self, c: T, mask: u64) {
+        if let Some(idx) = c.as_usize() {
+            self.ascii[idx] |= mask;
+        } else {
+            *self.fallback.entry(c).or_insert(0) |= mask;
+        }
+    }
+    
+    #[inline(always)]
+    pub fn get(&self, c: T) -> u64 {
+        if let Some(idx) = c.as_usize() {
+            self.ascii[idx]
+        } else {
+            self.fallback.get(&c).copied().unwrap_or(0)
+        }
+    }
+}
+
+pub struct PatternMaskMulti<T: HashableChar> {
+    ascii: Vec<u64>,
+    fallback: std::collections::HashMap<T, Vec<u64>>,
+    words: usize,
+    zeros: Vec<u64>,
+}
+
+impl<T: HashableChar> PatternMaskMulti<T> {
+    #[inline(always)]
+    pub fn new(words: usize) -> Self {
+        PatternMaskMulti { 
+            ascii: vec![0u64; 256 * words], 
+            fallback: std::collections::HashMap::new(),
+            words,
+            zeros: vec![0; words],
+        }
+    }
+    
+    #[inline(always)]
+    pub fn set_bit(&mut self, c: T, word_idx: usize, bit_idx: usize) {
+        if let Some(idx) = c.as_usize() {
+            self.ascii[idx * self.words + word_idx] |= 1u64 << bit_idx;
+        } else {
+            let entry = self.fallback.entry(c).or_insert_with(|| vec![0u64; self.words]);
+            entry[word_idx] |= 1u64 << bit_idx;
+        }
+    }
+    
+    #[inline(always)]
+    pub fn get(&self, c: T) -> &[u64] {
+        if let Some(idx) = c.as_usize() {
+            &self.ascii[idx * self.words .. (idx + 1) * self.words]
+        } else {
+            self.fallback.get(&c).map(|v| v.as_slice()).unwrap_or(&self.zeros)
+        }
+    }
+}
+
 // Helper: common prefix/suffix lengths
 // ---------------------------------------------------------------------------
-pub fn common_prefix(s1: &[i64], s2: &[i64]) -> usize {
+pub fn common_prefix<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     s1.iter().zip(s2.iter()).take_while(|(a, b)| a == b).count()
 }
 
-pub fn common_suffix(s1: &[i64], s2: &[i64]) -> usize {
+pub fn common_suffix<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     s1.iter()
         .rev()
         .zip(s2.iter().rev())
@@ -26,12 +113,12 @@ pub fn common_suffix(s1: &[i64], s2: &[i64]) -> usize {
 // ===========================================================================
 
 /// Single-word Myers for len(s1) <= 64
-fn myers_64(s1: &[i64], s2: &[i64]) -> usize {
+fn myers_64<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let len1 = s1.len();
     // Build pattern bitmask
-    let mut pm: HashMap<i64, u64> = HashMap::new();
+    let mut pm = PatternMask64::new();
     for (i, &c) in s1.iter().enumerate() {
-        *pm.entry(c).or_insert(0) |= 1u64 << i;
+        pm.insert(c, 1u64 << i);
     }
 
     let mut vp: u64 = u64::MAX; // all ones
@@ -40,7 +127,7 @@ fn myers_64(s1: &[i64], s2: &[i64]) -> usize {
     let mask: u64 = 1u64 << (len1 - 1);
 
     for &c in s2 {
-        let pm_j = pm.get(&c).copied().unwrap_or(0);
+        let pm_j = pm.get(c);
         let x = pm_j | vn;
         let d0 = (((pm_j & vp).wrapping_add(vp)) ^ vp) | x;
         let hp = vn | !(d0 | vp);
@@ -60,15 +147,14 @@ fn myers_64(s1: &[i64], s2: &[i64]) -> usize {
 }
 
 /// Multi-word Myers for len(s1) > 64, exactly mirrors myers_64's computation pattern.
-fn myers_multiword(s1: &[i64], s2: &[i64]) -> usize {
+fn myers_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let len1 = s1.len();
     let words = (len1 + 63) / 64;
 
     // Build pattern bitmasks per word (keyed by character)
-    let mut pm: HashMap<i64, Vec<u64>> = HashMap::new();
+    let mut pm = PatternMaskMulti::new(words);
     for (i, &c) in s1.iter().enumerate() {
-        let entry = pm.entry(c).or_insert_with(|| vec![0u64; words]);
-        entry[i / 64] |= 1u64 << (i % 64);
+        pm.set_bit(c, i / 64, i % 64);
     }
 
     let mut vp: Vec<u64> = vec![u64::MAX; words];
@@ -83,7 +169,7 @@ fn myers_multiword(s1: &[i64], s2: &[i64]) -> usize {
     vp[words - 1] = last_valid_mask;
 
     for &c in s2 {
-        let pm_c = pm.get(&c);
+        let pm_c = pm.get(c);
         // add_carry: carry for the (PM & VP) + VP addition, propagates low→high across words
         let mut add_carry: u64 = 0;
         // hp_carry: lowest bit shifted into HP (starts at 1 = X_{-1} in Myers' notation)
@@ -96,7 +182,7 @@ fn myers_multiword(s1: &[i64], s2: &[i64]) -> usize {
         let mut new_vn = vec![0u64; words];
 
         for w in 0..words {
-            let pm_j = pm_c.map(|p| p[w]).unwrap_or(0);
+            let pm_j = pm_c[w];
             let pv = vp[w]; // old VP for this word
             let nv = vn[w]; // old VN for this word
 
@@ -140,7 +226,7 @@ fn myers_multiword(s1: &[i64], s2: &[i64]) -> usize {
     dist
 }
 
-pub fn levenshtein_uniform(s1: &[i64], s2: &[i64]) -> usize {
+pub fn levenshtein_uniform<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     if s1.is_empty() {
         return s2.len();
     }
@@ -161,9 +247,9 @@ pub fn levenshtein_uniform(s1: &[i64], s2: &[i64]) -> usize {
 }
 
 /// Generic Levenshtein with custom weights (insert, delete, replace)
-pub fn levenshtein_generic(
-    s1: &[i64],
-    s2: &[i64],
+pub fn levenshtein_generic<T: HashableChar>(
+    s1: &[T],
+    s2: &[T],
     ins_cost: usize,
     del_cost: usize,
     rep_cost: usize,
@@ -191,7 +277,7 @@ pub fn levenshtein_generic(
     prev[n]
 }
 
-pub fn levenshtein(s1: &[i64], s2: &[i64], weights: (usize, usize, usize)) -> usize {
+pub fn levenshtein<T: HashableChar>(s1: &[T], s2: &[T], weights: (usize, usize, usize)) -> usize {
     let (ins, del, rep) = weights;
     if ins == 1 && del == 1 && rep == 1 {
         // Strip common prefix/suffix first for speed
@@ -210,7 +296,7 @@ pub fn levenshtein(s1: &[i64], s2: &[i64], weights: (usize, usize, usize)) -> us
 /// Build editops using Python's Hyyrö VP/VN bit-parallel algorithm for exact tie-breaking match.
 /// For m <= 127, uses u128 bit-parallel (matches Python's arbitrary-precision integers).
 /// For m > 127, falls back to standard DP with delete-before-replace priority.
-pub fn levenshtein_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usize)> {
+pub fn levenshtein_editops_trace<T: HashableChar>(s1: &[T], s2: &[T]) -> Vec<(String, usize, usize)> {
     let full_m = s1.len();
     let full_n = s2.len();
 
@@ -242,20 +328,20 @@ pub fn levenshtein_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, 
 
 /// Hyyrö bit-parallel VP/VN algorithm for m <= 127.
 /// Exactly matches Python's _matrix + editops backtracking.
-fn levenshtein_editops_bitvec(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String, usize, usize)> {
+fn levenshtein_editops_bitvec<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize) -> Vec<(String, usize, usize)> {
     let m = s1.len();
     let n = s2.len();
 
     // Build PM (pattern match bitmask) for each unique char in s1
     // Using sorted Vec for cache-friendly lookup, much faster than HashMap for short strings
-    let mut pm_pairs: Vec<(i64, u128)> = Vec::new();
+    let mut pm_pairs: Vec<(T, u128)> = Vec::new();
     for (i, &ch) in s1.iter().enumerate() {
         match pm_pairs.binary_search_by_key(&ch, |&(c, _)| c) {
             Ok(pos) => pm_pairs[pos].1 |= 1u128 << i,
             Err(pos) => pm_pairs.insert(pos, (ch, 1u128 << i)),
         }
     }
-    let pm_get = |ch: i64| -> u128 {
+    let pm_get = |ch: T| -> u128 {
         match pm_pairs.binary_search_by_key(&ch, |&(c, _)| c) {
             Ok(pos) => pm_pairs[pos].1,
             Err(_) => 0,
@@ -316,7 +402,7 @@ fn levenshtein_editops_bitvec(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String
 /// Multiword VP/VN bit-parallel editops for m > 127.
 /// Stores VP and VN for every column j, then backtracks exactly like levenshtein_editops_bitvec.
 /// This matches Python's arbitrary-precision integer approach for all string lengths.
-fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(String, usize, usize)> {
+fn levenshtein_editops_multiword<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize) -> Vec<(String, usize, usize)> {
     let m = s1.len();
     let n = s2.len();
     let words = (m + 63) / 64;
@@ -324,10 +410,9 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
     let last_valid_mask: u64 = if last_bits == 64 { u64::MAX } else { (1u64 << last_bits) - 1 };
 
     // Build pattern bitmasks
-    let mut pm: HashMap<i64, Vec<u64>> = HashMap::new();
+    let mut pm = PatternMaskMulti::new(words);
     for (i, &c) in s1.iter().enumerate() {
-        let entry = pm.entry(c).or_insert_with(|| vec![0u64; words]);
-        entry[i / 64] |= 1u64 << (i % 64);
+        pm.set_bit(c, i / 64, i % 64);
     }
 
     let mut vp: Vec<u64> = vec![u64::MAX; words];
@@ -339,7 +424,7 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
     let mut matrix_vn: Vec<Vec<u64>> = Vec::with_capacity(n);
 
     for &c in s2 {
-        let pm_c = pm.get(&c);
+        let pm_c = pm.get(c);
         let mut add_carry: u64 = 0;
         let mut hp_carry: u64 = 1;
         let mut hn_carry: u64 = 0;
@@ -347,7 +432,7 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
         let mut new_vn = vec![0u64; words];
 
         for w in 0..words {
-            let pm_j = pm_c.map(|p| p[w]).unwrap_or(0);
+            let pm_j = pm_c[w];
             let pv = vp[w];
             let nv = vn[w];
             let pm_and_vp = pm_j & pv;
@@ -407,36 +492,16 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
 
 
 /// LCS length using bit-parallel algorithm (Crochemore et al.)
-pub fn lcs_length_64(s1: &[i64], s2: &[i64]) -> usize {
-    let mut use_array = true;
-    for &c in s1 {
-        if c < 0 || c >= 256 {
-            use_array = false;
-            break;
-        }
+pub fn lcs_length_64<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
+    let mut pm = PatternMask64::new();
+    for (i, &c) in s1.iter().enumerate() {
+        pm.insert(c, 1u64 << i);
     }
     let mut v = !0u64;
-    
-    if use_array {
-        let mut pm = [0u64; 256];
-        for (i, &c) in s1.iter().enumerate() {
-            pm[c as usize] |= 1u64 << i;
-        }
-        for &c in s2 {
-            let x = if c >= 0 && c < 256 { pm[c as usize] } else { 0 };
-            let u = v & x;
-            v = (v.wrapping_add(u)) | (v & !x);
-        }
-    } else {
-        let mut pm = std::collections::HashMap::with_capacity(s1.len());
-        for (i, &c) in s1.iter().enumerate() {
-            *pm.entry(c).or_insert(0) |= 1u64 << i;
-        }
-        for &c in s2 {
-            let x = pm.get(&c).copied().unwrap_or(0);
-            let u = v & x;
-            v = (v.wrapping_add(u)) | (v & !x);
-        }
+    for &c in s2 {
+        let x = pm.get(c);
+        let u = v & x;
+        v = (v.wrapping_add(u)) | (v & !x);
     }
     
     let mask = if s1.len() == 64 { !0u64 } else { (1u64 << s1.len()) - 1 };
@@ -444,40 +509,21 @@ pub fn lcs_length_64(s1: &[i64], s2: &[i64]) -> usize {
 }
 
 /// Multiword bit-parallel LCS for m > 64
-fn lcs_length_multiword(s1: &[i64], s2: &[i64]) -> usize {
+fn lcs_length_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let m = s1.len();
     let words = (m + 63) / 64;
-    let mut use_array = true;
-    for &c in s1 {
-        if c < 0 || c >= 256 { use_array = false; break; }
-    }
-    
-    let mut pm_array: Vec<Vec<u64>> = vec![vec![0; words]; 256];
-    let mut pm_map: std::collections::HashMap<i64, Vec<u64>> = std::collections::HashMap::new();
-    
-    if use_array {
-        for (i, &c) in s1.iter().enumerate() {
-            pm_array[c as usize][i / 64] |= 1u64 << (i % 64);
-        }
-    } else {
-        for (i, &c) in s1.iter().enumerate() {
-            let entry = pm_map.entry(c).or_insert_with(|| vec![0; words]);
-            entry[i / 64] |= 1u64 << (i % 64);
-        }
+    let mut pm = PatternMaskMulti::new(words);
+    for (i, &c) in s1.iter().enumerate() {
+        pm.set_bit(c, i / 64, i % 64);
     }
 
     let mut v = vec![!0u64; words];
     for &c in s2 {
-        let pm_c = if use_array {
-            if c >= 0 && c < 256 { Some(&pm_array[c as usize]) } else { None }
-        } else {
-            pm_map.get(&c)
-        };
-        
+        let pm_c = pm.get(c);
         let mut carry = 0u64;
         let mut next_v = vec![0u64; words];
         for w in 0..words {
-            let x = pm_c.map(|p| p[w]).unwrap_or(0);
+            let x = pm_c[w];
             let u = v[w] & x;
             let (sum1, c1) = v[w].overflowing_add(u);
             let (sum2, c2) = sum1.overflowing_add(carry);
@@ -497,7 +543,7 @@ fn lcs_length_multiword(s1: &[i64], s2: &[i64]) -> usize {
     zeros
 }
 
-pub fn lcs_length(s1: &[i64], s2: &[i64]) -> usize {
+pub fn lcs_length<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     if s1.is_empty() || s2.is_empty() {
         return 0;
     }
@@ -508,7 +554,7 @@ pub fn lcs_length(s1: &[i64], s2: &[i64]) -> usize {
     }
 }
 
-pub fn indel_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn indel_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let pfx = common_prefix(s1, s2);
     let s1 = &s1[pfx..];
     let s2 = &s2[pfx..];
@@ -520,7 +566,7 @@ pub fn indel_distance(s1: &[i64], s2: &[i64]) -> usize {
 }
 
 /// Build indel editops via LCS backtrack
-pub fn indel_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usize)> {
+pub fn indel_editops_trace<T: HashableChar>(s1: &[T], s2: &[T]) -> Vec<(String, usize, usize)> {
     let full_m = s1.len();
     let full_n = s2.len();
 
@@ -601,7 +647,7 @@ pub fn indel_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usize)
 // HAMMING
 // ===========================================================================
 
-pub fn hamming_distance(s1: &[i64], s2: &[i64], pad: bool) -> usize {
+pub fn hamming_distance<T: HashableChar>(s1: &[T], s2: &[T], pad: bool) -> usize {
     let max_len = s1.len().max(s2.len());
     let min_len = s1.len().min(s2.len());
     let mut dist = 0usize;
@@ -620,7 +666,7 @@ pub fn hamming_distance(s1: &[i64], s2: &[i64], pad: bool) -> usize {
     dist
 }
 
-pub fn hamming_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usize)> {
+pub fn hamming_editops_trace<T: HashableChar>(s1: &[T], s2: &[T]) -> Vec<(String, usize, usize)> {
     let min_len = s1.len().min(s2.len());
     let mut ops = Vec::new();
     for i in 0..min_len {
@@ -645,7 +691,7 @@ pub fn hamming_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usiz
 // JARO
 // ===========================================================================
 
-pub fn jaro(s1: &[i64], s2: &[i64]) -> f64 {
+pub fn jaro<T: HashableChar>(s1: &[T], s2: &[T]) -> f64 {
     let len1 = s1.len();
     let len2 = s2.len();
 
@@ -704,7 +750,7 @@ pub fn jaro(s1: &[i64], s2: &[i64]) -> f64 {
 // JARO-WINKLER
 // ===========================================================================
 
-pub fn jaro_winkler(s1: &[i64], s2: &[i64], prefix_weight: f64) -> f64 {
+pub fn jaro_winkler<T: HashableChar>(s1: &[T], s2: &[T], prefix_weight: f64) -> f64 {
     let jaro_score = jaro(s1, s2);
     if jaro_score < 0.7 {
         return jaro_score;
@@ -722,7 +768,7 @@ pub fn jaro_winkler(s1: &[i64], s2: &[i64], prefix_weight: f64) -> f64 {
 // LCSseq
 // ===========================================================================
 
-pub fn lcs_seq_similarity(s1: &[i64], s2: &[i64]) -> usize {
+pub fn lcs_seq_similarity<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let pfx = common_prefix(s1, s2);
     let s1t = &s1[pfx..];
     let s2t = &s2[pfx..];
@@ -732,12 +778,12 @@ pub fn lcs_seq_similarity(s1: &[i64], s2: &[i64]) -> usize {
     pfx + sfx + lcs_length(s1t, s2t)
 }
 
-pub fn lcs_seq_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn lcs_seq_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let sim = lcs_seq_similarity(s1, s2);
     s1.len().max(s2.len()) - sim
 }
 
-pub fn lcs_seq_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usize)> {
+pub fn lcs_seq_editops_trace<T: HashableChar>(s1: &[T], s2: &[T]) -> Vec<(String, usize, usize)> {
     // Indel editops but without replace (only insert/delete)
     indel_editops_trace(s1, s2)
 }
@@ -746,7 +792,7 @@ pub fn lcs_seq_editops_trace(s1: &[i64], s2: &[i64]) -> Vec<(String, usize, usiz
 // OSA (Optimal String Alignment)
 // ===========================================================================
 
-pub fn osa_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn osa_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let m = s1.len();
     let n = s2.len();
     if m == 0 {
@@ -782,7 +828,7 @@ pub fn osa_distance(s1: &[i64], s2: &[i64]) -> usize {
 // DAMERAU-LEVENSHTEIN (true, with transpositions)
 // ===========================================================================
 
-pub fn damerau_levenshtein_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn damerau_levenshtein_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let m = s1.len();
     let n = s2.len();
     if m == 0 {
@@ -793,10 +839,10 @@ pub fn damerau_levenshtein_distance(s1: &[i64], s2: &[i64]) -> usize {
     }
 
     let max_dist = m + n;
-    let _d: HashMap<(i64, i64), usize> = HashMap::new();
+    let _d: HashMap<(T, T), usize> = HashMap::new();
 
     // Last occurrence of each character in s1
-    let mut da: HashMap<i64, usize> = HashMap::new();
+    let mut da: HashMap<T, usize> = HashMap::new();
 
     // d[-1..-1] border = max_dist
     let mut dp = vec![vec![0usize; n + 2]; m + 2];
@@ -838,16 +884,16 @@ pub fn damerau_levenshtein_distance(s1: &[i64], s2: &[i64]) -> usize {
 // PREFIX / POSTFIX
 // ===========================================================================
 
-pub fn prefix_similarity(s1: &[i64], s2: &[i64]) -> usize {
+pub fn prefix_similarity<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     s1.iter().zip(s2.iter()).take_while(|(a, b)| a == b).count()
 }
 
-pub fn prefix_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn prefix_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let sim = prefix_similarity(s1, s2);
     s1.len().max(s2.len()) - sim
 }
 
-pub fn postfix_similarity(s1: &[i64], s2: &[i64]) -> usize {
+pub fn postfix_similarity<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     s1.iter()
         .rev()
         .zip(s2.iter().rev())
@@ -855,7 +901,7 @@ pub fn postfix_similarity(s1: &[i64], s2: &[i64]) -> usize {
         .count()
 }
 
-pub fn postfix_distance(s1: &[i64], s2: &[i64]) -> usize {
+pub fn postfix_distance<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let sim = postfix_similarity(s1, s2);
     s1.len().max(s2.len()) - sim
 }

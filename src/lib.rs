@@ -7,6 +7,7 @@ mod distance;
 mod fuzz;
 mod types;
 mod utils;
+mod process;
 
 use distance::initialize;
 use distance::metrics;
@@ -23,6 +24,11 @@ fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // --- utils ---
     m.add_function(wrap_pyfunction!(utils::default_process, m)?)?;
+
+    // --- process batching ---
+    m.add_function(wrap_pyfunction!(process::extract, m)?)?;
+    m.add_function(wrap_pyfunction!(process::extract_one, m)?)?;
+    m.add_function(wrap_pyfunction!(process::extract_iter, m)?)?;
 
     // --- fuzz scorers ---
     m.add_function(wrap_pyfunction!(fuzz::fuzz_ratio, m)?)?;

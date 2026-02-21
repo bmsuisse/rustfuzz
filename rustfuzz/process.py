@@ -19,22 +19,21 @@ def extract(
     limit: int | None = 5,
     score_cutoff: float | None = None,
 ) -> list[tuple[Any, float, int]]:
-    """Return the top `limit` matches from `choices` for `query`."""
-    from . import fuzz  # local import to avoid circular
+    from . import _rustfuzz
+    from . import fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
-    _proc = processor
-    results: list[tuple[Any, float, int]] = []
-    for idx, choice in enumerate(choices):
-        c = _proc(choice) if _proc else choice
-        q = _proc(query) if _proc else query
-        score = _scorer(q, c)
-        if score_cutoff is None or score >= score_cutoff:
-            results.append((choice, score, idx))
-    results.sort(key=lambda x: x[1], reverse=True)
-    if limit is not None:
-        results = results[:limit]
-    return results
+    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+    
+    return _rustfuzz.extract(
+        query,
+        choices,
+        scorer_name,
+        _scorer,
+        processor,
+        limit,
+        score_cutoff,
+    )
 
 
 def extractOne(
@@ -45,16 +44,20 @@ def extractOne(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> tuple[Any, float, int] | None:
-    """Return the single best match or None."""
-    results = extract(
+    from . import _rustfuzz
+    from . import fuzz
+
+    _scorer = scorer if scorer is not None else fuzz.WRatio
+    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+
+    return _rustfuzz.extract_one(
         query,
         choices,
-        scorer=scorer,
-        processor=processor,
-        limit=1,
-        score_cutoff=score_cutoff,
+        scorer_name,
+        _scorer,
+        processor,
+        score_cutoff,
     )
-    return results[0] if results else None
 
 
 def extract_iter(
@@ -65,17 +68,20 @@ def extract_iter(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> Iterator[tuple[Any, float, int]]:
-    """Iterate over all matches meeting `score_cutoff`."""
+    from . import _rustfuzz
     from . import fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
-    _proc = processor
-    for idx, choice in enumerate(choices):
-        c = _proc(choice) if _proc else choice
-        q = _proc(query) if _proc else query
-        score = _scorer(q, c)
-        if score_cutoff is None or score >= score_cutoff:
-            yield (choice, score, idx)
+    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+
+    yield from _rustfuzz.extract_iter(
+        query,
+        choices,
+        scorer_name,
+        _scorer,
+        processor,
+        score_cutoff,
+    )
 
 
 def cdist(
