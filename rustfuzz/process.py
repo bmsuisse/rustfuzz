@@ -7,15 +7,21 @@ in Rust (process.rs) in a follow-up. Stubs are provided for API compatibility.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable, Iterator
-
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any
 
 # Scorers implemented natively in Rust — pass scorer_obj=None to activate the native fast path.
 _NATIVE_SCORER_NAMES = {
-    "ratio", "qratio", "wratio", "partial_ratio",
-    "token_sort_ratio", "partial_token_sort_ratio",
-    "token_set_ratio", "partial_token_set_ratio",
-    "token_ratio", "partial_token_ratio",
+    "ratio",
+    "qratio",
+    "wratio",
+    "partial_ratio",
+    "token_sort_ratio",
+    "partial_token_sort_ratio",
+    "token_set_ratio",
+    "partial_token_set_ratio",
+    "token_ratio",
+    "partial_token_ratio",
 }
 
 
@@ -28,8 +34,7 @@ def extract(
     limit: int | None = 5,
     score_cutoff: float | None = None,
 ) -> list[tuple[Any, float, int]]:
-    from . import _rustfuzz
-    from . import fuzz
+    from . import _rustfuzz, fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
@@ -47,6 +52,26 @@ def extract(
     )
 
 
+def extractBests(
+    query: Any,
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    limit: int | None = None,
+    score_cutoff: float | None = 0.0,
+) -> list[tuple[Any, float, int]]:
+    """Returns all matches with score >= score_cutoff, sorted by score."""
+    return extract(
+        query,
+        choices,
+        scorer=scorer,
+        processor=processor,
+        limit=limit,
+        score_cutoff=score_cutoff,
+    )
+
+
 def extractOne(
     query: Any,
     choices: Iterable[Any],
@@ -55,8 +80,7 @@ def extractOne(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> tuple[Any, float, int] | None:
-    from . import _rustfuzz
-    from . import fuzz
+    from . import _rustfuzz, fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
@@ -80,8 +104,7 @@ def extract_iter(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> Iterator[tuple[Any, float, int]]:
-    from . import _rustfuzz
-    from . import fuzz
+    from . import _rustfuzz, fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
@@ -114,21 +137,24 @@ def cdist(
         msg = "cdist requires numpy: pip install rustfuzz[all]"
         raise ImportError(msg) from e
 
-    from . import fuzz
+    from . import _rustfuzz, fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
-    _proc = processor
-    q_list = list(queries)
-    c_list = list(choices)
-    if _proc:
-        q_list = [_proc(q) for q in q_list]
-        c_list = [_proc(c) for c in c_list]
-    matrix = np.zeros((len(q_list), len(c_list)), dtype=np.float32)
-    for i, q in enumerate(q_list):
-        for j, c in enumerate(c_list):
-            score = _scorer(q, c)
-            matrix[i, j] = score if score_cutoff is None or score >= score_cutoff else 0.0
-    return matrix
+    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+
+    flat_array, rows, cols = _rustfuzz.cdist(
+        queries,
+        choices,
+        scorer_name,
+        scorer_obj,
+        processor,
+        score_cutoff,
+    )
+
+    # Reshape the flat array returned from Rust into a 2D numpy matrix
+    matrix = np.array(flat_array, dtype=dtype if dtype is not None else np.float32)
+    return matrix.reshape((rows, cols))
 
 
-__all__ = ["extract", "extractOne", "extract_iter", "cdist"]
+__all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist"]

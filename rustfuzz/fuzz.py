@@ -8,15 +8,35 @@ from __future__ import annotations
 
 from ._rustfuzz import (
     fuzz_partial_ratio as partial_ratio,
+)
+from ._rustfuzz import (
     fuzz_partial_ratio_alignment as partial_ratio_alignment,
+)
+from ._rustfuzz import (
     fuzz_partial_token_ratio as partial_token_ratio,
+)
+from ._rustfuzz import (
     fuzz_partial_token_set_ratio as partial_token_set_ratio,
+)
+from ._rustfuzz import (
     fuzz_partial_token_sort_ratio as partial_token_sort_ratio,
+)
+from ._rustfuzz import (
     fuzz_qratio as QRatio,
+)
+from ._rustfuzz import (
     fuzz_ratio as ratio,
+)
+from ._rustfuzz import (
     fuzz_token_ratio as token_ratio,
+)
+from ._rustfuzz import (
     fuzz_token_set_ratio as token_set_ratio,
+)
+from ._rustfuzz import (
     fuzz_token_sort_ratio as token_sort_ratio,
+)
+from ._rustfuzz import (
     fuzz_wratio as WRatio,
 )
 

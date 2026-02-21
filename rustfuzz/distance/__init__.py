@@ -4,8 +4,8 @@ rustfuzz.distance — edit distance metrics.
 
 from __future__ import annotations
 
-from ._initialize import Editop, Editops, MatchingBlock, Opcode, Opcodes, ScoreAlignment
 from . import (  # noqa: F401
+    OSA,
     DamerauLevenshtein,
     Hamming,
     Indel,
@@ -13,10 +13,11 @@ from . import (  # noqa: F401
     JaroWinkler,
     LCSseq,
     Levenshtein,
-    OSA,
     Postfix,
     Prefix,
+    Soundex,
 )
+from ._initialize import Editop, Editops, MatchingBlock, Opcode, Opcodes, ScoreAlignment
 
 __all__ = [
     "Editop",

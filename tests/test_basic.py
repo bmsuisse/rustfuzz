@@ -9,6 +9,7 @@ import rustfuzz.fuzz as fuzz
 import rustfuzz.process as process
 import rustfuzz.utils as utils
 from rustfuzz.distance import (
+    OSA,
     DamerauLevenshtein,
     Hamming,
     Indel,
@@ -16,7 +17,6 @@ from rustfuzz.distance import (
     JaroWinkler,
     LCSseq,
     Levenshtein,
-    OSA,
     Postfix,
     Prefix,
 )
@@ -71,6 +71,10 @@ class TestFuzz:
     def test_token_ratio(self) -> None:
         score = fuzz.token_ratio("fuzzy wuzzy", "wuzzy fuzzy")
         assert score == 100.0
+
+    def test_token_ratio_none(self) -> None:
+        assert fuzz.token_ratio(None, "test") == 0.0  # type: ignore[arg-type]
+        assert fuzz.token_ratio("test", None) == 0.0  # type: ignore[arg-type]
 
     def test_partial_token_sort_ratio(self) -> None:
         score = fuzz.partial_token_sort_ratio("hello world", "world hello foo")
@@ -231,11 +235,25 @@ class TestProcess:
         assert isinstance(results, list)
         assert len(results) <= 5
 
-    def test_extract_one(self) -> None:
-        result = process.extractOne("hello", ["hello", "world"])
-        assert result is not None
-        assert result[0] == "hello"
-        assert result[1] == 100.0
+    def test_cdist(self) -> None:
+        queries = ["apple", "banana"]
+        choices = ["apple", "mango", "banana"]
+        matrix = process.cdist(queries, choices, scorer=fuzz.ratio)
+        assert matrix.shape == (2, 3)
+        assert matrix[0, 0] == 100.0
+        assert matrix[1, 2] == 100.0
+        assert matrix[0, 1] < 100.0
+
+    def test_extract_bests(self) -> None:
+        choices = ["apple", "mango", "banana", "pineapple"]
+        bests = process.extractBests(
+            "apple", choices, scorer=fuzz.ratio, score_cutoff=50.0
+        )
+        assert len(bests) == 2
+        docs = [x[0] for x in bests]
+        assert "apple" in docs
+        assert "pineapple" in docs
+        assert "mango" not in docs
 
     def test_extract_iter(self) -> None:
         results = list(process.extract_iter("hello", ["hello", "world", "helo"]))

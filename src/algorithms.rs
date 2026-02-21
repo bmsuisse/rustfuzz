@@ -51,9 +51,9 @@ impl<T: HashableChar> PatternMask64<T> {
 }
 
 pub struct PatternMaskMulti<T: HashableChar> {
+    words: usize,
     ascii: Vec<u64>,
     fallback: FxHashMap<T, Vec<u64>>,
-    words: usize,
     zeros: Vec<u64>,
 }
 
@@ -61,9 +61,9 @@ impl<T: HashableChar> PatternMaskMulti<T> {
     #[inline(always)]
     pub fn new(words: usize) -> Self {
         PatternMaskMulti { 
-            ascii: vec![0u64; 256 * words], 
-            fallback: FxHashMap::default(),
             words,
+            ascii: vec![0u64; 256 * words],
+            fallback: FxHashMap::default(),
             zeros: vec![0; words],
         }
     }
@@ -575,7 +575,7 @@ pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
         for &c in window {
             let x = pm.get(c);
             let u = v & x;
-            v = (v.wrapping_add(u)) | (v & !x);
+            v = v.wrapping_add(u) | (v ^ u);
         }
         let lcs = (!v & mask).count_ones() as usize;
         let ls = m + wlen;
@@ -616,10 +616,9 @@ fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: O
         for w in 0..words {
             let x = pm_c[w];
             let u = v[w] & x;
-            let (sum1, c1) = v[w].overflowing_add(u);
-            let (sum2, c2) = sum1.overflowing_add(carry);
-            carry = (c1 as u64) | (c2 as u64);
-            next_v[w] = sum2 | (v[w] & !x);
+            let sum = (v[w] as u128) + (u as u128) + (carry as u128);
+            carry = (sum >> 64) as u64;
+            next_v[w] = (sum as u64) | (v[w] ^ u);
         }
         std::mem::swap(&mut v, &mut next_v);
 

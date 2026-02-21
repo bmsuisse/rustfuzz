@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use rayon::prelude::*;
 
 use crate::fuzz::{
     fuzz_partial_ratio, fuzz_partial_token_ratio, fuzz_partial_token_set_ratio,
@@ -78,7 +79,6 @@ pub fn execute_scorer(
 
 /// Score a raw *mut PyObject against a pre-built query (q_slice, q_hist, q_pm).
 /// Returns None if item should be skipped (filtered or non-string).
-/// Only calls Py_INCREF when a result is being returned.
 ///
 /// SAFETY: raw must be a valid borrowed ptr (GIL held, object alive).
 #[inline(always)]
@@ -115,9 +115,7 @@ unsafe fn score_raw(
     let q_len = q_slice.len();
     let lensum = q_len + c_slice.len();
     if lensum == 0 {
-        // Both empty — perfect match
         return if score_cutoff.map_or(true, |co| 100.0 >= co) {
-            // Return empty slice as sentinel for "100.0 score" — caller handles INCREF
             Some((100.0, c_slice))
         } else { None };
     }
@@ -145,15 +143,55 @@ unsafe fn score_raw(
     if dist == usize::MAX { return None; }
     let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
     if score_cutoff.map_or(true, |c| score >= c) {
-        // Transmute c_slice to 'static — safe because it points into a Python string's
-        // internal buffer which lives as long as the GIL is held and the object is alive.
-        // We guarantee the caller holds a reference to the PyObject.
         let static_slice: &'static [u8] = std::mem::transmute(c_slice);
         Some((score, static_slice))
     } else {
         None
     }
 }
+
+/// Parallel scorer for a pre-extracted byte slice (no GIL needed).
+/// Used by the Rayon parallel path in extract_parallel.
+#[inline(always)]
+fn score_bytes_parallel(
+    c_slice: &[u8],
+    q_slice: &[u8],
+    q_hist: &[i32; 256],
+    q_pm: &crate::algorithms::PatternMask64<u8>,
+    use_pm: bool,
+    score_cutoff: Option<f64>,
+) -> Option<f64> {
+    let q_len = q_slice.len();
+    let lensum = q_len + c_slice.len();
+    if lensum == 0 {
+        return if score_cutoff.map_or(true, |co| 100.0 >= co) { Some(100.0) } else { None };
+    }
+
+    let allowed_edits = score_cutoff
+        .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
+
+    if let Some(max_ed) = allowed_edits {
+        if q_slice.len().abs_diff(c_slice.len()) > max_ed { return None; }
+        let mut c_hist = [0i32; 256];
+        for &c in c_slice { c_hist[c as usize] += 1; }
+        let diff: i32 = (0..256usize).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
+        if diff as usize > max_ed { return None; }
+    }
+
+    let dist = if use_pm {
+        let lcs = crate::algorithms::lcs_from_pm64(q_pm, q_len, c_slice, allowed_edits);
+        (q_len + c_slice.len()) - 2 * lcs
+    } else {
+        crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+    };
+
+    if dist == usize::MAX { return None; }
+    let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+    if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None }
+}
+
+/// Minimum batch size to justify Rayon parallelism (avoids overhead on small batches)
+const PARALLEL_THRESHOLD: usize = 64;
 
 #[pyfunction]
 #[pyo3(signature = (query, choices, scorer_name, scorer_obj, processor=None, limit=Some(5), score_cutoff=None))]
@@ -198,7 +236,6 @@ pub fn extract(
 
     if ratio_fast {
         if let Ok(crate::types::Seq::Ascii(q_slice)) = crate::types::extract_single(&processed_query) {
-            // Build PatternMask once for the query — reused for all N choices (rapidfuzz key trick)
             let use_pm = q_len <= 64 && q_len > 0;
             let mut q_pm = crate::algorithms::PatternMask64::<u8>::new();
             if use_pm {
@@ -207,31 +244,63 @@ pub fn extract(
                 }
             }
 
-            // === Wave 8: raw PyList_GET_ITEM loop ===
-            // PyList_GET_ITEM / PyTuple_GET_ITEM read ob_item[i] directly — no refcount change.
-            // We only call Py_INCREF for items that actually pass the score cutoff.
-            // This eliminates N * (Py_INCREF + Py_DECREF) for filtered items, matching
-            // what rapidfuzz does at the C level.
-
             if let Ok(list) = choices.downcast::<pyo3::types::PyList>() {
-                // CPython PyListObject layout: ob_refcnt, *ob_type, ob_size, **ob_item, allocated
-                // We define a minimal local repr(C) struct matching the C layout to access ob_item.
-                #[repr(C)]
-                struct PyListObject {
-                    pub ob_refcnt: pyo3::ffi::Py_ssize_t,
-                    pub ob_type: *mut pyo3::ffi::PyTypeObject,
-                    pub ob_size: pyo3::ffi::Py_ssize_t,
-                    pub ob_item: *mut *mut pyo3::ffi::PyObject,
-                    pub allocated: pyo3::ffi::Py_ssize_t,
-                }
-                let list_ptr = list.as_ptr() as *const PyListObject;
                 let n = list.len();
-                // SAFETY: ob_item is the raw C array backing a PyList. Valid
-                // for n reads while GIL is held and list is alive.
-                let items: &[*mut pyo3::ffi::PyObject] = unsafe {
-                    std::slice::from_raw_parts((*list_ptr).ob_item, n)
-                };
-                for (idx, &raw) in items.iter().enumerate() {
+
+                // --- Rayon parallel path for large lists (ratio scorer only) ---
+                if n >= PARALLEL_THRESHOLD && use_pm && matches!(stype, ScorerType::Ratio | ScorerType::QRatio) {
+                    // Phase 1: extract byte slices without GIL refcount changes
+                    let list_ptr = list.as_ptr();
+                    let mut slices: Vec<Option<&'static [u8]>> = Vec::with_capacity(n);
+                    for idx in 0..n {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                        if raw.is_null() || raw == unsafe { pyo3::ffi::Py_None() } {
+                            slices.push(None);
+                            continue;
+                        }
+                        let s: Option<&'static [u8]> = if unsafe { pyo3::ffi::PyUnicode_Check(raw) } != 0 {
+                            let mut length: isize = 0;
+                            let ptr = unsafe { pyo3::ffi::PyUnicode_AsUTF8AndSize(raw, &mut length) };
+                            if ptr.is_null() { None } else {
+                                let s = unsafe { std::slice::from_raw_parts(ptr as *const u8, length as usize) };
+                                if s.is_ascii() { Some(unsafe { std::mem::transmute(s) }) } else { None }
+                            }
+                        } else if unsafe { pyo3::ffi::PyBytes_Check(raw) } != 0 {
+                            let len = unsafe { pyo3::ffi::PyBytes_Size(raw) } as usize;
+                            let ptr = unsafe { pyo3::ffi::PyBytes_AsString(raw) } as *const u8;
+                            Some(unsafe { std::mem::transmute(std::slice::from_raw_parts(ptr, len)) })
+                        } else { None };
+                        slices.push(s);
+                    }
+
+                    // Phase 2: parallel scoring — GIL released
+                    let q_hist_ref = &q_hist;
+                    let q_pm_ref = &q_pm;
+                    let scores: Vec<Option<f64>> = py.allow_threads(|| {
+                        slices.par_iter().map(|opt| {
+                            opt.and_then(|c_slice| {
+                                score_bytes_parallel(c_slice, q_slice, q_hist_ref, q_pm_ref, true, score_cutoff)
+                            })
+                        }).collect()
+                    });
+
+                    // Phase 3: re-acquire GIL, INCREF winners
+                    for (idx, score_opt) in scores.into_iter().enumerate() {
+                        if let Some(score) = score_opt {
+                            let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                            let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                            results.push((obj, score, idx));
+                        }
+                    }
+                    results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                    if let Some(l) = limit { results.truncate(l); }
+                    return Ok(results);
+                }
+
+                // --- Sequential list path ---
+                let list_ptr = list.as_ptr();
+                for idx in 0..n {
+                    let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
                     if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
                         results.push((obj, score, idx));
@@ -247,16 +316,30 @@ pub fn extract(
                         results.push((obj, score, idx));
                     }
                 }
+            } else if let Ok(dict) = choices.downcast::<pyo3::types::PyDict>() {
+                // Dict fast path: score values, return (value, score, key_index) — key unused, value is the string
+                let dict_ptr = dict.as_ptr();
+                let mut ppos: pyo3::ffi::Py_ssize_t = 0;
+                let mut key_ptr: *mut pyo3::ffi::PyObject = std::ptr::null_mut();
+                let mut val_ptr: *mut pyo3::ffi::PyObject = std::ptr::null_mut();
+                let mut idx = 0usize;
+                loop {
+                    let has_next = unsafe { pyo3::ffi::PyDict_Next(dict_ptr, &mut ppos, &mut key_ptr, &mut val_ptr) };
+                    if has_next == 0 { break; }
+                    if let Some((score, _)) = unsafe { score_raw(val_ptr, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(val_ptr); PyObject::from_owned_ptr(py, val_ptr) };
+                        results.push((obj, score, idx));
+                    }
+                    idx += 1;
+                }
             } else {
-                // Generic iterator fallback (dicts, generators, custom sequences)
+                // Generic iterator fallback
                 for (idx, item_res) in choices.try_iter()?.enumerate() {
                     let item = item_res?;
-                    let raw = item.as_ptr(); // borrowed, item not dropped yet
+                    let raw = item.as_ptr();
                     if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
-                        // item is alive here — safe to clone_ref
                         results.push((item.clone().unbind(), score, idx));
                     }
-                    // item dropped; Py_DECREF — but we've already captured a ref via clone if needed
                 }
             }
 
@@ -271,7 +354,6 @@ pub fn extract(
     for (idx, choice_res) in iter.enumerate() {
         let choice = choice_res?;
 
-        // L1 pre-filter only when q is ASCII and cutoff given
         if q_is_ascii {
             if let Some(cutoff) = score_cutoff {
                 if let Ok(crate::types::Seq::Ascii(slice)) = crate::types::extract_single(&choice) {
@@ -326,4 +408,94 @@ pub fn extract_iter(
     score_cutoff: Option<f64>,
 ) -> PyResult<Vec<(PyObject, f64, usize)>> {
     extract(py, query, choices, scorer_name, scorer_obj, processor, None, score_cutoff)
+}
+
+/// Compute a full N×M score matrix between two lists of strings.
+/// Returns a flat Vec<f64> of length N*M, row-major (queries × choices).
+/// Rayon-parallel over query rows, so this scales linearly with CPU cores.
+#[pyfunction]
+#[pyo3(signature = (queries, choices, scorer_name, _scorer_obj, processor=None, score_cutoff=None))]
+pub fn cdist(
+    py: Python<'_>,
+    queries: &Bound<'_, PyAny>,
+    choices: &Bound<'_, PyAny>,
+    scorer_name: &str,
+    _scorer_obj: Option<PyObject>,
+    processor: Option<PyObject>,
+    score_cutoff: Option<f64>,
+) -> PyResult<(Vec<f64>, usize, usize)> {
+    let _stype = ScorerType::from_str(scorer_name);
+
+    // Collect and process queries
+    let q_list: Vec<PyObject> = queries.try_iter()?
+        .map(|r| r.map(|o| o.unbind()))
+        .collect::<PyResult<_>>()?;
+    let c_list: Vec<PyObject> = choices.try_iter()?
+        .map(|r| r.map(|o| o.unbind()))
+        .collect::<PyResult<_>>()?;
+
+    let nq = q_list.len();
+    let nc = c_list.len();
+
+    // Extract ASCII byte slices with optional processor
+    // Returns None for non-ASCII / non-string items
+    let extract_bytes = |obj: &PyObject| -> Option<Vec<u8>> {
+        let bound = obj.bind(py);
+        let processed = if let Some(ref proc) = processor {
+            match proc.call1(py, (bound,)) {
+                Ok(r) => r.into_bound(py),
+                Err(_) => return None,
+            }
+        } else {
+            bound.clone()
+        };
+        match crate::types::extract_single(&processed) {
+            Ok(crate::types::Seq::Ascii(s)) => Some(s.to_vec()),
+            _ => None,
+        }
+    };
+
+    let q_bytes: Vec<Option<Vec<u8>>> = q_list.iter().map(|o| extract_bytes(o)).collect();
+    let c_bytes: Vec<Option<Vec<u8>>> = c_list.iter().map(|o| extract_bytes(o)).collect();
+
+    // Build per-query histogram and PM for fast scoring
+    struct QueryCache {
+        bytes: Vec<u8>,
+        hist: [i32; 256],
+        pm: crate::algorithms::PatternMask64<u8>,
+        use_pm: bool,
+    }
+
+    let q_caches: Vec<Option<QueryCache>> = q_bytes.iter().map(|opt| {
+        opt.as_ref().map(|b| {
+            let mut hist = [0i32; 256];
+            for &c in b { hist[c as usize] += 1; }
+            let use_pm = b.len() <= 64 && !b.is_empty();
+            let mut pm = crate::algorithms::PatternMask64::<u8>::new();
+            if use_pm {
+                for (i, &c) in b.iter().enumerate() {
+                    pm.insert(c, 1u64 << i);
+                }
+            }
+            QueryCache { bytes: b.clone(), hist, pm, use_pm }
+        })
+    }).collect();
+
+    // Parallel computation: each row (query) is a Rayon task
+    let matrix: Vec<f64> = py.allow_threads(|| {
+        q_caches.par_iter().flat_map(|q_opt| {
+            (0..nc).map(|j| {
+                let (qc, cb) = match (q_opt, &c_bytes[j]) {
+                    (Some(q), Some(c)) => (q, c),
+                    _ => return 0.0,
+                };
+                let score = score_bytes_parallel(
+                    cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff
+                );
+                score.unwrap_or(0.0)
+            }).collect::<Vec<f64>>()
+        }).collect()
+    });
+
+    Ok((matrix, nq, nc))
 }
