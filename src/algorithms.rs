@@ -406,27 +406,106 @@ fn levenshtein_editops_multiword(s1: &[i64], s2: &[i64], pfx: usize) -> Vec<(Str
 // ===========================================================================
 
 
-/// LCS length using simple DP (fallback, always correct)
+/// LCS length using bit-parallel algorithm (Crochemore et al.)
+pub fn lcs_length_64(s1: &[i64], s2: &[i64]) -> usize {
+    let mut use_array = true;
+    for &c in s1 {
+        if c < 0 || c >= 256 {
+            use_array = false;
+            break;
+        }
+    }
+    let mut v = !0u64;
+    
+    if use_array {
+        let mut pm = [0u64; 256];
+        for (i, &c) in s1.iter().enumerate() {
+            pm[c as usize] |= 1u64 << i;
+        }
+        for &c in s2 {
+            let x = if c >= 0 && c < 256 { pm[c as usize] } else { 0 };
+            let u = v & x;
+            v = (v.wrapping_add(u)) | (v & !x);
+        }
+    } else {
+        let mut pm = std::collections::HashMap::with_capacity(s1.len());
+        for (i, &c) in s1.iter().enumerate() {
+            *pm.entry(c).or_insert(0) |= 1u64 << i;
+        }
+        for &c in s2 {
+            let x = pm.get(&c).copied().unwrap_or(0);
+            let u = v & x;
+            v = (v.wrapping_add(u)) | (v & !x);
+        }
+    }
+    
+    let mask = if s1.len() == 64 { !0u64 } else { (1u64 << s1.len()) - 1 };
+    (!v & mask).count_ones() as usize
+}
+
+/// Multiword bit-parallel LCS for m > 64
+fn lcs_length_multiword(s1: &[i64], s2: &[i64]) -> usize {
+    let m = s1.len();
+    let words = (m + 63) / 64;
+    let mut use_array = true;
+    for &c in s1 {
+        if c < 0 || c >= 256 { use_array = false; break; }
+    }
+    
+    let mut pm_array: Vec<Vec<u64>> = vec![vec![0; words]; 256];
+    let mut pm_map: std::collections::HashMap<i64, Vec<u64>> = std::collections::HashMap::new();
+    
+    if use_array {
+        for (i, &c) in s1.iter().enumerate() {
+            pm_array[c as usize][i / 64] |= 1u64 << (i % 64);
+        }
+    } else {
+        for (i, &c) in s1.iter().enumerate() {
+            let entry = pm_map.entry(c).or_insert_with(|| vec![0; words]);
+            entry[i / 64] |= 1u64 << (i % 64);
+        }
+    }
+
+    let mut v = vec![!0u64; words];
+    for &c in s2 {
+        let pm_c = if use_array {
+            if c >= 0 && c < 256 { Some(&pm_array[c as usize]) } else { None }
+        } else {
+            pm_map.get(&c)
+        };
+        
+        let mut carry = 0u64;
+        let mut next_v = vec![0u64; words];
+        for w in 0..words {
+            let x = pm_c.map(|p| p[w]).unwrap_or(0);
+            let u = v[w] & x;
+            let (sum1, c1) = v[w].overflowing_add(u);
+            let (sum2, c2) = sum1.overflowing_add(carry);
+            carry = (c1 as u64) | (c2 as u64);
+            next_v[w] = sum2 | (v[w] & !x);
+        }
+        v = next_v;
+    }
+    
+    let mut zeros = 0;
+    for w in 0..words - 1 {
+        zeros += (!v[w]).count_ones() as usize;
+    }
+    let last_bits = if m % 64 == 0 { 64 } else { m % 64 };
+    let mask = if last_bits == 64 { !0u64 } else { (1u64 << last_bits) - 1 };
+    zeros += (!v[words - 1] & mask).count_ones() as usize;
+    zeros
+}
+
 pub fn lcs_length(s1: &[i64], s2: &[i64]) -> usize {
     if s1.is_empty() || s2.is_empty() {
         return 0;
     }
-    let m = s1.len();
-    let n = s2.len();
-    let mut prev = vec![0usize; n + 1];
-    let mut curr = vec![0usize; n + 1];
-    for i in 0..m {
-        for j in 0..n {
-            curr[j + 1] = if s1[i] == s2[j] {
-                prev[j] + 1
-            } else {
-                prev[j + 1].max(curr[j])
-            };
-        }
-        std::mem::swap(&mut prev, &mut curr);
-        curr.iter_mut().for_each(|x| *x = 0);
+    if s1.len() <= 64 {
+        lcs_length_64(s1, s2)
+    } else {
+        lcs_length_multiword(s1, s2)
     }
-    prev[n]
 }
 
 pub fn indel_distance(s1: &[i64], s2: &[i64]) -> usize {

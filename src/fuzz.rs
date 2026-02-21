@@ -97,8 +97,8 @@ pub fn fuzz_ratio(
         return Ok(0.0);
     }
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.as_i64();
-    let bv = b.as_i64();
+    let av = a;
+    let bv = b;
     let score = norm_sim_to_score(indel_normalized_sim(&av, &bv));
     Ok(score_cutoff_check(score, score_cutoff))
 }
@@ -183,8 +183,8 @@ pub fn fuzz_partial_ratio(
         return Ok(0.0);
     }
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.as_i64();
-    let bv = b.as_i64();
+    let av = a;
+    let bv = b;
 
     // Both empty → 100.0 (Python returns 100 for equal empty strings)
     if av.is_empty() && bv.is_empty() {
@@ -218,8 +218,8 @@ pub fn fuzz_partial_ratio_alignment(
         return Ok(None);
     }
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.as_i64();
-    let bv = b.as_i64();
+    let av = a;
+    let bv = b;
     let s1_is_shorter = av.len() <= bv.len();
 
     let (score, src_start, src_end, dest_start, dest_end) = if s1_is_shorter {
@@ -284,7 +284,7 @@ pub fn fuzz_token_sort_ratio(
 }
 
 fn seq_to_string(seq: &crate::types::Seq) -> String {
-    seq.as_i64()
+    seq
         .iter()
         .filter_map(|&c| char::from_u32(c as u32))
         .collect()
@@ -557,8 +557,8 @@ pub fn fuzz_wratio(
         return Ok(0.0);
     }
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.as_i64();
-    let bv = b.as_i64();
+    let av = a.clone();
+    let bv = b.clone();
 
     if av.is_empty() || bv.is_empty() {
         return Ok(0.0);
@@ -652,8 +652,8 @@ pub fn fuzz_qratio(
         return Ok(0.0);
     }
     let (a, b) = extract_sequences(py, s1, s2, &processor)?;
-    let av = a.as_i64();
-    let bv = b.as_i64();
+    let av = a;
+    let bv = b;
 
     if av.is_empty() || bv.is_empty() {
         return Ok(0.0);
