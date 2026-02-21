@@ -214,11 +214,24 @@ pub fn extract(
             // what rapidfuzz does at the C level.
 
             if let Ok(list) = choices.downcast::<pyo3::types::PyList>() {
-                let list_ptr = list.as_ptr();
+                // CPython PyListObject layout: ob_refcnt, *ob_type, ob_size, **ob_item, allocated
+                // We define a minimal local repr(C) struct matching the C layout to access ob_item.
+                #[repr(C)]
+                struct PyListObject {
+                    pub ob_refcnt: pyo3::ffi::Py_ssize_t,
+                    pub ob_type: *mut pyo3::ffi::PyTypeObject,
+                    pub ob_size: pyo3::ffi::Py_ssize_t,
+                    pub ob_item: *mut *mut pyo3::ffi::PyObject,
+                    pub allocated: pyo3::ffi::Py_ssize_t,
+                }
+                let list_ptr = list.as_ptr() as *const PyListObject;
                 let n = list.len();
-                for idx in 0..n {
-                    // PyList_GetItem: reads ob_item[i] directly (C func, no iterator overhead, zero refcount change on borrowed ptr)
-                    let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                // SAFETY: ob_item is the raw C array backing a PyList. Valid
+                // for n reads while GIL is held and list is alive.
+                let items: &[*mut pyo3::ffi::PyObject] = unsafe {
+                    std::slice::from_raw_parts((*list_ptr).ob_item, n)
+                };
+                for (idx, &raw) in items.iter().enumerate() {
                     if let Some((score, _)) = unsafe { score_raw(raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
                         results.push((obj, score, idx));
