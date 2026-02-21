@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#why-rustfuzz" class="md-skip">
+        <a href="#the-story" class="md-skip">
           Skip to content
         </a>
       
@@ -354,10 +354,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#why-rustfuzz" class="md-nav__link">
+  <a href="#the-story" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why rustfuzz?
+        The Story
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-development-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Development Loop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
       
     </span>
   </a>
@@ -581,11 +614,50 @@
 </p>
 
 <p align="center">
-  <em>Blazing-fast fuzzy string matching — implemented entirely in Rust.</em>
+  <em>Blazing-fast fuzzy string matching — implemented entirely in Rust.</em><br/>
+  <strong>Built entirely by AI. Designed to beat RapidFuzz.</strong>
 </p>
 
 <hr />
-<h2 id="why-rustfuzz">Why rustfuzz?</h2>
+<h2 id="the-story">The Story</h2>
+<p><strong>rustfuzz</strong> started as an experiment: <em>can an AI agent, starting from scratch, build a fuzzy-matching library that outperforms <a href="https://github.com/maxbachmann/RapidFuzz">RapidFuzz</a> — one of the best-optimised C++ string-matching libraries in the Python ecosystem?</em></p>
+<p>No human wrote the Rust. No human tuned the algorithm parameters. The AI drove every iteration, read every benchmark result, and decided what to rewrite next.</p>
+<p>The answer the AI kept coming back to: <strong>Rust + PyO3 + tight Python-boundary design</strong>.</p>
+<hr />
+<h2 id="the-development-loop">The Development Loop</h2>
+<p>Every feature and optimisation went through the same cycle:</p>
+<pre class="mermaid"><code>flowchart LR
+    R["🔍 Research\nProfiler output\n&amp; algorithm gaps"]
+    B["🦀 Build\nRust core\nvia PyO3"]
+    T["✅ Test\nAll tests must pass\nbefore proceeding"]
+    BM["📊 Benchmark\nvs RapidFuzz\n&amp; record results"]
+    RP["🔁 Repeat\nFind the next\nbottleneck"]
+
+    R --&gt; B --&gt; T --&gt; BM --&gt; RP --&gt; R
+
+    style R fill:#6366f1,color:#fff,stroke:none
+    style B fill:#a855f7,color:#fff,stroke:none
+    style T fill:#ef4444,color:#fff,stroke:none
+    style BM fill:#22c55e,color:#fff,stroke:none
+    style RP fill:#f59e0b,color:#fff,stroke:none</code></pre>
+<p>Each iteration asked:</p>
+<ul>
+<li><strong>Research</strong> — where is the remaining Python overhead? What does the profiler show?</li>
+<li><strong>Build</strong> — move that hot path into Rust. Eliminate copies, reduce allocations, avoid iterator protocol overhead.</li>
+<li><strong>Test</strong> — the full test suite must pass before proceeding. No broken correctness, no skipped edge cases.</li>
+<li><strong>Benchmark</strong> — run head-to-head comparisons vs RapidFuzz. Numbers don't lie.</li>
+<li><strong>Repeat</strong> — the next bottleneck is always waiting.</li>
+</ul>
+<hr />
+<h2 id="why-this-matters">Why This Matters</h2>
+<p>RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optimisation make it a formidable target. The goal of this project was never to dismiss it, but to prove that:</p>
+<ol>
+<li><strong>AI can drive non-trivial systems programming</strong> — not just generate boilerplate.</li>
+<li><strong>Rust + PyO3 can match C++ at the Python boundary</strong> — with the added safety guarantees Rust provides.</li>
+<li><strong>Iterative AI-driven optimisation works</strong> — each benchmark loop produced measurable gains.</li>
+</ol>
+<hr />
+<h2 id="features">Features</h2>
 <table>
 <thead>
 <tr>
@@ -595,46 +667,53 @@
 </thead>
 <tbody>
 <tr>
-<td>⚡ <strong>Speed</strong></td>
-<td>Rust core — significantly faster than Python or C++ string matching</td>
+<td>⚡ <strong>Blazing Fast</strong></td>
+<td>Core algorithms in Rust — no Python overhead, no GIL bottlenecks</td>
 </tr>
 <tr>
-<td>🔒 <strong>Safety</strong></td>
-<td>No segfaults, no buffer overflows — Rust's memory model enforces correctness</td>
+<td>🧠 <strong>Smart Matching</strong></td>
+<td>ratio, partial_ratio, token sort/set, Levenshtein, Jaro-Winkler, and more</td>
 </tr>
 <tr>
-<td>🐍 <strong>Simple API</strong></td>
-<td>Drop-in typed Python interface — <code>import rustfuzz.fuzz as fuzz</code> and go</td>
+<td>🔒 <strong>Memory Safe</strong></td>
+<td>Rust's borrow checker — no segfaults, no buffer overflows</td>
 </tr>
 <tr>
-<td>📦 <strong>No build step</strong></td>
+<td>🐍 <strong>Pythonic API</strong></td>
+<td>Typed Python interface — <code>import rustfuzz.fuzz as fuzz</code> and go</td>
+</tr>
+<tr>
+<td>📦 <strong>No Build Step</strong></td>
 <td>Pre-compiled wheels for Python 3.10–3.13 on Linux, macOS, and Windows</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h2 id="installation">Installation</h2>
-<pre><code class="language-sh">pip install rustfuzz
-# or with uv:
-uv pip install rustfuzz
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>rustfuzz
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or with uv:</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>rustfuzz
+</code></pre></div>
+<hr />
 <h2 id="quick-example">Quick Example</h2>
-<pre><code class="language-python">import rustfuzz.fuzz as fuzz
-from rustfuzz.distance import Levenshtein, JaroWinkler
-from rustfuzz import process
-
-# Similarity ratios
-fuzz.ratio(&quot;hello world&quot;, &quot;hello wrold&quot;)          # ~96.0
-fuzz.partial_ratio(&quot;hello&quot;, &quot;say hello world&quot;)    # 100.0
-fuzz.token_sort_ratio(&quot;fuzzy wuzzy&quot;, &quot;wuzzy fuzzy&quot;) # 100.0
-
-# Edit distance
-Levenshtein.distance(&quot;kitten&quot;, &quot;sitting&quot;)         # 3
-JaroWinkler.similarity(&quot;martha&quot;, &quot;marhta&quot;)        # ~0.96
-
-# Batch matching
-process.extractOne(&quot;new york&quot;, [&quot;New York&quot;, &quot;Newark&quot;, &quot;Los Angeles&quot;])
-# ('New York', 100.0, 0)
-</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">rustfuzz.fuzz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fuzz</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rustfuzz.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Levenshtein</span><span class="p">,</span> <span class="n">JaroWinkler</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rustfuzz</span><span class="w"> </span><span class="kn">import</span> <span class="n">process</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Similarity ratios</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;hello wrold&quot;</span><span class="p">)</span>            <span class="c1"># ~96.0</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">partial_ratio</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;say hello world&quot;</span><span class="p">)</span>      <span class="c1"># 100.0</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">token_sort_ratio</span><span class="p">(</span><span class="s2">&quot;fuzzy wuzzy&quot;</span><span class="p">,</span> <span class="s2">&quot;wuzzy fuzzy&quot;</span><span class="p">)</span> <span class="c1"># 100.0</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Edit distance</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">Levenshtein</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="s2">&quot;kitten&quot;</span><span class="p">,</span> <span class="s2">&quot;sitting&quot;</span><span class="p">)</span>           <span class="c1"># 3</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">JaroWinkler</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="s2">&quot;martha&quot;</span><span class="p">,</span> <span class="s2">&quot;marhta&quot;</span><span class="p">)</span>          <span class="c1"># ~0.96</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># Batch matching</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">process</span><span class="o">.</span><span class="n">extractOne</span><span class="p">(</span><span class="s2">&quot;new york&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;Newark&quot;</span><span class="p">,</span> <span class="s2">&quot;Los Angeles&quot;</span><span class="p">])</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># (&#39;New York&#39;, 100.0, 0)</span>
+</code></pre></div>
+<hr />
 <h2 id="cookbook-recipes">Cookbook Recipes 🧑‍🍳</h2>
 <table>
 <thead>
@@ -654,7 +733,7 @@ process.extractOne(&quot;new york&quot;, [&quot;New York&quot;, &quot;Newark&quo
 </tr>
 <tr>
 <td><a href="cookbook/03_benchmarks/">Benchmarks</a></td>
-<td>Speed comparisons vs other libraries</td>
+<td>Head-to-head speed comparisons vs RapidFuzz</td>
 </tr>
 </tbody>
 </table>
@@ -718,6 +797,8 @@ process.extractOne(&quot;new york&quot;, [&quot;New York&quot;, &quot;Newark&quo
     
     
       <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
       
     
   </body>
