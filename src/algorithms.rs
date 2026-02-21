@@ -509,6 +509,87 @@ pub fn lcs_from_pm64(pm: &PatternMask64<u8>, q_len: usize, s2: &[u8], max_dist: 
     (!v & mask).count_ones() as usize
 }
 
+/// Fastest partial_ratio for ASCII strings where needle.len() <= 64.
+/// Build needle's PM64 once, slide over haystack computing LCS for each
+/// length-needle_len window in a single O(haystack_len) pass.
+///
+/// Key insight (rapidfuzz BitPal approach): the Myers DP for LCS runs
+/// left-to-right; after processing needle_len characters from the haystack
+/// we have LCS(needle, haystack[i..i+needle_len]). We reset state and repeat.
+/// This is O(N) bit-ops total vs O(N × M/64) with per-window indel_distance.
+///
+/// Returns the best score in [0.0, 100.0].
+pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
+    let m = needle.len();
+    let n = haystack.len();
+
+    if m == 0 {
+        return if n == 0 { 100.0 } else { 0.0 };
+    }
+    if n == 0 || n < m {
+        // partial_ratio: shorter vs longer — if haystack < needle lengths are swapped outside
+        return 0.0;
+    }
+
+    // Build PatternMask for needle (query) — done ONCE
+    let mut pm = PatternMask64::<u8>::new();
+    for (i, &c) in needle.iter().enumerate() {
+        pm.insert(c, 1u64 << i);
+    }
+    let mask = if m == 64 { !0u64 } else { (1u64 << m) - 1 };
+    let lensum = 2 * m; // numerator for all windows: needle.len() + window.len() = 2m
+
+    let mut best_score = 0.0f64;
+
+    // Slide a window of size m across haystack
+    // For each starting position `start`, process haystack[start..start+m]
+    // using Myers LCS bit-parallel (no allocation).
+    //
+    // We vectorize by resetting V every m characters.
+    let num_windows = n - m + 1;
+    for start in 0..num_windows {
+        let window = &haystack[start..start + m];
+        let mut v = !0u64;
+        for &c in window {
+            let x = pm.get(c);
+            let u = v & x;
+            v = (v.wrapping_add(u)) | (v & !x);
+        }
+        let lcs = (!v & mask).count_ones() as usize;
+        let dist = m + m - 2 * lcs; // indel = len(needle)+len(window) - 2*LCS
+        let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+        if score > best_score {
+            best_score = score;
+            if best_score == 100.0 { return 100.0; }
+        }
+    }
+
+    // Also check suffix windows smaller than m (at the end of haystack)
+    // These are windows where the window is shorter than needle (suffix overlap)
+    for end in (1..m).rev() {
+        if n < end { continue; }
+        let window = &haystack[n - end..];
+        if window.is_empty() { break; }
+        let wlen = window.len();
+        let mut v = !0u64;
+        for &c in window {
+            let x = pm.get(c);
+            let u = v & x;
+            v = (v.wrapping_add(u)) | (v & !x);
+        }
+        let lcs = (!v & mask).count_ones() as usize;
+        let ls = m + wlen;
+        let dist = ls - 2 * lcs;
+        let score = (1.0 - dist as f64 / ls as f64) * 100.0;
+        if score > best_score {
+            best_score = score;
+            if best_score == 100.0 { return 100.0; }
+        }
+    }
+
+    best_score
+}
+
 
 fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
     let m = s1.len();

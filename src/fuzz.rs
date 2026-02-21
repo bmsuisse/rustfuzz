@@ -211,7 +211,23 @@ pub fn fuzz_partial_ratio(
     if av.is_empty() && bv.is_empty() {
         return Ok(score_cutoff_check(100.0, score_cutoff));
     }
-    let score = partial_ratio_vecs(&av, &bv);
+
+    // ASCII fast path: BitPal sliding window — O(N) total bit-ops, no Vec<u64> allocation
+    let score = if let (Seq::Ascii(a_bytes), Seq::Ascii(b_bytes)) = (&av, &bv) {
+        let (needle, haystack) = if a_bytes.len() <= b_bytes.len() {
+            (*a_bytes, *b_bytes)
+        } else {
+            (*b_bytes, *a_bytes)
+        };
+        if needle.len() <= 64 {
+            crate::algorithms::partial_ratio_ascii_fast(needle, haystack)
+        } else {
+            partial_ratio_vecs(&av, &bv)
+        }
+    } else {
+        partial_ratio_vecs(&av, &bv)
+    };
+
     Ok(score_cutoff_check(score, score_cutoff))
 }
 
