@@ -10,6 +10,15 @@ from __future__ import annotations
 from typing import Any, Callable, Iterable, Iterator
 
 
+# Scorers implemented natively in Rust — pass scorer_obj=None to activate the native fast path.
+_NATIVE_SCORER_NAMES = {
+    "ratio", "qratio", "wratio", "partial_ratio",
+    "token_sort_ratio", "partial_token_sort_ratio",
+    "token_set_ratio", "partial_token_set_ratio",
+    "token_ratio", "partial_token_ratio",
+}
+
+
 def extract(
     query: Any,
     choices: Iterable[Any],
@@ -24,12 +33,14 @@ def extract(
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    
+    # For built-in scorers pass None so Rust can use the native zero-overhead path
+    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+
     return _rustfuzz.extract(
         query,
         choices,
         scorer_name,
-        _scorer,
+        scorer_obj,
         processor,
         limit,
         score_cutoff,
@@ -49,12 +60,13 @@ def extractOne(
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
 
     return _rustfuzz.extract_one(
         query,
         choices,
         scorer_name,
-        _scorer,
+        scorer_obj,
         processor,
         score_cutoff,
     )
@@ -73,12 +85,13 @@ def extract_iter(
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
     scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
 
     yield from _rustfuzz.extract_iter(
         query,
         choices,
         scorer_name,
-        _scorer,
+        scorer_obj,
         processor,
         score_cutoff,
     )

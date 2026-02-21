@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: MIT
-// Input type extraction: zero-copy sequence wrappers
-
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyString};
 
@@ -13,7 +10,6 @@ pub enum Seq<'a> {
 
 pub fn extract_single<'a>(obj: &'a Bound<'a, PyAny>) -> PyResult<Seq<'a>> {
     if let Ok(s) = obj.downcast::<PyString>() {
-        // FAST PATH: PyString can expose internal ASCII/utf8 buffers without allocation
         unsafe {
             let py_str = s.as_ptr();
             let mut length: isize = 0;
@@ -25,17 +21,14 @@ pub fn extract_single<'a>(obj: &'a Bound<'a, PyAny>) -> PyResult<Seq<'a>> {
                 }
             }
         }
-        // Fallback: collect codepoints
         let st = s.to_str()?;
         return Ok(Seq::U32(st.chars().map(|c| c as u32).collect()));
     }
-    
-    // bytes -> raw bytes exactly
+
     if let Ok(b) = obj.downcast::<PyBytes>() {
         return Ok(Seq::Ascii(b.as_bytes()));
     }
-    
-    // Try to iterate as a sequence
+
     if let Ok(seq) = obj.try_iter() {
         let mut result: Vec<u64> = Vec::new();
         for item in seq {
@@ -56,9 +49,8 @@ pub fn extract_single<'a>(obj: &'a Bound<'a, PyAny>) -> PyResult<Seq<'a>> {
         }
         return Ok(Seq::U64(result));
     }
-    Err(pyo3::exceptions::PyTypeError::new_err(
-        "expected str, bytes, or sequence",
-    ))
+
+    Err(pyo3::exceptions::PyTypeError::new_err("expected str, bytes, or sequence"))
 }
 
 pub fn get_processed_args<'py>(
@@ -83,7 +75,6 @@ pub fn is_none(obj: &Bound<'_, PyAny>) -> bool {
     if let Ok(f) = obj.extract::<f64>() {
         return f.is_nan();
     }
-    // pandas.NA
     if let Ok(r) = obj.str() {
         return r.to_str().map(|s| s == "<NA>").unwrap_or(false);
     }
@@ -98,6 +89,7 @@ impl<'a> Seq<'a> {
             Seq::U64(v) => v.is_empty(),
         }
     }
+
     pub fn len(&self) -> usize {
         match self {
             Seq::Ascii(v) => v.len(),
@@ -105,18 +97,20 @@ impl<'a> Seq<'a> {
             Seq::U64(v) => v.len(),
         }
     }
+
     pub fn to_u64(&self) -> Vec<u64> {
         match self {
             Seq::Ascii(v) => v.iter().map(|&c| c as u64).collect(),
-            Seq::U32(v)   => v.iter().map(|&c| c as u64).collect(),
-            Seq::U64(v)   => v.clone(),
+            Seq::U32(v) => v.iter().map(|&c| c as u64).collect(),
+            Seq::U64(v) => v.clone(),
         }
     }
+
     pub fn to_string_lossy(&self) -> String {
         match self {
             Seq::Ascii(v) => String::from_utf8_lossy(v).into_owned(),
-            Seq::U32(v)   => v.iter().filter_map(|&c| char::from_u32(c)).collect(),
-            Seq::U64(_)   => String::new(),
+            Seq::U32(v) => v.iter().filter_map(|&c| char::from_u32(c)).collect(),
+            Seq::U64(_) => String::new(),
         }
     }
 }
