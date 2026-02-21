@@ -1,0 +1,39 @@
+from typing import Any, Callable, Sequence, Iterable, Hashable, TypeVar
+import numpy.typing as npt
+
+T = TypeVar('T')
+TScore = TypeVar('TScore', int, float)
+
+def ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def partial_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def partial_ratio_alignment(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> Any:
+    ...
+
+def token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def token_set_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def token_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def partial_token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def partial_token_set_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def partial_token_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
+    ...
+
+def WRatio(*args, **kwargs) -> Any:
+    ...
+
+def QRatio(*args, **kwargs) -> Any:
+    ...
+
