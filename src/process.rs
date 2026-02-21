@@ -130,47 +130,110 @@ pub fn extract(
 
         if ratio_fast {
             if let Ok(crate::types::Seq::Ascii(q_slice)) = crate::types::extract_single(&processed_query) {
-                for (idx, choice_res) in iter.enumerate() {
-                    let choice = choice_res?;
-                    if crate::types::is_none(&choice) { continue; }
-
-                    if let Ok(crate::types::Seq::Ascii(c_slice)) = crate::types::extract_single(&choice) {
-                        let lensum = q_slice.len() + c_slice.len();
-                        if lensum == 0 {
-                            if score_cutoff.map_or(true, |c| 100.0 >= c) {
-                                results.push((choice.into(), 100.0, idx));
-                            }
-                            continue;
-                        }
-
-                        // L1 Histogram pre-filter + length diff early exit
-                        let allowed_edits = score_cutoff
-                            .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
-
-                        if let Some(max_ed) = allowed_edits {
-                            if q_slice.len().abs_diff(c_slice.len()) > max_ed { continue; }
-                            let mut c_hist = [0i32; 256];
-                            for &c in c_slice { c_hist[c as usize] += 1; }
-                            let hist_diff: i32 = (0..256).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
-                            if hist_diff as usize > max_ed { continue; }
-                        }
-
-                        // Compute indel distance directly — no PyO3, no allocation
-                        let dist = crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits);
-                        if dist == usize::MAX { continue; }
-                        let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
-
-                        if score_cutoff.map_or(true, |c| score >= c) {
-                            results.push((choice.into(), score, idx));
-                        }
-                    } else {
-                        // Non-ASCII fallback — call native scorer directly without PyObject overhead
-                        let score = execute_scorer(py, stype, None, &processed_query, &choice, None, score_cutoff)?;
-                        if score_cutoff.map_or(true, |c| score >= c) {
-                            results.push((choice.into(), score, idx));
-                        }
+                let q_len = q_slice.len();
+                // Build query PatternMask once — reused for all N choices (rapidfuzz key trick)
+                let use_pm = q_len <= 64 && q_len > 0;
+                let mut q_pm = crate::algorithms::PatternMask64::<u8>::new();
+                if use_pm {
+                    for (i, &c) in q_slice.iter().enumerate() {
+                        q_pm.insert(c, 1u64 << i);
                     }
                 }
+
+                use pyo3::types::{PyList, PyTuple};
+
+                // A macro-like inline helper defined via a local fn to avoid closure borrow issues.
+                // Uses unsafe PyUnicode_AsUTF8AndSize so that c_slice lifetime is independent
+                // of item — item can be moved into PyObject freely afterwards.
+                macro_rules! process_choice {
+                    ($item:expr, $idx:expr) => {{
+                        let item: Bound<'_, pyo3::PyAny> = $item;
+                        let idx: usize = $idx;
+                        if !crate::types::is_none(&item) {
+                            // Try to get UTF-8 bytes via raw CPython API (no Rust lifetime tying to `item`)
+                            let ascii_bytes: Option<&[u8]> = unsafe {
+                                use pyo3::ffi;
+                                if pyo3::ffi::PyUnicode_Check(item.as_ptr()) != 0 {
+                                    let mut length: isize = 0;
+                                    let ptr = ffi::PyUnicode_AsUTF8AndSize(item.as_ptr(), &mut length);
+                                    if !ptr.is_null() {
+                                        let slice = std::slice::from_raw_parts(ptr as *const u8, length as usize);
+                                        if slice.is_ascii() { Some(slice) } else { None }
+                                    } else { None }
+                                } else if pyo3::ffi::PyBytes_Check(item.as_ptr()) != 0 {
+                                    let mut length: isize = 0;
+                                    let ptr = ffi::PyBytes_AsString(item.as_ptr()); // doesn't set length, use Size
+                                    let _ = ptr;
+                                    let slice = std::slice::from_raw_parts(
+                                        ffi::PyBytes_AsString(item.as_ptr()) as *const u8,
+                                        ffi::PyBytes_Size(item.as_ptr()) as usize
+                                    );
+                                    Some(slice)
+                                } else { None }
+                            };
+                            // NOW we can freely move item into PyObject (no Rust borrow holding it)
+                            let item_obj: pyo3::PyObject = item.unbind();
+
+                            if let Some(c_slice) = ascii_bytes {
+                                let lensum = q_len + c_slice.len();
+                                if lensum > 0 {
+                                    let allowed_edits = score_cutoff
+                                        .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
+                                    let mut skip = false;
+                                    if let Some(max_ed) = allowed_edits {
+                                        if q_slice.len().abs_diff(c_slice.len()) > max_ed { skip = true; }
+                                        if !skip {
+                                            let mut c_hist = [0i32; 256];
+                                            for &c in c_slice { c_hist[c as usize] += 1; }
+                                            let hist_diff: i32 = (0..256usize).map(|i| (q_hist[i] - c_hist[i]).abs()).sum();
+                                            if hist_diff as usize > max_ed { skip = true; }
+                                        }
+                                    }
+                                    if !skip {
+                                        let dist = if use_pm {
+                                            let lcs = crate::algorithms::lcs_from_pm64(&q_pm, q_len, c_slice, allowed_edits);
+                                            (q_len + c_slice.len()) - 2 * lcs
+                                        } else {
+                                            crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+                                        };
+                                        if dist != usize::MAX {
+                                            let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+                                            if score_cutoff.map_or(true, |c| score >= c) {
+                                                results.push((item_obj, score, idx));
+                                            }
+                                        }
+                                    }
+                                } else if score_cutoff.map_or(true, |co| 100.0 >= co) {
+                                    results.push((item_obj, 100.0, idx));
+                                }
+                            } else {
+                                // Non-ASCII fallback — convert back to bound for execute_scorer
+                                let bound_item = item_obj.bind(py);
+                                let score = execute_scorer(py, stype, None, &processed_query, bound_item, None, score_cutoff)?;
+                                if score_cutoff.map_or(true, |c| score >= c) {
+                                    results.push((item_obj, score, idx));
+                                }
+                            }
+                        }
+                    }};
+                }
+
+                if let Ok(list) = choices.downcast::<PyList>() {
+                    let n = list.len();
+                    for idx in 0..n {
+                        process_choice!(list.get_item(idx)?, idx);
+                    }
+                } else if let Ok(tup) = choices.downcast::<PyTuple>() {
+                    let n = tup.len();
+                    for idx in 0..n {
+                        process_choice!(tup.get_item(idx)?, idx);
+                    }
+                } else {
+                    for (idx, item) in choices.try_iter()?.enumerate() {
+                        process_choice!(item?, idx);
+                    }
+                }
+
                 results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
                 if let Some(l) = limit { results.truncate(l); }
                 return Ok(results);

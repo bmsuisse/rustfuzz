@@ -480,6 +480,35 @@ pub fn lcs_length_64_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Opti
     (!v & mask).count_ones() as usize
 }
 
+/// LCS using a pre-built PatternMask64 for the query — avoids re-constructing
+/// the PM for every choice in a batch. This is the rapidfuzz key trick:
+/// build PM once per `process.extract` call, reuse for all N choices.
+#[inline]
+pub fn lcs_from_pm64(pm: &PatternMask64<u8>, q_len: usize, s2: &[u8], max_dist: Option<usize>) -> usize {
+    let mask = if q_len == 64 { !0u64 } else { (1u64 << q_len) - 1 };
+    let n = s2.len();
+
+    let required_lcs = max_dist.map(|d| {
+        let diff = q_len + n;
+        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+    });
+
+    let mut v = !0u64;
+    for (i, &c) in s2.iter().enumerate() {
+        let x = pm.get(c);
+        let u = v & x;
+        v = (v.wrapping_add(u)) | (v & !x);
+        if let Some(req) = required_lcs {
+            let current_lcs = (!v & mask).count_ones() as usize;
+            let remaining = n - 1 - i;
+            if current_lcs + remaining < req {
+                return 0;
+            }
+        }
+    }
+    (!v & mask).count_ones() as usize
+}
+
 
 fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
     let m = s1.len();
