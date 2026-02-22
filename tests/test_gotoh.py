@@ -12,6 +12,7 @@ def test_gotoh_basic():
     # Open=1.0, extend=0.5 -> cost = 1.0 + 4 * 0.5 = 3.0
     assert Gotoh.distance("a", "abcde") == 3.0
 
+
 def test_gotoh_kwargs():
     # gap open=2.0, extend=1.0
     # "a" vs "ab" -> 1 gap of length 1 -> open(2.0) + 1*1.0 = 3.0

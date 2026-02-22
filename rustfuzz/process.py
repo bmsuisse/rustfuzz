@@ -22,6 +22,25 @@ _NATIVE_SCORER_NAMES = {
 }
 
 
+def _resolve_scorer(
+    scorer: Callable[..., float] | None,
+) -> tuple[str, Callable[..., float] | None]:
+    """Resolve a scorer callable to ``(scorer_name, scorer_obj)``.
+
+    When the scorer is one of the built-in Rust implementations the returned
+    ``scorer_obj`` is ``None`` so Rust can take the zero-overhead native path.
+    For any other callable the object itself is returned so Python can invoke it.
+    """
+    from . import fuzz
+
+    _scorer = scorer if scorer is not None else fuzz.WRatio
+    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
+    scorer_obj: Callable[..., float] | None = (
+        None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+    )
+    return scorer_name, scorer_obj
+
+
 def extract(
     query: Any,
     choices: Iterable[Any],
@@ -38,12 +57,9 @@ def extract(
     The Rayon-parallel fast path only activates for ASCII strings.  Non-ASCII
     input falls back to a single-threaded Python iterator path automatically.
     """
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    # For built-in scorers pass None so Rust can use the native zero-overhead path
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+    scorer_name, scorer_obj = _resolve_scorer(scorer)
 
     return _rustfuzz.extract(
         query,
@@ -87,11 +103,9 @@ def extractOne(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> tuple[Any, float, int] | None:
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+    scorer_name, scorer_obj = _resolve_scorer(scorer)
 
     return _rustfuzz.extract_one(
         query,
@@ -111,11 +125,9 @@ def extract_iter(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> Iterator[tuple[Any, float, int]]:
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+    scorer_name, scorer_obj = _resolve_scorer(scorer)
 
     yield from _rustfuzz.extract_iter(
         query,
@@ -151,11 +163,9 @@ def cdist(
         msg = "cdist requires numpy: pip install rustfuzz[all]"
         raise ImportError(msg) from e
 
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
+    scorer_name, scorer_obj = _resolve_scorer(scorer)
 
     flat_array, rows, cols = _rustfuzz.cdist(
         queries,

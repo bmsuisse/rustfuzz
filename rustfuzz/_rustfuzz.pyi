@@ -438,3 +438,48 @@ def cosine_similarity_matrix(
 
 class BKTree:
     def dedupe(self, items: list[str], max_edits: int) -> list[str]: ...
+
+# ---------------------------------------------------------------------------
+# Gotoh affine-gap distance
+# ---------------------------------------------------------------------------
+
+def gotoh_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    open_penalty: float = 1.0,
+    extend_penalty: float = 0.5,
+    processor: Any | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+
+# ---------------------------------------------------------------------------
+# NGram similarities
+# ---------------------------------------------------------------------------
+
+def sorensen_dice(
+    s1: Any,
+    s2: Any,
+    *,
+    n: int = 2,
+    processor: Any | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaccard(
+    s1: Any,
+    s2: Any,
+    *,
+    n: int = 2,
+    processor: Any | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+
+# ---------------------------------------------------------------------------
+# Phonetic / Soundex
+# ---------------------------------------------------------------------------
+
+def soundex_encode(s: str) -> str: ...
+def soundex_distance(s1: str, s2: str) -> int: ...
+def soundex_similarity(s1: str, s2: str) -> int: ...
+def soundex_normalized_distance(s1: str, s2: str) -> float: ...
+def soundex_normalized_similarity(s1: str, s2: str) -> float: ...

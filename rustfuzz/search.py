@@ -8,13 +8,37 @@ using Reciprocal Rank Fusion (RRF).
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any
 
 from . import _rustfuzz
 
 
-class BM25:
+class AbstractSearchIndex(ABC):
+    """
+    Abstract base class for all rustfuzz search indices.
+
+    Custom search backends should inherit from this class and implement
+    the ``search`` method so they are interchangeable with the built-in
+    :class:`BM25` and :class:`HybridSearch` implementations.
+    """
+
+    @abstractmethod
+    def search(self, query: str, *, n: int = 5) -> list[tuple[str, float]]:
+        """Return the *n* best matching documents with their relevance scores.
+
+        Parameters
+        ----------
+        query:
+            The search query string.
+        n:
+            Maximum number of results to return.
+        """
+        ...
+
+
+class BM25(AbstractSearchIndex):
     """
     BM25Okapi full-text search index.
 
@@ -101,8 +125,17 @@ class BM25:
         """
         return self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
 
+    def search(self, query: str, *, n: int = 5) -> list[tuple[str, float]]:
+        """
+        Return the top N results using BM25 + Levenshtein Reciprocal Rank Fusion.
 
-class HybridSearch:
+        This is the default search method, providing robust results even for
+        misspelled queries.  Delegates to :meth:`get_top_n_rrf`.
+        """
+        return self.get_top_n_rrf(query, n=n)
+
+
+class HybridSearch(AbstractSearchIndex):
     """
     Tier-3 Semantic Hybrid Search framework.
     Combines text retrieval (BM25) with vector search via Reciprocal Rank Fusion (RRF).
@@ -216,4 +249,4 @@ class HybridSearch:
         return final_results[:n]
 
 
-__all__ = ["BM25", "HybridSearch"]
+__all__ = ["AbstractSearchIndex", "BM25", "HybridSearch"]

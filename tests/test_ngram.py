@@ -11,6 +11,7 @@ def test_sorensen_dice():
     # Identical
     assert NGram.sorensen_dice("apple", "apple") == 1.0
 
+
 def test_jaccard():
     # Intersection: "ht" (1)
     # Union: 4 + 4 - 1 = 7
