@@ -65,7 +65,7 @@ We benchmarked `process.extract` on a **1,000,000 row** corpus. Thanks to zero-o
 | 🧠 **Smart Matching** | Ratio, partial ratio, token sort/set, Levenshtein, Jaro-Winkler, and more |
 | 🔒 **Memory Safe** | Rust's borrow checker guarantees — no segfaults, no buffer overflows |
 | 🐍 **Pythonic API** | Clean, typed Python interface. Import and go |
-| 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.13 on all major platforms |
+| 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.14 on all major platforms |
 | 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
 
