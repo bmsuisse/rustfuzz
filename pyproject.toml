@@ -74,6 +74,7 @@ reportUnknownArgumentType = "none"
 reportImplicitStringConcatenation = "none"
 reportUnusedParameter = "none"
 reportUnusedImport = "none"
+reportIncompatibleMethodOverride = "none"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
