@@ -36,14 +36,18 @@ pub struct BM25Index {
     /// The original corpus strings (for retrieval)
     corpus: Vec<String>,
     /// Tokenised corpus
+    #[allow(dead_code)]
     tokenised: Vec<Vec<String>>,
     /// IDF per term
     idf: FxHashMap<String, f64>,
     /// Normalised TF per document: tf_norm[doc][term] = raw_tf * (k1+1) / (raw_tf + k1*(1-b+b*dl/avgdl))
     tf_norm: Vec<FxHashMap<String, f64>>,
     /// Average document length (in tokens)
+    #[allow(dead_code)]
     avgdl: f64,
+    #[allow(dead_code)]
     k1: f64,
+    #[allow(dead_code)]
     b: f64,
 }
 

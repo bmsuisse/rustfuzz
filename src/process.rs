@@ -28,9 +28,6 @@ use crate::fuzz::{
     fuzz_partial_ratio, fuzz_partial_token_ratio, fuzz_partial_token_set_ratio,
     fuzz_partial_token_sort_ratio, fuzz_qratio, fuzz_ratio, fuzz_token_ratio,
     fuzz_token_set_ratio, fuzz_token_sort_ratio, fuzz_wratio,
-    wratio_bytes, partial_ratio_bytes, token_sort_ratio_bytes, partial_token_sort_ratio_bytes,
-    token_set_ratio_bytes, partial_token_set_ratio_bytes,
-    token_ratio_bytes, partial_token_ratio_bytes,
 };
 
 #[derive(Clone, Copy)]

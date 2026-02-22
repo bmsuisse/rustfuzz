@@ -4,7 +4,7 @@ rustfuzz — rapid fuzzy string matching, powered by Rust.
 
 from __future__ import annotations
 
-from . import distance, fuzz, langchain, process, search, utils
+from . import distance, fuzz, process, search, utils
 from ._rustfuzz import (  # noqa: F401
     Editop,
     Editops,
@@ -22,7 +22,6 @@ __all__ = [
     "fuzz",
     "process",
     "search",
-    "langchain",
     "utils",
     "Editop",
     "Editops",

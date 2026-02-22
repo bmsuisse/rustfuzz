@@ -155,7 +155,7 @@ fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64, cache: Optio
 }
 
 /// partial_ratio_vecs with score_cutoff — enables early exit in BitPal inner loop
-fn partial_ratio_vecs_sc(av: &Seq<'_>, bv: &Seq<'_>, score_cutoff: f64) -> f64 {
+fn partial_ratio_vecs_sc(av: &Seq<'_>, bv: &Seq<'_>, _score_cutoff: f64) -> f64 {
     // ASCII fast path — cutoff-aware
     if let (Seq::Ascii(a), Seq::Ascii(b)) = (av, bv) {
         let (needle, haystack) = if a.len() <= b.len() { (*a, *b) } else { (*b, *a) };
