@@ -41,8 +41,7 @@ dev = [
   "langchain-core>=0.1.0",
 ]
 docs = [
-  "mkdocs-material",
-  "mkdocs>=1.5,<2",
+  "zensical",
   "mkdocs-jupyter",
   "jupyter",
   "plotly",
