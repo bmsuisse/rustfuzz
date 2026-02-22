@@ -67,6 +67,10 @@ features = ["pyo3/extension-module"]
 [tool.basedpyright]
 include = ["rustfuzz"]
 pythonVersion = "3.10"
+reportAny = "none"
+reportExplicitAny = "none"
+reportImplicitOverride = "none"
+reportUnannotatedClassAttribute = "none"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
