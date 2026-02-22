@@ -8,29 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://bmsuisse.github.io/rustfuzz/">
+        <link rel="canonical" href="https://bmsuisse.github.io/rustfuzz/architecture/">
       
       
+        <link rel="prev" href="..">
       
-        <link rel="next" href="architecture/">
+      
+        <link rel="next" href="../developer_guide/">
       
       
         
       
       
-      <link rel="icon" href="logo.svg">
+      <link rel="icon" href="../logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
-        <title>rustfuzz</title>
+        <title>Architecture & Design - rustfuzz</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-story" class="md-skip">
+        <a href="#architecture-design" class="md-skip">
           Skip to content
         </a>
       
@@ -90,9 +92,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="rustfuzz" class="md-header__button md-logo" aria-label="rustfuzz" data-md-component="logo">
+    <a href=".." title="rustfuzz" class="md-header__button md-logo" aria-label="rustfuzz" data-md-component="logo">
       
-  <img src="logo.svg" alt="logo">
+  <img src="../logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -109,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Architecture & Design
             
           </span>
         </div>
@@ -206,11 +208,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -227,11 +227,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -253,7 +255,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="cookbook/01_introduction/" class="md-tabs__link">
+        <a href="../cookbook/01_introduction/" class="md-tabs__link">
           
   
   
@@ -291,9 +293,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="rustfuzz" class="md-nav__button md-logo" aria-label="rustfuzz" data-md-component="logo">
+    <a href=".." title="rustfuzz" class="md-nav__button md-logo" aria-label="rustfuzz" data-md-component="logo">
       
-  <img src="logo.svg" alt="logo">
+  <img src="../logo.svg" alt="logo">
 
     </a>
     rustfuzz
@@ -317,35 +319,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -361,101 +338,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-story" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Story
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-development-loop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The Development Loop
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-this-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why This Matters
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Features
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quick-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quick Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cookbook-recipes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Cookbook Recipes 🧑‍🍳
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -464,8 +346,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -477,17 +361,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -505,7 +392,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -520,10 +407,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="architecture/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Design
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -539,6 +453,154 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-rust-ffi-pyo3-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Rust FFI &amp; PyO3 Bindings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Rust FFI &amp; PyO3 Bindings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#string-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        String Extraction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apache-arrow-pycapsule-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Apache Arrow &amp; PyCapsule Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-core-algorithms-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Core Algorithms &amp; Optimizations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-batch-processing-processrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Batch Processing (process.rs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Batch Processing (process.rs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-fast-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Fast Path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concurrency-and-the-gil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrency and the GIL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-advanced-data-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Advanced Data Structures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Advanced Data Structures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bk-trees-for-deduplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BK-Trees for Deduplication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hybrid-search-bm25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hybrid Search &amp; BM25
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -551,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="developer_guide/" class="md-nav__link">
+      <a href="../developer_guide/" class="md-nav__link">
         
   
   
@@ -648,7 +710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cookbook/01_introduction/" class="md-nav__link">
+      <a href="../cookbook/01_introduction/" class="md-nav__link">
         
   
   
@@ -676,7 +738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cookbook/02_advanced_matching/" class="md-nav__link">
+      <a href="../cookbook/02_advanced_matching/" class="md-nav__link">
         
   
   
@@ -704,7 +766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cookbook/03_benchmarks/" class="md-nav__link">
+      <a href="../cookbook/03_benchmarks/" class="md-nav__link">
         
   
   
@@ -732,7 +794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cookbook/04_hybrid_search/" class="md-nav__link">
+      <a href="../cookbook/04_hybrid_search/" class="md-nav__link">
         
   
   
@@ -760,7 +822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cookbook/05_langchain/" class="md-nav__link">
+      <a href="../cookbook/05_langchain/" class="md-nav__link">
         
   
   
@@ -808,145 +870,45 @@
   
 
 
-  <h1>Home</h1>
-
-<p align="center">
-  <img src="logo.svg" alt="rustfuzz" width="320"/>
-</p>
-
-<p align="center">
-  <em>Blazing-fast fuzzy string matching — implemented entirely in Rust.</em><br/>
-  <strong>Built entirely by AI. Designed to beat RapidFuzz.</strong>
-</p>
-
-<hr />
-<h2 id="the-story">The Story</h2>
-<p><strong>rustfuzz</strong> started as an experiment: <em>can an AI agent, starting from scratch, build a fuzzy-matching library that outperforms <a href="https://github.com/maxbachmann/RapidFuzz">RapidFuzz</a> — one of the best-optimised C++ string-matching libraries in the Python ecosystem?</em></p>
-<p>No human wrote the Rust. No human tuned the algorithm parameters. The AI drove every iteration, read every benchmark result, and decided what to rewrite next.</p>
-<p>The answer the AI kept coming back to: <strong>Rust + PyO3 + tight Python-boundary design</strong>.</p>
-<hr />
-<h2 id="the-development-loop">The Development Loop</h2>
-<p>Every feature and optimisation went through the same cycle:</p>
-<pre class="mermaid"><code>flowchart LR
-    R["🔍 Research&lt;br&gt;Profiler output&lt;br&gt;&amp; algorithm gaps"]
-    B["🦀 Build&lt;br&gt;Rust core&lt;br&gt;via PyO3"]
-    T["✅ Test&lt;br&gt;All tests must pass&lt;br&gt;before proceeding"]
-    BM["📊 Benchmark&lt;br&gt;vs RapidFuzz&lt;br&gt;&amp; record results"]
-    RP["🔁 Repeat&lt;br&gt;Find the next&lt;br&gt;bottleneck"]
-
-    R --&gt; B --&gt; T --&gt; BM --&gt; RP --&gt; R
-
-    style R fill:#6366f1,color:#fff,stroke:none
-    style B fill:#a855f7,color:#fff,stroke:none
-    style T fill:#ef4444,color:#fff,stroke:none
-    style BM fill:#22c55e,color:#fff,stroke:none
-    style RP fill:#f59e0b,color:#fff,stroke:none</code></pre>
-<p>Each iteration asked:</p>
+<h1 id="architecture-design">Architecture &amp; Design</h1>
+<p><code>rustfuzz</code> is built with a singular goal: provide the fastest fuzzy string matching library for Python by moving all heavy computation into Rust, while maintaining a perfectly Pythonic API.</p>
+<p>This document outlines the core architectural decisions that make <code>rustfuzz</code> incredibly fast and memory-safe.</p>
+<h2 id="1-rust-ffi-pyo3-bindings">1. Rust FFI &amp; PyO3 Bindings</h2>
+<p>The bridge between Python and Rust is built using <code>PyO3</code>. We prioritize zero-copy or minimal-copy extraction of Python strings.</p>
+<h3 id="string-extraction">String Extraction</h3>
+<p>When a Python string is passed to a Rust function, we avoid allocating new Rust <code>String</code> objects if possible. 
+- For ASCII strings (<code>PyUnicode_1BYTE_KIND</code>), we extract direct pointers to the underlying byte array using <code>PyUnicode_AsUTF8AndSize</code> and process them as <code>&amp;[u8]</code>.
+- This ensures that operations like <code>fuzz.ratio</code> have zero allocation overhead for the strings themselves.</p>
+<h3 id="apache-arrow-pycapsule-management">Apache Arrow &amp; PyCapsule Management</h3>
+<p>For high-throughput analytical workloads (e.g., PySpark DataFrames), zero-copy data transfer is facilitated using the Apache Arrow C-Data interface. We strictly manage <code>PyCapsule</code> lifetimes during FFI boundary crossings to ensure that memory references remain valid and are not prematurely garbage collected by Python, completely avoiding segmentation faults during batch processing.</p>
+<h2 id="2-core-algorithms-optimizations">2. Core Algorithms &amp; Optimizations</h2>
+<p>The <code>src/algorithms.rs</code> and <code>src/fuzz.rs</code> files contain highly optimized versions of standard fuzzy matching algorithms.</p>
 <ul>
-<li><strong>Research</strong> — where is the remaining Python overhead? What does the profiler show?</li>
-<li><strong>Build</strong> — move that hot path into Rust. Eliminate copies, reduce allocations, avoid iterator protocol overhead.</li>
-<li><strong>Test</strong> — the full test suite must pass before proceeding. No broken correctness, no skipped edge cases.</li>
-<li><strong>Benchmark</strong> — run head-to-head comparisons vs RapidFuzz. Numbers don't lie.</li>
-<li><strong>Repeat</strong> — the next bottleneck is always waiting.</li>
+<li><strong>Levenshtein Distance:</strong> We use variations of Myers' bit-parallel algorithm (<code>PatternMask64</code>) for strings up to 64 characters long, significantly outperforming naive dynamic programming approaches. </li>
+<li><strong>Pattern Masks:</strong> The <code>PatternMask64</code> builds a 64-bit integer mask for each character in the query, allowing multiple characters to be processed in a single CPU instruction during the matching matrix calculation.</li>
+<li><strong>Fast Paths:</strong> Natively supported scorers (e.g., <code>ratio</code>, <code>wratio</code>, <code>partial_ratio</code>) completely bypass Python callback overhead when used in batch processing methods like <code>process.extract</code>.</li>
 </ul>
-<hr />
-<h2 id="why-this-matters">Why This Matters</h2>
-<p>RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optimisation make it a formidable target. The goal of this project was never to dismiss it, but to prove that:</p>
-<ol>
-<li><strong>AI can drive non-trivial systems programming</strong> — not just generate boilerplate.</li>
-<li><strong>Rust + PyO3 can match C++ at the Python boundary</strong> — with the added safety guarantees Rust provides.</li>
-<li><strong>Iterative AI-driven optimisation works</strong> — each benchmark loop produced measurable gains.</li>
-</ol>
-<hr />
-<h2 id="features">Features</h2>
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>⚡ <strong>Blazing Fast</strong></td>
-<td>Core algorithms in Rust — no Python overhead, no GIL bottlenecks</td>
-</tr>
-<tr>
-<td>🧠 <strong>Smart Matching</strong></td>
-<td>ratio, partial_ratio, token sort/set, Levenshtein, Jaro-Winkler, and more</td>
-</tr>
-<tr>
-<td>🔒 <strong>Memory Safe</strong></td>
-<td>Rust's borrow checker — no segfaults, no buffer overflows</td>
-</tr>
-<tr>
-<td>🐍 <strong>Pythonic API</strong></td>
-<td>Typed Python interface — <code>import rustfuzz.fuzz as fuzz</code> and go</td>
-</tr>
-<tr>
-<td>📦 <strong>No Build Step</strong></td>
-<td>Pre-compiled wheels for Python 3.10–3.13 on Linux, macOS, and Windows</td>
-</tr>
-<tr>
-<td>🏔️ <strong>Big Data Ready</strong></td>
-<td>Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks</td>
-</tr>
-<tr>
-<td>🧩 <strong>Ecosystem Integrations</strong></td>
-<td>BM25, Hybrid Search, and LangChain Retrievers for Vector DBs</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="installation">Installation</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>rustfuzz
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># or with uv:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>rustfuzz
-</code></pre></div>
-<hr />
-<h2 id="quick-example">Quick Example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">rustfuzz.fuzz</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fuzz</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rustfuzz.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Levenshtein</span><span class="p">,</span> <span class="n">JaroWinkler</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">rustfuzz</span><span class="w"> </span><span class="kn">import</span> <span class="n">process</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Similarity ratios</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">ratio</span><span class="p">(</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;hello wrold&quot;</span><span class="p">)</span>            <span class="c1"># ~96.0</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">partial_ratio</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;say hello world&quot;</span><span class="p">)</span>      <span class="c1"># 100.0</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">fuzz</span><span class="o">.</span><span class="n">token_sort_ratio</span><span class="p">(</span><span class="s2">&quot;fuzzy wuzzy&quot;</span><span class="p">,</span> <span class="s2">&quot;wuzzy fuzzy&quot;</span><span class="p">)</span> <span class="c1"># 100.0</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Edit distance</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">Levenshtein</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="s2">&quot;kitten&quot;</span><span class="p">,</span> <span class="s2">&quot;sitting&quot;</span><span class="p">)</span>           <span class="c1"># 3</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">JaroWinkler</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="s2">&quot;martha&quot;</span><span class="p">,</span> <span class="s2">&quot;marhta&quot;</span><span class="p">)</span>          <span class="c1"># ~0.96</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="c1"># Batch matching</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="n">process</span><span class="o">.</span><span class="n">extractOne</span><span class="p">(</span><span class="s2">&quot;new york&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;New York&quot;</span><span class="p">,</span> <span class="s2">&quot;Newark&quot;</span><span class="p">,</span> <span class="s2">&quot;Los Angeles&quot;</span><span class="p">])</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># (&#39;New York&#39;, 100.0, 0)</span>
-</code></pre></div>
-<hr />
-<h2 id="cookbook-recipes">Cookbook Recipes 🧑‍🍳</h2>
-<table>
-<thead>
-<tr>
-<th>Recipe</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="cookbook/01_introduction/">Introduction</a></td>
-<td>Get started — basic matching and terminology</td>
-</tr>
-<tr>
-<td><a href="cookbook/02_advanced_matching/">Advanced Matching</a></td>
-<td>Partial ratios, token sorts, score cutoffs</td>
-</tr>
-<tr>
-<td><a href="cookbook/03_benchmarks/">Benchmarks</a></td>
-<td>Head-to-head speed comparisons vs RapidFuzz</td>
-</tr>
-</tbody>
-</table>
-<p>Start exploring from the navigation menu on the left!</p>
+<h2 id="3-batch-processing-processrs">3. Batch Processing (<code>process.rs</code>)</h2>
+<p>Batch processing is the area where <code>rustfuzz</code> delivers the most significant performance gains over pure Python or Cython implementations.</p>
+<h3 id="the-fast-path">The Fast Path</h3>
+<p>When <code>process.extract</code> evaluates a query against a list of choices, it does the following:
+1. Validates if the selected scorer is implemented natively (<code>ScorerType</code>).
+2. If the scorer is native and no custom Python <code>processor</code> function is provided, it enters the Native Fast Path (<code>ratio_fast</code>).
+3. For large lists (defined by <code>PARALLEL_THRESHOLD = 64</code>), it switches to a Rayon-powered parallel execution model.</p>
+<h3 id="concurrency-and-the-gil">Concurrency and the GIL</h3>
+<ul>
+<li><strong>Phase 1 (GIL Held):</strong> Safely extract raw byte slice pointers (<code>*mut PyObject</code>) from the Python list.</li>
+<li><strong>Phase 2 (GIL Released):</strong> Releases the Python Global Interpreter Lock (<code>py.allow_threads()</code>). Spawns a Rayon parallel iterator (<code>par_iter</code>) that evaluates the distance metric across all available CPU cores. No Python objects are interacted with during this phase.</li>
+<li><strong>Phase 3 (GIL Held):</strong> Re-acquire the GIL and pack the resulting winner pairs <code>(PyObject, score, index)</code> into a final Python list.</li>
+</ul>
+<p>This architecture scales linearly with CPU cores for functions like <code>cdist</code> (distance matrix generation) and <code>extract_iter</code>.</p>
+<h2 id="4-advanced-data-structures">4. Advanced Data Structures</h2>
+<h3 id="bk-trees-for-deduplication">BK-Trees for Deduplication</h3>
+<p>Deduplication is handled natively in Rust using a Burkhard-Keller Tree (<code>src/distance/bktree.rs</code>). The tree organizes strings based on a discrete metric distance (Levenshtein). This turns an $O(N^2)$ deduplication problem into a vastly faster tree traversal where entire branches are pruned based on the triangle inequality.</p>
+<h3 id="hybrid-search-bm25">Hybrid Search &amp; BM25</h3>
+<p>For integration with LLMs and Vector databases, <code>src/search.rs</code> provides a native <code>BM25Index</code>.
+- It implements the Okapi BM25 scoring algorithm, parallelized using Rayon over document chunks.
+- <strong>RRF (Reciprocal Rank Fusion):</strong> Provides hybrid capabilities (<code>get_top_n_rrf</code>) that effectively merge traditional lexical token matching (BM25) with character-level fuzzy matching, providing robust retrieval even when queries include typos.</p>
 
 
 
@@ -1002,10 +964,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "toc.integrate", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "toc.integrate", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
         <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
       

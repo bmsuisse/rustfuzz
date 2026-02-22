@@ -8,25 +8,31 @@
       
       
       
+        <link rel="canonical" href="https://bmsuisse.github.io/rustfuzz/developer_guide/">
       
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../cookbook/01_introduction/">
       
       
         
       
       
-      <link rel="icon" href="/rustfuzz/logo.svg">
+      <link rel="icon" href="../logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
-        <title>rustfuzz</title>
+        <title>Developer & Contributor Guide - rustfuzz</title>
       
     
     
-      <link rel="stylesheet" href="/rustfuzz/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/rustfuzz/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="/rustfuzz/stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("/rustfuzz/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,6 +77,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#developer-contributor-guide" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -81,9 +92,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/rustfuzz/." title="rustfuzz" class="md-header__button md-logo" aria-label="rustfuzz" data-md-component="logo">
+    <a href=".." title="rustfuzz" class="md-header__button md-logo" aria-label="rustfuzz" data-md-component="logo">
       
-  <img src="/rustfuzz/logo.svg" alt="logo">
+  <img src="../logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -100,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Developer & Contributor Guide
             
           </span>
         </div>
@@ -199,7 +210,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/rustfuzz/." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -216,11 +227,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/rustfuzz/architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
           
   
   
@@ -242,7 +255,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/rustfuzz/cookbook/01_introduction/" class="md-tabs__link">
+        <a href="../cookbook/01_introduction/" class="md-tabs__link">
           
   
   
@@ -280,9 +293,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/rustfuzz/." title="rustfuzz" class="md-nav__button md-logo" aria-label="rustfuzz" data-md-component="logo">
+    <a href=".." title="rustfuzz" class="md-nav__button md-logo" aria-label="rustfuzz" data-md-component="logo">
       
-  <img src="/rustfuzz/logo.svg" alt="logo">
+  <img src="../logo.svg" alt="logo">
 
     </a>
     rustfuzz
@@ -309,7 +322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -333,8 +346,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -346,17 +361,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -374,7 +392,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -392,7 +410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/architecture/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -417,10 +435,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/rustfuzz/developer_guide/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer & Contributor Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -436,6 +481,109 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-toolchain-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Toolchain &amp; Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Toolchain &amp; Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initial Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-core-optimization-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The Core Optimization Loop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-coding-standards-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Coding Standards &amp; Rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-testing-qa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Testing &amp; QA
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-webbrowser-verification-if-applicable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Web/Browser Verification (If Applicable)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-documenting-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Documenting Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -517,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/cookbook/01_introduction/" class="md-nav__link">
+      <a href="../cookbook/01_introduction/" class="md-nav__link">
         
   
   
@@ -545,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/cookbook/02_advanced_matching/" class="md-nav__link">
+      <a href="../cookbook/02_advanced_matching/" class="md-nav__link">
         
   
   
@@ -573,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/cookbook/03_benchmarks/" class="md-nav__link">
+      <a href="../cookbook/03_benchmarks/" class="md-nav__link">
         
   
   
@@ -601,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/cookbook/04_hybrid_search/" class="md-nav__link">
+      <a href="../cookbook/04_hybrid_search/" class="md-nav__link">
         
   
   
@@ -629,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/rustfuzz/cookbook/05_langchain/" class="md-nav__link">
+      <a href="../cookbook/05_langchain/" class="md-nav__link">
         
   
   
@@ -670,8 +818,85 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+  
+
+
+<h1 id="developer-contributor-guide">Developer &amp; Contributor Guide</h1>
+<p>Welcome to the <code>rustfuzz</code> project! This guide explains how to build, test, and contribute to the library. The project follows strict guidelines to ensure maximum performance, safety, and maintainability.</p>
+<h2 id="1-toolchain-setup">1. Toolchain &amp; Setup</h2>
+<p>We use modern, fast tools built in Rust across the entire stack:
+- <strong>Rust / Cargo:</strong> For the underlying implementations.
+- <strong>Maturin:</strong> For building Python wheels and managing the PyO3 bindings.
+- <strong>uv:</strong> For incredibly fast Python environment and dependency management.
+- <strong>Ruff:</strong> For Python linting and formatting.
+- <strong>Pyright:</strong> For strict static type checking in Python.</p>
+<h3 id="initial-setup">Initial Setup</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Clone the repository</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/bmsuisse/rustfuzz.git
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>rustfuzz
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Create a virtual environment and sync dependencies using uv</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>uv<span class="w"> </span>sync<span class="w"> </span>--all-groups
+</code></pre></div>
+<p>To build the development version of the Rust extension:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>maturin<span class="w"> </span>develop
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># Use --release for benchmarking to disable debug assertions and enable optimizations</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>uv<span class="w"> </span>run<span class="w"> </span>maturin<span class="w"> </span>develop<span class="w"> </span>--release
+</code></pre></div>
+<h2 id="2-the-core-optimization-loop">2. The Core Optimization Loop</h2>
+<p>Our development philosophy is summarized in the following loop, designed to aggressively optimize performance vs. benchmark targets (like RapidFuzz):</p>
+<p><strong>Research → Build → Test → Benchmark → Repeat</strong></p>
+<ol>
+<li><strong>Research:</strong> Run profilers to identify bottlenecks or missing algorithm fast-paths.</li>
+<li><strong>Build:</strong> Implement the logic in Rust and expose it via PyO3.</li>
+<li><strong>Test:</strong> Validate against existing tests to ensure 100% equivalence and correctness (Memory safety).</li>
+<li><strong>Benchmark:</strong> Run the <code>pytest-benchmark</code> suite to measure the impact.</li>
+<li><strong>Repeat:</strong> Repeat the cycle.</li>
+</ol>
+<p><em>Note: You can trigger the automated benchmark workflow via the <code>/research-build-test-benchmark</code> command if using the dedicated AI agent flow.</em></p>
+<h2 id="3-coding-standards-rules">3. Coding Standards &amp; Rules</h2>
+<p>To maintain high code quality, please adhere strictly to the following rules:</p>
+<ul>
+<li><strong>1000 Lines Max:</strong> No file may exceed 1000 lines of code. If a module grows too large, refactor it into smaller, manageable pieces to ensure cognitive load remains low.</li>
+<li><strong>Branching:</strong> Create a dedicated branch for every new feature or bugfix. Do not push directly to <code>main</code>.</li>
+<li><strong>Typing First:</strong> Python features must be fully typed. Use <code>pyright</code> to catch typing errors before committing. 
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pyright
+</code></pre></div></li>
+<li><strong>Linting:</strong> We enforce <code>ruff</code> for linting. 
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+</code></pre></div></li>
+</ul>
+<h2 id="4-testing-qa">4. Testing &amp; QA</h2>
+<ul>
+<li><strong>Ensure tests pass before committing:</strong>
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest
+</code></pre></div></li>
+<li><strong>End-to-End (E2E) Verification:</strong> Whenever implementing a major new feature (like a new core algorithm or architectural integration), write comprehensive unit tests or E2E tests validating the full pipeline from Python through FFI into Rust and back out.</li>
+</ul>
+<h2 id="5-webbrowser-verification-if-applicable">5. Web/Browser Verification (If Applicable)</h2>
+<p><code>rustfuzz</code> is strictly a backend/library tool. However, if visual output or browser-based dashboards are added in the future (e.g., for reporting), <strong>never</strong> attempt manual browser testing. <strong>Always use Playwright</strong> for automated, reproducible E2E browser tests. </p>
+<h2 id="6-documenting-functions">6. Documenting Functions</h2>
+<ul>
+<li>Python wrappers must have standard docstrings.</li>
+<li>Ensure any new Python stubs (<code>.pyi</code>) are kept perfectly in sync with the <code>src/*.rs</code> Rust implementation signatures.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -714,10 +939,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/rustfuzz/", "features": ["navigation.tabs", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "toc.integrate", "content.code.copy"], "search": "/rustfuzz/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "toc.integrate", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="/rustfuzz/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
         <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
       

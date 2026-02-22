@@ -2,18 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://bmsuisse.github.io/rustfuzz/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://bmsuisse.github.io/rustfuzz/architecture/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://bmsuisse.github.io/rustfuzz/developer_guide/</loc>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://bmsuisse.github.io/rustfuzz/cookbook/01_introduction/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://bmsuisse.github.io/rustfuzz/cookbook/02_advanced_matching/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://bmsuisse.github.io/rustfuzz/cookbook/03_benchmarks/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://bmsuisse.github.io/rustfuzz/cookbook/04_hybrid_search/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://bmsuisse.github.io/rustfuzz/cookbook/05_langchain/</loc>
+         <lastmod>2026-02-22</lastmod>
     </url>
 </urlset>
