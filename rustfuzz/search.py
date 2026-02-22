@@ -194,6 +194,7 @@ class HybridSearch:
         # Step 2: Semantic ranks (cosine sim) via Rust fast dot product
         # Vectorise the single query by wrapping in a list
         q_wrapped = [query_embedding]
+        assert self._embeddings is not None  # has_vectors guard above ensures this
         flat_matrix, _, _ = _rustfuzz.cosine_similarity_matrix(
             q_wrapped, self._embeddings
         )

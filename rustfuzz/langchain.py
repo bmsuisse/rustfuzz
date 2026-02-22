@@ -108,7 +108,7 @@ class RustfuzzBM25Retriever(BaseRetriever):
         scored_docs = [(score, idx) for idx, score in enumerate(scores) if score > 0.0]
         scored_docs.sort(reverse=True, key=lambda x: x[0])
 
-        top_k = scored_docs[:self.k]
+        top_k = scored_docs[: self.k]
 
         results = []
         for score, idx in top_k:

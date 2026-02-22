@@ -2729,6 +2729,7 @@ dev = [
 ]
 docs = [
     { name = "jupyter" },
+    { name = "mkdocs" },
     { name = "mkdocs-jupyter" },
     { name = "mkdocs-material" },
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -2756,6 +2757,7 @@ dev = [
 ]
 docs = [
     { name = "jupyter" },
+    { name = "mkdocs", specifier = ">=1.5,<2" },
     { name = "mkdocs-jupyter" },
     { name = "mkdocs-material" },
     { name = "pandas" },

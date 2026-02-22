@@ -28,52 +28,52 @@ Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 ## The Challenge: Beat RapidFuzz
 
 ```mermaid
-flowchart LR
-    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
-    B["🦀 Build<br>Rust implementation<br>via PyO3"]
-    T["✅ Test<br>All tests must pass<br>before proceeding"]
-    BM["📊 Benchmark<br>vs RapidFuzz<br>Numbers don't lie"]
-    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
+flowchart TD
+    R["🔍 Research\nProfiler output & algorithm gaps"]
+    B["🦀 Build\nRust implementation via PyO3"]
+    T["✅ Test\nAll tests must pass before proceeding"]
+    BM["📊 Benchmark\nvs RapidFuzz — Numbers don't lie"]
+    RP["🔁 Repeat\nFind the next bottleneck"]
 
     R --> B --> T --> BM --> RP --> R
 
-    style R fill:#6366f1,color:#fff,stroke:none
-    style B fill:#a855f7,color:#fff,stroke:none
-    style T fill:#ef4444,color:#fff,stroke:none
+    style R  fill:#6366f1,color:#fff,stroke:none
+    style B  fill:#a855f7,color:#fff,stroke:none
+    style T  fill:#ef4444,color:#fff,stroke:none
     style BM fill:#22c55e,color:#fff,stroke:none
     style RP fill:#f59e0b,color:#fff,stroke:none
 ```
 
 The goal: match or exceed RapidFuzz's throughput on `ratio`, `partial_ratio`, `token_sort_ratio`, and `process.extract` — all from Python. Each iteration starts with profiling, identifies the hottest path, and rewrites it deeper into Rust.
 
-### The Results: RustFuzz is Faster 🏆
+## The Results: RustFuzz is Faster 🏆
 
 We benchmarked `process.extract` on a **1,000,000 row** corpus. Thanks to zero-overhead Rayon parallelization, lock-free global threshold shrinking (`AtomicU64`), and native query token caching, `rustfuzz` officially outperforms `rapidfuzz`.
 
-| Benchmark (1M rows) | RapidFuzz | RustFuzz (Parallel) |
-| --- | --- | --- |
-| Raw Characters (`ratio`) | `5506 ms` | **`5253 ms`** |
-| Complex Tokens (`WRatio`) | `3032 ms` | **`2716 ms`** |
+| Benchmark (1M rows)       | RapidFuzz  | RustFuzz (Parallel) |
+|---------------------------|:----------:|:-------------------:|
+| Raw Characters (`ratio`)  | `5506 ms`  | **`5253 ms`**       |
+| Complex Tokens (`WRatio`) | `3032 ms`  | **`2716 ms`**       |
 
-*But that's not all*. By utilizing the built-in **BM25 Hybrid Pipeline**, `rustfuzz` can complete the identical extraction task in a revolutionary **`97 ms`** (a ~30x speedup over state-of-the-art fuzzy matching!).
+*But that's not all.* By utilizing the built-in **BM25 Hybrid Pipeline**, `rustfuzz` completes the identical extraction task in **`97 ms`** — a **~30× speedup** over state-of-the-art fuzzy matching.
 
 ## Features
 
-| | |
+| Feature | Description |
 |---|---|
 | ⚡ **Blazing Fast** | Core algorithms written in Rust — no Python overhead, no GIL bottlenecks |
 | 🧠 **Smart Matching** | Ratio, partial ratio, token sort/set, Levenshtein, Jaro-Winkler, and more |
 | 🔒 **Memory Safe** | Rust's borrow checker guarantees — no segfaults, no buffer overflows |
 | 🐍 **Pythonic API** | Clean, typed Python interface. Import and go |
 | 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.14 on all major platforms |
-| 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
-| 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
+| 🏔️ **Big Data Ready** | Benchmarked at 1 Billion rows — built for high-throughput workloads |
+| 🧩 **Ecosystem Ready** | BM25, Hybrid Search, and LangChain Retrievers (Qdrant, LanceDB, FAISS, …) |
 
 ## Installation
 
 ```sh
 pip install rustfuzz
-# or, with uv (recommended — much faster):
+# or, with uv (recommended):
 uv pip install rustfuzz
 ```
 
@@ -84,22 +84,22 @@ import rustfuzz.fuzz as fuzz
 from rustfuzz.distance import Levenshtein
 
 # Fuzzy ratio
-print(fuzz.ratio("hello world", "hello wrold"))          # ~96.0
+print(fuzz.ratio("hello world", "hello wrold"))           # ~96.0
 
 # Partial ratio (substring match)
-print(fuzz.partial_ratio("hello", "say hello world"))    # 100.0
+print(fuzz.partial_ratio("hello", "say hello world"))     # 100.0
 
 # Token-order-insensitive match
 print(fuzz.token_sort_ratio("fuzzy wuzzy", "wuzzy fuzzy")) # 100.0
 
 # Levenshtein distance
-print(Levenshtein.distance("kitten", "sitting"))         # 3
+print(Levenshtein.distance("kitten", "sitting"))          # 3
 
 # Normalised similarity [0.0 – 1.0]
 print(Levenshtein.normalized_similarity("kitten", "kitten")) # 1.0
 ```
 
-### Batch extraction
+### Batch Extraction
 
 ```python
 from rustfuzz import process
@@ -123,7 +123,7 @@ print(process.extract("new", choices, limit=3))
 
 ## Documentation
 
-Full cookbook with interactive examples and benchmark results:
+Full cookbook with interactive examples and benchmark results:  
 👉 **[bmsuisse.github.io/rustfuzz](https://bmsuisse.github.io/rustfuzz/)**
 
 ## License

@@ -1,39 +1,71 @@
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-T = TypeVar('T')
-TScore = TypeVar('TScore', int, float)
+T = TypeVar("T")
+TScore = TypeVar("TScore", int, float)
 
-def ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def partial_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def partial_ratio_alignment(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> Any:
-    ...
-
-def token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def token_set_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def token_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def partial_token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def partial_token_set_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def partial_token_ratio(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: float | None = None) -> float:
-    ...
-
-def WRatio(*args, **kwargs) -> Any:
-    ...
-
-def QRatio(*args, **kwargs) -> Any:
-    ...
-
+def ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def partial_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def partial_ratio_alignment(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> Any: ...
+def token_sort_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def token_set_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def token_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def partial_token_sort_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def partial_token_set_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def partial_token_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def WRatio(*args, **kwargs) -> Any: ...
+def QRatio(*args, **kwargs) -> Any: ...

@@ -19,6 +19,7 @@ def sorensen_dice(
         s1, s2, n=n, processor=processor, score_cutoff=score_cutoff
     )
 
+
 def jaccard(
     s1: Any,
     s2: Any,
@@ -31,5 +32,6 @@ def jaccard(
     return _rustfuzz.jaccard(
         s1, s2, n=n, processor=processor, score_cutoff=score_cutoff
     )
+
 
 __all__ = ["sorensen_dice", "jaccard"]

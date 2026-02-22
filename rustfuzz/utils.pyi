@@ -1,8 +1,3 @@
-from typing import Any, TypeVar
+from typing import Any
 
-T = TypeVar('T')
-TScore = TypeVar('TScore', int, float)
-
-def default_process(*args, **kwargs) -> Any:
-    ...
-
+def default_process(s: Any, /) -> str: ...

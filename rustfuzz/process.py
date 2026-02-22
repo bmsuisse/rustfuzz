@@ -1,8 +1,5 @@
 """
 rustfuzz.process — batch matching and extraction utilities.
-
-extract, extractOne, extract_iter, cdist and cpdist will be implemented
-in Rust (process.rs) in a follow-up. Stubs are provided for API compatibility.
 """
 
 from __future__ import annotations
@@ -34,6 +31,13 @@ def extract(
     limit: int | None = 5,
     score_cutoff: float | None = None,
 ) -> list[tuple[Any, float, int]]:
+    """Return the best matches from *choices* for *query*.
+
+    Note
+    ----
+    The Rayon-parallel fast path only activates for ASCII strings.  Non-ASCII
+    input falls back to a single-threaded Python iterator path automatically.
+    """
     from . import _rustfuzz, fuzz
 
     _scorer = scorer if scorer is not None else fuzz.WRatio
@@ -58,10 +62,13 @@ def extractBests(
     *,
     scorer: Callable[..., float] | None = None,
     processor: Callable[..., Any] | None = None,
-    limit: int | None = None,
+    limit: int | None = 5,
     score_cutoff: float | None = 0.0,
 ) -> list[tuple[Any, float, int]]:
-    """Returns all matches with score >= score_cutoff, sorted by score."""
+    """Return all matches with score >= score_cutoff, sorted by score descending.
+
+    Defaults match rapidfuzz: limit=5, score_cutoff=0.0.
+    """
     return extract(
         query,
         choices,
@@ -130,7 +137,14 @@ def cdist(
     dtype: Any = None,
     workers: int = 1,
 ) -> Any:
-    """Compute a pairwise distance matrix. Requires numpy."""
+    """Compute a pairwise distance matrix. Requires numpy.
+
+    Note
+    ----
+    *workers* is accepted for API compatibility with rapidfuzz but is currently
+    ignored — Rust always uses the full Rayon thread pool.  Pass ``workers=1``
+    to signal single-threaded intent (no effect yet).
+    """
     try:
         import numpy as np
     except ImportError as e:
@@ -160,17 +174,29 @@ def cdist(
 def dedupe(
     choices: Iterable[Any],
     *,
-    threshold: int = 2,
+    max_edits: int = 2,
     scorer: Callable[..., float] | None = None,
     processor: Callable[..., Any] | None = None,
 ) -> list[Any]:
-    """
-    Deduplicate a list of choices using a BK-Tree.
-    Note: Threshold is absolute Levenshtein distance (max allowed edits),
-    default 2. Not a percentage score.
+    """Deduplicate *choices* using a BK-Tree.
+
+    Parameters
+    ----------
+    max_edits:
+        Maximum allowed Levenshtein edit distance between two strings for them
+        to be considered duplicates.  **This is an absolute edit count, not a
+        percentage score.**  Default is 2.
+
+    Note
+    ----
+    The *scorer* and *processor* parameters are accepted for API surface
+    compatibility but are not used — deduplication always uses Levenshtein
+    distance.
     """
     from . import _rustfuzz
+
     bktree = _rustfuzz.BKTree()
-    return bktree.dedupe(list(choices), threshold)
+    return bktree.dedupe(list(choices), max_edits)
+
 
 __all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]

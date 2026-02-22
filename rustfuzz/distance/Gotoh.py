@@ -17,8 +17,13 @@ def distance(
 ) -> float:
     """Calculates the Gotoh distance between two strings with affine gap penalties."""
     return _rustfuzz.gotoh_distance(
-        s1, s2, open_penalty=open_penalty, extend_penalty=extend_penalty,
-        processor=processor, score_cutoff=score_cutoff
+        s1,
+        s2,
+        open_penalty=open_penalty,
+        extend_penalty=extend_penalty,
+        processor=processor,
+        score_cutoff=score_cutoff,
     )
+
 
 __all__ = ["distance"]
