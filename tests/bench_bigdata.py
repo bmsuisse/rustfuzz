@@ -35,7 +35,7 @@ def run_benchmarks():
     # 1. Rapidfuzz process.extract (Sequential)
     print("\n--- 1. RapidFuzz Extract (Sequential) ---")
     t0 = time.time()
-    res1 = rf_process.extract(query, corpus, limit=10)
+    rf_process.extract(query, corpus, limit=10)
     t1 = time.time()
     print(f"RapidFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
 

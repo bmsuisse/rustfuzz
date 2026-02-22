@@ -1,4 +1,5 @@
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 def distance(s1: Any, s2: Any, *, processor: Callable[[Any], Any] | None = None, score_cutoff: int | None = None) -> int:
     ...

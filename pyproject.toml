@@ -42,6 +42,7 @@ dev = [
 ]
 docs = [
   "mkdocs-material",
+  "mkdocs>=1.5,<2",
   "mkdocs-jupyter",
   "jupyter",
   "plotly",

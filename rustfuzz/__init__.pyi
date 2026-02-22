@@ -1,5 +1,4 @@
-from typing import Any, Callable, Sequence, Iterable, Hashable, TypeVar
-import numpy.typing as npt
+from typing import Any, TypeVar
 
 T = TypeVar('T')
 TScore = TypeVar('TScore', int, float)

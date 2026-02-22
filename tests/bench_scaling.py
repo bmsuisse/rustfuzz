@@ -37,14 +37,14 @@ def run_benchmarks(size):
     # 1. Rapidfuzz process.extract (Sequential)
     print("--- 1. RapidFuzz Extract WRatio (Sequential) ---")
     t0 = time.time()
-    res1 = rf_process.extract(query, corpus, limit=10)
+    rf_process.extract(query, corpus, limit=10)
     t1 = time.time()
     print(f"RapidFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
 
     # 2. Rustfuzz process.extract (Parallel via Rayon)
     print("\n--- 2. RustFuzz Extract WRatio (Parallel) ---")
     t0 = time.time()
-    res2 = rust_process.extract(query, corpus, limit=10)
+    rust_process.extract(query, corpus, limit=10)
     t1 = time.time()
     print(f"RustFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
 
@@ -57,7 +57,7 @@ def run_benchmarks(size):
 
     t0 = time.time()
     # Find top 10 using BM25, fallback to fuzzy if needed
-    res3 = index.get_top_n_fuzzy(query, n=10, bm25_candidates=min(size // 100, 500), fuzzy_weight=0.3)
+    index.get_top_n_fuzzy(query, n=10, bm25_candidates=min(size // 100, 500), fuzzy_weight=0.3)
     t1 = time.time()
     print(f"BM25 + Semantic Hybrid Search: {(t1 - t0)*1000:.2f} ms")
 
