@@ -117,38 +117,79 @@ fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
 
 /// Score-cutoff-aware token_sort_and_set: mirrors rf's token_ratio which accepts
 /// a score_cutoff. Skips indel_score_100 calls that can't possibly beat cutoff.
+///
+/// Optimization: computes s2's sorted tokens once, deriving both the sort-key
+/// string AND the set-intersection diff from the same sorted slice — avoids the
+/// second sort pass that `tokens_to_set_intersection_diff` would otherwise do.
 fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64, cache: Option<&QueryTokenCache>) -> (f64, f64) {
-    let s1k = if let Some(c) = cache { c.sort_key.clone() } else { tokens_sort_key(s1) };
-    let s2k = tokens_sort_key(s2);
-    // Pass cutoff so indel_normalized_sim can short-circuit
+    // Query sort-key: use cache if available (no allocation when cached)
+    let s1k_owned;
+    let s1k: &str = if let Some(c) = cache {
+        &c.sort_key
+    } else {
+        s1k_owned = tokens_sort_key(s1);
+        &s1k_owned
+    };
+
+    // Candidate: sort tokens ONCE, then derive sort-key + set-diff from the same vec
+    let mut s2_tokens: Vec<&str> = s2.split_whitespace().collect();
+    s2_tokens.sort_unstable();
+    let s2k = s2_tokens.join(" ");
+
+    // Token sort ratio
     let av = Seq::Ascii(s1k.as_bytes());
     let bv = Seq::Ascii(s2k.as_bytes());
     let tsr = if s1k.is_ascii() && s2k.is_ascii() {
         indel_normalized_sim(&av, &bv, Some(score_cutoff)) * 100.0
     } else {
-        indel_score_100(&s1k, &s2k)
+        indel_score_100(s1k, &s2k)
     };
     if tsr == 100.0 { return (tsr, 100.0); }
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2, cache);
-    let t0 = join_tokens(&intersect);
-    let t1 = build_token_set_strings_borrow(&t0, &diff1);
-    let t2 = build_token_set_strings_borrow(&t0, &diff2);
+
+    // Token set ratio — reuse s2_tokens (already sorted) for set intersection
+    s2_tokens.dedup();
+    let t1: Vec<&str> = if let Some(c) = cache {
+        c.tokens.iter().map(|s| s.as_str()).collect()
+    } else {
+        let mut t: Vec<&str> = s1.split_whitespace().collect();
+        t.sort_unstable();
+        t.dedup();
+        t
+    };
+    let t2: &[&str] = &s2_tokens;
+
+    let mut intersection = Vec::new();
+    let mut diff1 = Vec::new();
+    let mut diff2 = Vec::new();
+    let (mut i, mut j) = (0, 0);
+    while i < t1.len() && j < t2.len() {
+        match t1[i].cmp(t2[j]) {
+            std::cmp::Ordering::Equal   => { intersection.push(t1[i]); i += 1; j += 1; }
+            std::cmp::Ordering::Less    => { diff1.push(t1[i]); i += 1; }
+            std::cmp::Ordering::Greater => { diff2.push(t2[j]); j += 1; }
+        }
+    }
+    diff1.extend_from_slice(&t1[i..]);
+    diff2.extend_from_slice(&t2[j..]);
+
+    let t0 = join_tokens(&intersection);
+    let ts1 = build_token_set_strings_borrow(&t0, &diff1);
+    let ts2 = build_token_set_strings_borrow(&t0, &diff2);
     let cutoff = score_cutoff.max(tsr);
-    let tset = if intersect.is_empty() {
-        let av = Seq::Ascii(t1.as_bytes());
-        let bv = Seq::Ascii(t2.as_bytes());
-        if t1.is_ascii() && t2.is_ascii() {
+    let tset = if intersection.is_empty() {
+        let av = Seq::Ascii(ts1.as_bytes());
+        let bv = Seq::Ascii(ts2.as_bytes());
+        if ts1.is_ascii() && ts2.is_ascii() {
             indel_normalized_sim(&av, &bv, Some(cutoff)) * 100.0
         } else {
-            indel_score_100(&t1, &t2)
+            indel_score_100(&ts1, &ts2)
         }
     } else {
-        // With shared intersection tokens are always ASCII
-        let r01 = indel_score_100(&t0, &t1);
+        let r01 = indel_score_100(&t0, &ts1);
         if r01 == 100.0 { return (tsr, 100.0); }
-        let r02 = indel_score_100(&t0, &t2);
+        let r02 = indel_score_100(&t0, &ts2);
         if r02 == 100.0 { return (tsr, 100.0); }
-        let r12 = indel_score_100(&t1, &t2);
+        let r12 = indel_score_100(&ts1, &ts2);
         r01.max(r02).max(r12)
     };
     (tsr, tset)
@@ -671,8 +712,10 @@ pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, _cach
 pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
-    let score = indel_score_100(&qk, &tokens_sort_key(sc));
+    // Borrow sort_key from cache instead of cloning
+    let qk_owned;
+    let qk: &str = if let Some(ca) = cache { &ca.sort_key } else { qk_owned = tokens_sort_key(sq); &qk_owned };
+    let score = indel_score_100(qk, &tokens_sort_key(sc));
     score_cutoff_check(score, cutoff)
 }
 
@@ -704,8 +747,10 @@ pub(crate) fn token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: 
 pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
-    let score = partial_ratio_str(&qk, &tokens_sort_key(sc));
+    // Borrow sort_key from cache instead of cloning
+    let qk_owned;
+    let qk: &str = if let Some(ca) = cache { &ca.sort_key } else { qk_owned = tokens_sort_key(sq); &qk_owned };
+    let score = partial_ratio_str(qk, &tokens_sort_key(sc));
     score_cutoff_check(score, cutoff)
 }
 
@@ -719,10 +764,10 @@ pub(crate) fn partial_token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f
 pub(crate) fn partial_token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
-    let ptsr = partial_ratio_str(&qk, &tokens_sort_key(sc));
-    // Let's optimize partial_token_set_score internally if we want, but for now just call it since we don't pass cache down this branch inside this specific function without rewriting it.
-    // Actually, we can rewrite it here easily:
+    // Borrow sort_key from cache instead of cloning
+    let qk_owned;
+    let qk: &str = if let Some(ca) = cache { &ca.sort_key } else { qk_owned = tokens_sort_key(sq); &qk_owned };
+    let ptsr = partial_ratio_str(qk, &tokens_sort_key(sc));
     let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc, cache);
     let ptset = if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
         0.0

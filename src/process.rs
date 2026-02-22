@@ -205,7 +205,7 @@ fn score_bytes_parallel(
 }
 
 /// Minimum batch size to justify Rayon parallelism (avoids overhead on small batches)
-const PARALLEL_THRESHOLD: usize = 64;
+const PARALLEL_THRESHOLD: usize = 32;
 
 #[pyfunction]
 #[pyo3(signature = (query, choices, scorer_name, scorer_obj, processor=None, limit=Some(5), score_cutoff=None))]

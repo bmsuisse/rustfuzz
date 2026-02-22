@@ -531,6 +531,13 @@ pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
         return 0.0;
     }
 
+    // Fast exact-substring check: if needle appears verbatim in haystack, score = 100.0
+    // This is O(N) and very branch-predictor friendly — catches prefix/suffix/exact matches
+    // before we build the PM or enter any LCS loop.
+    if haystack.windows(m).any(|w| w == needle) {
+        return 100.0;
+    }
+
     // Build PatternMask for needle (query) — done ONCE
     let mut pm = PatternMask64::<u8>::new();
     for (i, &c) in needle.iter().enumerate() {
