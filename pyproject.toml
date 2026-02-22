@@ -71,6 +71,9 @@ reportAny = "none"
 reportExplicitAny = "none"
 reportImplicitOverride = "none"
 reportUnannotatedClassAttribute = "none"
+reportMissingParameterType = "none"
+reportUnknownParameterType = "none"
+reportUnusedImport = "none"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

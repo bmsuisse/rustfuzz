@@ -67,5 +67,17 @@ def partial_token_ratio(
     processor: Callable[[Any], Any] | None = None,
     score_cutoff: float | None = None,
 ) -> float: ...
-def WRatio(*args, **kwargs) -> Any: ...
-def QRatio(*args, **kwargs) -> Any: ...
+def WRatio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def QRatio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[[Any], Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
