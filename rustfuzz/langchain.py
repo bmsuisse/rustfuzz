@@ -4,10 +4,10 @@ from collections.abc import Iterable
 from typing import Any
 
 try:
-    from langchain_core.callbacks import CallbackManagerForRetrieverRun
-    from langchain_core.documents import Document
-    from langchain_core.retrievers import BaseRetriever
-    from pydantic import Field
+    from langchain_core.callbacks import CallbackManagerForRetrieverRun  # type: ignore
+    from langchain_core.documents import Document  # type: ignore
+    from langchain_core.retrievers import BaseRetriever  # type: ignore
+    from pydantic import Field  # type: ignore
 except ImportError as err:
     raise ImportError(
         "Could not import langchain_core or pydantic. "
