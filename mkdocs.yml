@@ -44,6 +44,9 @@ plugins:
 
 nav:
   - Home: index.md
+  - Internals:
+    - Architecture & Design: architecture.md
+    - Developer & Contributor Guide: developer_guide.md
   - Cookbook:
     - Introduction: cookbook/01_introduction.ipynb
     - Advanced Matching: cookbook/02_advanced_matching.ipynb

@@ -53,14 +53,18 @@ fn tokens_sort_key(s: &str) -> String {
 fn tokens_to_set_intersection_diff<'a>(
     s1: &'a str,
     s2: &'a str,
+    cache: Option<&'a QueryTokenCache>,
 ) -> (Vec<&'a str>, Vec<&'a str>, Vec<&'a str>) {
-    // Sort-merge instead of HashSet — eliminates hash-table allocation + hash overhead
-    // O(n log n) sort, O(n+m) merge — much better cache locality for small token sets
-    let mut t1: Vec<&str> = s1.split_whitespace().collect();
+    let t1: Vec<&str> = if let Some(c) = cache {
+        c.tokens.iter().map(|s| s.as_str()).collect()
+    } else {
+        let mut t: Vec<&str> = s1.split_whitespace().collect();
+        t.sort_unstable();
+        t.dedup();
+        t
+    };
     let mut t2: Vec<&str> = s2.split_whitespace().collect();
-    t1.sort_unstable();
     t2.sort_unstable();
-    t1.dedup();
     t2.dedup();
 
     let mut intersection = Vec::new();
@@ -97,7 +101,7 @@ fn build_token_set_strings_borrow(t0: &str, diff: &[&str]) -> String {
 /// Returns (token_sort_score, token_set_score). Uncutoff variant.
 fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
     let tsr = indel_score_100(&tokens_sort_key(s1), &tokens_sort_key(s2));
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2, None);
     let t0 = join_tokens(&intersect);
     let t1 = build_token_set_strings_borrow(&t0, &diff1);
     let t2 = build_token_set_strings_borrow(&t0, &diff2);
@@ -113,8 +117,8 @@ fn token_sort_and_set(s1: &str, s2: &str) -> (f64, f64) {
 
 /// Score-cutoff-aware token_sort_and_set: mirrors rf's token_ratio which accepts
 /// a score_cutoff. Skips indel_score_100 calls that can't possibly beat cutoff.
-fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64) -> (f64, f64) {
-    let s1k = tokens_sort_key(s1);
+fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64, cache: Option<&QueryTokenCache>) -> (f64, f64) {
+    let s1k = if let Some(c) = cache { c.sort_key.clone() } else { tokens_sort_key(s1) };
     let s2k = tokens_sort_key(s2);
     // Pass cutoff so indel_normalized_sim can short-circuit
     let av = Seq::Ascii(s1k.as_bytes());
@@ -125,7 +129,7 @@ fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64) -> (f64, f64
         indel_score_100(&s1k, &s2k)
     };
     if tsr == 100.0 { return (tsr, 100.0); }
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2, cache);
     let t0 = join_tokens(&intersect);
     let t1 = build_token_set_strings_borrow(&t0, &diff1);
     let t2 = build_token_set_strings_borrow(&t0, &diff2);
@@ -166,13 +170,15 @@ fn partial_ratio_vecs_sc(av: &Seq<'_>, bv: &Seq<'_>, score_cutoff: f64) -> f64 {
 /// partial_token_ratio with score_cutoff — mirrors rf's partial_token_ratio:
 /// avoids computing the second partial_ratio if sorted tokens equal diff tokens,
 /// and propagates score_cutoff between the two partial_ratio calls.
-fn partial_token_ratio_sc(s1: &str, s2: &str, score_cutoff: f64) -> f64 {
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+fn partial_token_ratio_sc(s1: &str, s2: &str, score_cutoff: f64, cache: Option<&QueryTokenCache>) -> f64 {
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2, cache);
     // Early exit: common word found
     if !intersect.is_empty() { return 100.0; }
     if diff1.is_empty() && diff2.is_empty() { return 0.0; }
 
-    let s1_sorted: Vec<&str> = {
+    let s1_sorted: Vec<&str> = if let Some(c) = cache {
+        c.tokens.iter().map(|s| s.as_str()).collect()
+    } else {
         let mut t: Vec<&str> = s1.split_whitespace().collect();
         t.sort_unstable(); t.dedup(); t
     };
@@ -299,7 +305,7 @@ fn partial_ratio_str(s1: &str, s2: &str) -> f64 {
 
 fn partial_token_set_score(s1: &str, s2: &str) -> f64 {
     // Use sort-merge instead of HashSet — same interface, no hash table
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2);
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(s1, s2, None);
     if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
         return 0.0;
     }
@@ -433,7 +439,7 @@ pub fn fuzz_token_set_ratio(
     let (a_obj, b_obj) = get_processed_args(py, s1, s2, &processor)?;
     let s1_str = extract_single(&a_obj)?.to_string_lossy();
     let s2_str = extract_single(&b_obj)?.to_string_lossy();
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(&s1_str, &s2_str);
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(&s1_str, &s2_str, None);
     if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
         return Ok(0.0);
     }
@@ -549,7 +555,7 @@ pub fn fuzz_wratio(
         let s1_str = av.to_string_lossy();
         let s2_str = bv.to_string_lossy();
         sc = sc.max(end_ratio) / UNBASE_SCALE;
-        let (tsr, tset) = token_sort_and_set_cutoff(&s1_str, &s2_str, sc);
+        let (tsr, tset) = token_sort_and_set_cutoff(&s1_str, &s2_str, sc, None);
         let tr = tsr.max(tset);
         if tr > 0.0 {
             end_ratio = end_ratio.max(tr * UNBASE_SCALE);
@@ -568,7 +574,7 @@ pub fn fuzz_wratio(
 
         // Stage 3: partial_token_ratio — propagate cutoff again
         sc = sc.max(end_ratio) / UNBASE_SCALE;
-        let ptr = partial_token_ratio_sc(&s1_str, &s2_str, sc);
+        let ptr = partial_token_ratio_sc(&s1_str, &s2_str, sc, None);
         end_ratio = end_ratio.max(ptr * UNBASE_SCALE * partial_scale);
     }
 
@@ -601,7 +607,23 @@ pub(crate) fn ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
 }
 
 
-pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub struct QueryTokenCache {
+    pub sort_key: String,
+    pub tokens: Vec<String>,
+}
+
+impl QueryTokenCache {
+    pub fn new(s: &str) -> Self {
+        let sort_key = tokens_sort_key(s);
+        let mut t: Vec<&str> = s.split_whitespace().collect();
+        t.sort_unstable();
+        t.dedup();
+        let tokens = t.into_iter().map(String::from).collect();
+        Self { sort_key, tokens }
+    }
+}
+
+pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let av = Seq::Ascii(q);
     let bv = Seq::Ascii(c);
     if av.is_empty() || bv.is_empty() { return 0.0; }
@@ -617,7 +639,7 @@ pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
 
     if len_ratio < 1.5 {
         sc = sc.max(end_ratio) / UNBASE_SCALE;
-        let (tsr, tset) = token_sort_and_set_cutoff(q_str, c_str, sc);
+        let (tsr, tset) = token_sort_and_set_cutoff(q_str, c_str, sc, cache);
         let tr = tsr.max(tset);
         if tr > 0.0 { end_ratio = end_ratio.max(tr * UNBASE_SCALE); }
     } else {
@@ -628,13 +650,13 @@ pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
         if end_ratio == 100.0 { return end_ratio; }
 
         sc = sc.max(end_ratio) / UNBASE_SCALE;
-        let ptr = partial_token_ratio_sc(q_str, c_str, sc);
+        let ptr = partial_token_ratio_sc(q_str, c_str, sc, cache);
         end_ratio = end_ratio.max(ptr * UNBASE_SCALE * partial_scale);
     }
     score_cutoff_check(end_ratio, cutoff)
 }
 
-pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, _cache: Option<&QueryTokenCache>) -> f64 {
     let av = Seq::Ascii(q);
     let bv = Seq::Ascii(c);
     if q.is_empty() || c.is_empty() { return 0.0; }
@@ -646,52 +668,68 @@ pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f6
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let score = indel_score_100(&tokens_sort_key(sq), &tokens_sort_key(sc));
+    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
+    let score = indel_score_100(&qk, &tokens_sort_key(sc));
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc);
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc, cache);
     if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() { return 0.0; }
     let t0 = join_tokens(&intersect);
     let t1 = build_token_set_strings_borrow(&t0, &diff1);
     let t2 = build_token_set_strings_borrow(&t0, &diff2);
-    let score = if intersect.is_empty() { indel_score_100(&t1, &t2) } else {
-        indel_score_100(&t0, &t1).max(indel_score_100(&t0, &t2)).max(indel_score_100(&t1, &t2))
+    let score = if intersect.is_empty() {
+        indel_score_100(&t1, &t2)
+    } else {
+        indel_score_100(&t0, &t1)
+            .max(indel_score_100(&t0, &t2))
+            .max(indel_score_100(&t1, &t2))
     };
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let (tsr, tset) = token_sort_and_set(sq, sc);
+    let (tsr, tset) = token_sort_and_set_cutoff(sq, sc, cutoff.unwrap_or(0.0), cache);
     score_cutoff_check(tsr.max(tset), cutoff)
 }
 
-pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let score = partial_ratio_str(&tokens_sort_key(sq), &tokens_sort_key(sc));
+    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
+    let score = partial_ratio_str(&qk, &tokens_sort_key(sc));
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn partial_token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn partial_token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, _cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     let score = partial_token_set_score(sq, sc);
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn partial_token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
+pub(crate) fn partial_token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
-    let ptsr = partial_ratio_str(&tokens_sort_key(sq), &tokens_sort_key(sc));
-    let ptset = partial_token_set_score(sq, sc);
+    let qk = if let Some(ca) = cache { ca.sort_key.clone() } else { tokens_sort_key(sq) };
+    let ptsr = partial_ratio_str(&qk, &tokens_sort_key(sc));
+    // Let's optimize partial_token_set_score internally if we want, but for now just call it since we don't pass cache down this branch inside this specific function without rewriting it.
+    // Actually, we can rewrite it here easily:
+    let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc, cache);
+    let ptset = if intersect.is_empty() && diff1.is_empty() && diff2.is_empty() {
+        0.0
+    } else if !intersect.is_empty() {
+        100.0
+    } else {
+        partial_ratio_str(&join_tokens(&diff1), &join_tokens(&diff2))
+    };
     score_cutoff_check(ptsr.max(ptset), cutoff)
 }

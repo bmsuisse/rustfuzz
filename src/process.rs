@@ -1,5 +1,28 @@
 use pyo3::prelude::*;
 use rayon::prelude::*;
+use std::cmp::Reverse;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::collections::BinaryHeap;
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+pub struct ScoreItem {
+    pub score: f64,
+    pub idx: usize,
+}
+
+impl Eq for ScoreItem {}
+
+impl PartialOrd for ScoreItem {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.score.partial_cmp(&other.score)
+    }
+}
+
+impl Ord for ScoreItem {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).unwrap_or(std::cmp::Ordering::Equal)
+    }
+}
 
 use crate::fuzz::{
     fuzz_partial_ratio, fuzz_partial_token_ratio, fuzz_partial_token_set_ratio,
@@ -94,6 +117,7 @@ unsafe fn score_raw(
     q_pm: &crate::algorithms::PatternMask64<u8>,
     use_pm: bool,
     score_cutoff: Option<f64>,
+    cache: Option<&crate::fuzz::QueryTokenCache>,
 ) -> Option<(f64, &'static [u8])> {
     // Fast None / null guard
     if raw.is_null() || raw == pyo3::ffi::Py_None() { return None; }
@@ -117,7 +141,7 @@ unsafe fn score_raw(
         return None;
     }
 
-    if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist, q_pm, use_pm, score_cutoff) {
+    if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist, q_pm, use_pm, score_cutoff, cache) {
         let static_slice: &'static [u8] = std::mem::transmute(c_slice);
         Some((score, static_slice))
     } else {
@@ -136,6 +160,7 @@ fn score_bytes_parallel(
     q_pm: &crate::algorithms::PatternMask64<u8>,
     use_pm: bool,
     score_cutoff: Option<f64>,
+    cache: Option<&crate::fuzz::QueryTokenCache>,
 ) -> Option<f64> {
     if matches!(stype, ScorerType::Ratio | ScorerType::QRatio) {
         let q_len = q_slice.len();
@@ -168,14 +193,14 @@ fn score_bytes_parallel(
     }
 
     let score = match stype {
-         ScorerType::WRatio => wratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::PartialRatio => partial_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::TokenSortRatio => token_sort_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::PartialTokenSortRatio => partial_token_sort_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::TokenSetRatio => token_set_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::PartialTokenSetRatio => partial_token_set_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::TokenRatio => token_ratio_bytes(q_slice, c_slice, score_cutoff),
-         ScorerType::PartialTokenRatio => partial_token_ratio_bytes(q_slice, c_slice, score_cutoff),
+         ScorerType::WRatio => crate::fuzz::wratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::PartialRatio => crate::fuzz::partial_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::TokenSortRatio => crate::fuzz::token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::PartialTokenSortRatio => crate::fuzz::partial_token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::TokenSetRatio => crate::fuzz::token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::PartialTokenSetRatio => crate::fuzz::partial_token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::TokenRatio => crate::fuzz::token_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::PartialTokenRatio => crate::fuzz::partial_token_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
          _ => 0.0,
     };
     
@@ -235,6 +260,12 @@ pub fn extract(
                     q_pm.insert(c, 1u64 << i);
                 }
             }
+            
+            let token_cache_val = if matches!(stype, ScorerType::WRatio | ScorerType::TokenSortRatio | ScorerType::TokenSetRatio | ScorerType::TokenRatio | ScorerType::PartialTokenSortRatio | ScorerType::PartialTokenSetRatio | ScorerType::PartialTokenRatio) {
+                let q_str = unsafe { std::str::from_utf8_unchecked(q_slice) };
+                Some(crate::fuzz::QueryTokenCache::new(q_str))
+            } else { None };
+            let token_cache = token_cache_val.as_ref();
 
             if let Ok(list) = choices.downcast::<pyo3::types::PyList>() {
                 let n = list.len();
@@ -268,46 +299,134 @@ pub fn extract(
                     // Phase 2: parallel scoring — GIL released
                     let q_hist_ref = &q_hist;
                     let q_pm_ref = &q_pm;
-                    let scores: Vec<Option<f64>> = py.allow_threads(|| {
-                        slices.par_iter().map(|opt| {
-                            opt.and_then(|c_slice| {
-                                score_bytes_parallel(stype, c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, score_cutoff)
-                            })
-                        }).collect()
+                    
+                    let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
+                    let global_cutoff = AtomicU64::new(init_cutoff.to_bits());
+                    let limit_val = limit.unwrap_or(usize::MAX);
+
+                    let local_heaps: Vec<BinaryHeap<Reverse<ScoreItem>>> = py.allow_threads(|| {
+                        slices.par_iter().enumerate().fold(
+                            || BinaryHeap::with_capacity(limit_val.min(100)),
+                            |mut heap, (idx, opt)| {
+                                let current_cutoff = f64::from_bits(global_cutoff.load(Ordering::Relaxed));
+                                if let Some(c_slice) = opt {
+                                    if let Some(score) = score_bytes_parallel(stype, *c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, Some(current_cutoff), token_cache) {
+                                        if heap.len() < limit_val {
+                                            heap.push(Reverse(ScoreItem { score, idx }));
+                                            if heap.len() == limit_val {
+                                                if let Some(Reverse(min_item)) = heap.peek() {
+                                                    global_cutoff.fetch_max(min_item.score.to_bits(), Ordering::Relaxed);
+                                                }
+                                            }
+                                        } else {
+                                            if let Some(mut peek) = heap.peek_mut() {
+                                                if score > peek.0.score {
+                                                    peek.0 = ScoreItem { score, idx };
+                                                }
+                                            }
+                                            if let Some(Reverse(min_item)) = heap.peek() {
+                                                global_cutoff.fetch_max(min_item.score.to_bits(), Ordering::Relaxed);
+                                            }
+                                        }
+                                    }
+                                }
+                                heap
+                            }
+                        ).collect()
                     });
 
                     // Phase 3: re-acquire GIL, INCREF winners
-                    for (idx, score_opt) in scores.into_iter().enumerate() {
-                        if let Some(score) = score_opt {
-                            let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
-                            let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
-                            results.push((obj, score, idx));
-                        }
+                    let mut primitive_results: Vec<(usize, f64)> = local_heaps
+                        .into_iter()
+                        .flat_map(|heap| heap.into_iter().map(|Reverse(item)| (item.idx, item.score)))
+                        .collect();
+                    primitive_results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                    if let Some(l) = limit {
+                        primitive_results.truncate(l);
                     }
-                    results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
-                    if let Some(l) = limit { results.truncate(l); }
+                    for (idx, score) in primitive_results {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                        results.push((obj, score, idx));
+                    }
                     return Ok(results);
                 }
 
                 // --- Sequential list path ---
                 let list_ptr = list.as_ptr();
+                
+                let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
+                let mut current_cutoff = init_cutoff;
+                let limit_val = limit.unwrap_or(usize::MAX);
+                let mut heap = BinaryHeap::with_capacity(limit_val.min(100));
+
                 for idx in 0..n {
                     let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
-                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
-                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
-                        results.push((obj, score, idx));
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
+                        if heap.len() < limit_val {
+                            heap.push(Reverse(ScoreItem { score, idx }));
+                        } else {
+                            if let Some(mut peek) = heap.peek_mut() {
+                                if score > peek.0.score {
+                                    peek.0 = ScoreItem { score, idx };
+                                }
+                            }
+                        }
+                        if heap.len() == limit_val {
+                            if let Some(Reverse(min_item)) = heap.peek() {
+                                current_cutoff = current_cutoff.max(min_item.score);
+                            }
+                        }
                     }
                 }
+                
+                let mut primitive_results: Vec<(usize, f64)> = heap.into_iter().map(|Reverse(item)| (item.idx, item.score)).collect();
+                primitive_results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                if let Some(l) = limit { primitive_results.truncate(l); }
+                for (idx, score) in primitive_results {
+                    let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                    let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                    results.push((obj, score, idx));
+                }
+                return Ok(results);
             } else if let Ok(tup) = choices.downcast::<pyo3::types::PyTuple>() {
                 let tup_ptr = tup.as_ptr();
                 let n = tup.len();
+
+                let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
+                let mut current_cutoff = init_cutoff;
+                let limit_val = limit.unwrap_or(usize::MAX);
+                let mut heap = BinaryHeap::with_capacity(limit_val.min(100));
+
                 for idx in 0..n {
                     let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, idx as isize) };
-                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
-                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
-                        results.push((obj, score, idx));
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
+                        if heap.len() < limit_val {
+                            heap.push(Reverse(ScoreItem { score, idx }));
+                        } else {
+                            if let Some(mut peek) = heap.peek_mut() {
+                                if score > peek.0.score {
+                                    peek.0 = ScoreItem { score, idx };
+                                }
+                            }
+                        }
+                        if heap.len() == limit_val {
+                            if let Some(Reverse(min_item)) = heap.peek() {
+                                current_cutoff = current_cutoff.max(min_item.score);
+                            }
+                        }
                     }
                 }
+
+                let mut primitive_results: Vec<(usize, f64)> = heap.into_iter().map(|Reverse(item)| (item.idx, item.score)).collect();
+                primitive_results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                if let Some(l) = limit { primitive_results.truncate(l); }
+                for (idx, score) in primitive_results {
+                    let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, idx as isize) };
+                    let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                    results.push((obj, score, idx));
+                }
+                return Ok(results);
             } else if let Ok(dict) = choices.downcast::<pyo3::types::PyDict>() {
                 // Dict fast path: score values, return (value, score, key_index) — key unused, value is the string
                 let dict_ptr = dict.as_ptr();
@@ -318,7 +437,7 @@ pub fn extract(
                 loop {
                     let has_next = unsafe { pyo3::ffi::PyDict_Next(dict_ptr, &mut ppos, &mut key_ptr, &mut val_ptr) };
                     if has_next == 0 { break; }
-                    if let Some((score, _)) = unsafe { score_raw(stype,val_ptr, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,val_ptr, q_slice, &q_hist, &q_pm, use_pm, score_cutoff, token_cache) } {
                         let obj = unsafe { pyo3::ffi::Py_INCREF(val_ptr); PyObject::from_owned_ptr(py, val_ptr) };
                         results.push((obj, score, idx));
                     }
@@ -329,7 +448,7 @@ pub fn extract(
                 for (idx, item_res) in choices.try_iter()?.enumerate() {
                     let item = item_res?;
                     let raw = item.as_ptr();
-                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff) } {
+                    if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, score_cutoff, token_cache) } {
                         results.push((item.clone().unbind(), score, idx));
                     }
                 }
@@ -456,7 +575,10 @@ pub fn cdist(
         hist: [i32; 256],
         pm: crate::algorithms::PatternMask64<u8>,
         use_pm: bool,
+        token_cache: Option<crate::fuzz::QueryTokenCache>,
     }
+
+    let is_token_scorer = matches!(stype, ScorerType::WRatio | ScorerType::TokenSortRatio | ScorerType::TokenSetRatio | ScorerType::TokenRatio | ScorerType::PartialTokenSortRatio | ScorerType::PartialTokenSetRatio | ScorerType::PartialTokenRatio);
 
     let q_caches: Vec<Option<QueryCache>> = q_bytes.iter().map(|opt| {
         opt.as_ref().map(|b| {
@@ -469,7 +591,11 @@ pub fn cdist(
                     pm.insert(c, 1u64 << i);
                 }
             }
-            QueryCache { bytes: b.clone(), hist, pm, use_pm }
+            let token_cache = if is_token_scorer {
+                let s = unsafe { std::str::from_utf8_unchecked(b) };
+                Some(crate::fuzz::QueryTokenCache::new(s))
+            } else { None };
+            QueryCache { bytes: b.clone(), hist, pm, use_pm, token_cache }
         })
     }).collect();
 
@@ -482,7 +608,7 @@ pub fn cdist(
                     _ => return 0.0,
                 };
                 let score = score_bytes_parallel(
-                    stype, cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff
+                    stype, cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
                 );
                 score.unwrap_or(0.0)
             }).collect::<Vec<f64>>()
