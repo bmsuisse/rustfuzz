@@ -184,7 +184,8 @@ def cdist(
 def dedupe(
     choices: Iterable[Any],
     *,
-    max_edits: int = 2,
+    threshold: int | None = None,
+    max_edits: int | None = None,
     scorer: Callable[..., float] | None = None,
     processor: Callable[..., Any] | None = None,
 ) -> list[Any]:
@@ -192,10 +193,12 @@ def dedupe(
 
     Parameters
     ----------
-    max_edits:
+    threshold:
         Maximum allowed Levenshtein edit distance between two strings for them
         to be considered duplicates.  **This is an absolute edit count, not a
         percentage score.**  Default is 2.
+    max_edits:
+        Alias for *threshold* kept for backward compatibility.
 
     Note
     ----
@@ -205,8 +208,12 @@ def dedupe(
     """
     from . import _rustfuzz
 
+    if threshold is not None and max_edits is not None:
+        msg = "Specify either 'threshold' or 'max_edits', not both."
+        raise TypeError(msg)
+    effective = threshold if threshold is not None else (max_edits if max_edits is not None else 2)
     bktree = _rustfuzz.BKTree()
-    return bktree.dedupe(list(choices), max_edits)
+    return bktree.dedupe(list(choices), effective)
 
 
 __all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]
