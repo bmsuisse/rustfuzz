@@ -137,10 +137,10 @@ fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64, cache: Optio
     let s2k = s2_tokens.join(" ");
 
     // Token sort ratio
-    let av = Seq::Ascii(s1k.as_bytes());
-    let bv = Seq::Ascii(s2k.as_bytes());
     let tsr = if s1k.is_ascii() && s2k.is_ascii() {
-        indel_normalized_sim(&av, &bv, Some(score_cutoff)) * 100.0
+        let q_pm = cache.map(|c| &c.sort_key_pm);
+        let q_hist = cache.map(|c| &c.sort_key_hist);
+        crate::fuzz::ratio_bytes_fast(s1k.as_bytes(), s2k.as_bytes(), q_hist, q_pm, Some(score_cutoff))
     } else {
         indel_score_100(s1k, &s2k)
     };
@@ -177,10 +177,8 @@ fn token_sort_and_set_cutoff(s1: &str, s2: &str, score_cutoff: f64, cache: Optio
     let ts2 = build_token_set_strings_borrow(&t0, &diff2);
     let cutoff = score_cutoff.max(tsr);
     let tset = if intersection.is_empty() {
-        let av = Seq::Ascii(ts1.as_bytes());
-        let bv = Seq::Ascii(ts2.as_bytes());
         if ts1.is_ascii() && ts2.is_ascii() {
-            indel_normalized_sim(&av, &bv, Some(cutoff)) * 100.0
+            crate::fuzz::ratio_bytes(ts1.as_bytes(), ts2.as_bytes(), Some(cutoff))
         } else {
             indel_score_100(&ts1, &ts2)
         }
@@ -201,7 +199,7 @@ fn partial_ratio_vecs_sc(av: &Seq<'_>, bv: &Seq<'_>, _score_cutoff: f64) -> f64 
     if let (Seq::Ascii(a), Seq::Ascii(b)) = (av, bv) {
         let (needle, haystack) = if a.len() <= b.len() { (*a, *b) } else { (*b, *a) };
         if needle.len() <= 64 {
-            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack, None);
         }
     }
     // Fallback: Vec<u64> path without cutoff (cutoff would require per-window tracking)
@@ -312,7 +310,7 @@ fn partial_ratio_vecs(av: &Seq<'_>, bv: &Seq<'_>) -> f64 {
     if let (Seq::Ascii(a), Seq::Ascii(b)) = (av, bv) {
         let (needle, haystack) = if a.len() <= b.len() { (*a, *b) } else { (*b, *a) };
         if needle.len() <= 64 {
-            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack, None);
         }
         // Large needle — fall through to Vec<u64> path
     }
@@ -336,7 +334,7 @@ fn partial_ratio_str(s1: &str, s2: &str) -> f64 {
         // Guaranteed: needle <= 64 for typical token strings
         let (needle, haystack) = if b1.len() <= b2.len() { (b1, b2) } else { (b2, b1) };
         if needle.len() <= 64 {
-            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack);
+            return crate::algorithms::partial_ratio_ascii_fast(needle, haystack, None);
         }
     }
     let sv1: Vec<u64> = s1.chars().map(|c| c as u64).collect();
@@ -400,7 +398,7 @@ pub fn fuzz_partial_ratio(
             (*b_bytes, *a_bytes)
         };
         if needle.len() <= 64 {
-            crate::algorithms::partial_ratio_ascii_fast(needle, haystack)
+            crate::algorithms::partial_ratio_ascii_fast(needle, haystack, None)
         } else {
             partial_ratio_vecs(&av, &bv)
         }
@@ -641,15 +639,59 @@ pub fn fuzz_qratio(
 }
 
 // --- Raw bytes dispatchers for process.rs Rayon multi-threading ---
+pub(crate) fn ratio_bytes_fast(
+    q_slice: &[u8],
+    c_slice: &[u8],
+    q_hist: Option<&[i32; 256]>,
+    q_pm: Option<&crate::algorithms::PatternMask64<u8>>,
+    score_cutoff: Option<f64>,
+) -> f64 {
+    let q_len = q_slice.len();
+    let lensum = q_len + c_slice.len();
+    if lensum == 0 {
+        return 100.0;
+    }
+
+    let allowed_edits = score_cutoff
+        .map(|c| { let c = c.min(100.0); (lensum as f64 * (1.0 - c / 100.0)).max(0.0).floor() as usize });
+
+    if let Some(max_ed) = allowed_edits {
+        if q_len.abs_diff(c_slice.len()) > max_ed { return 0.0; }
+        if let Some(qh) = q_hist {
+            let mut c_hist = [0i32; 256];
+            for &c in c_slice { c_hist[c as usize] += 1; }
+            let mut diff = 0;
+            for i in 0..256 {
+                diff += (qh[i] - c_hist[i]).abs();
+            }
+            if diff as usize > max_ed { return 0.0; }
+        }
+    }
+
+    let dist = if let Some(pm) = q_pm {
+        if q_len > 0 && q_len <= 64 {
+            let lcs = crate::algorithms::lcs_from_pm64(pm, q_len, c_slice, allowed_edits);
+            (q_len + c_slice.len()) - 2 * lcs
+        } else {
+            crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+        }
+    } else {
+        crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
+    };
+
+    if dist == usize::MAX { return 0.0; }
+    (1.0 - dist as f64 / lensum as f64) * 100.0
+}
+
 pub(crate) fn ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>) -> f64 {
-    let av = Seq::Ascii(q);
-    let bv = Seq::Ascii(c);
-    indel_normalized_sim(&av, &bv, cutoff) * 100.0
+    ratio_bytes_fast(q, c, None, None, cutoff)
 }
 
 
 pub struct QueryTokenCache {
     pub sort_key: String,
+    pub sort_key_pm: crate::algorithms::PatternMask64<u8>,
+    pub sort_key_hist: [i32; 256],
     pub tokens: Vec<String>,
 }
 
@@ -660,11 +702,23 @@ impl QueryTokenCache {
         t.sort_unstable();
         t.dedup();
         let tokens = t.into_iter().map(String::from).collect();
-        Self { sort_key, tokens }
+        
+        let mut pm = crate::algorithms::PatternMask64::<u8>::new();
+        let mut hist = [0i32; 256];
+        for (i, &c) in sort_key.as_bytes().iter().enumerate() {
+            if i < 64 { pm.insert(c, 1u64 << i); }
+            hist[c as usize] += 1;
+        }
+
+        Self { sort_key, sort_key_pm: pm, sort_key_hist: hist, tokens }
     }
 }
 
-pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn wratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    q_hist: Option<&[i32; 256]>, q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let av = Seq::Ascii(q);
     let bv = Seq::Ascii(c);
     if av.is_empty() || bv.is_empty() { return 0.0; }
@@ -672,7 +726,7 @@ pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Optio
     const UNBASE_SCALE: f64 = 0.95;
     let mut sc = cutoff.unwrap_or(0.0);
     let len_ratio = av.len().max(bv.len()) as f64 / av.len().min(bv.len()) as f64;
-    let mut end_ratio = ratio_bytes(q, c, cutoff);
+    let mut end_ratio = ratio_bytes_fast(q, c, q_hist, q_pm, cutoff);
     if end_ratio == 100.0 { return end_ratio; }
 
     let q_str = unsafe { std::str::from_utf8_unchecked(q) };
@@ -697,19 +751,27 @@ pub(crate) fn wratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Optio
     score_cutoff_check(end_ratio, cutoff)
 }
 
-pub(crate) fn partial_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, _cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn partial_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, _cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let av = Seq::Ascii(q);
     let bv = Seq::Ascii(c);
     if q.is_empty() || c.is_empty() { return 0.0; }
     let score = if q.len() <= c.len() {
-        if q.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(q, c) } else { partial_ratio_vecs(&av, &bv) }
+        if q.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(q, c, q_pm) } else { partial_ratio_vecs(&av, &bv) }
     } else {
-        if c.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(c, q) } else { partial_ratio_vecs(&av, &bv) }
+        if c.len() <= 64 { crate::algorithms::partial_ratio_ascii_fast(c, q, None) } else { partial_ratio_vecs(&av, &bv) }
     };
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn token_sort_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     // Borrow sort_key from cache instead of cloning
@@ -719,7 +781,11 @@ pub(crate) fn token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, ca
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn token_set_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     let (intersect, diff1, diff2) = tokens_to_set_intersection_diff(sq, sc, cache);
@@ -737,14 +803,22 @@ pub(crate) fn token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cac
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn token_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     let (tsr, tset) = token_sort_and_set_cutoff(sq, sc, cutoff.unwrap_or(0.0), cache);
     score_cutoff_check(tsr.max(tset), cutoff)
 }
 
-pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn partial_token_sort_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     // Borrow sort_key from cache instead of cloning
@@ -754,14 +828,22 @@ pub(crate) fn partial_token_sort_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn partial_token_set_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, _cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn partial_token_set_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, _cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     let score = partial_token_set_score(sq, sc);
     score_cutoff_check(score, cutoff)
 }
 
-pub(crate) fn partial_token_ratio_bytes(q: &[u8], c: &[u8], cutoff: Option<f64>, cache: Option<&QueryTokenCache>) -> f64 {
+pub(crate) fn partial_token_ratio_bytes(
+    q: &[u8], c: &[u8], 
+    cutoff: Option<f64>, cache: Option<&QueryTokenCache>,
+    _q_hist: Option<&[i32; 256]>, _q_pm: Option<&crate::algorithms::PatternMask64<u8>>
+) -> f64 {
     let sq = unsafe { std::str::from_utf8_unchecked(q) };
     let sc = unsafe { std::str::from_utf8_unchecked(c) };
     // Borrow sort_key from cache instead of cloning

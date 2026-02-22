@@ -1,0 +1,108 @@
+---
+title: Developer & Contributor Guide
+description: "How to build, test, benchmark, and contribute to rustfuzz."
+---
+
+Welcome to the `rustfuzz` project! This guide explains how to build, test, and contribute to the library. The project follows strict guidelines to ensure maximum performance, safety, and maintainability.
+
+## 1. Toolchain & Setup
+
+We use modern, fast tools built in Rust across the entire stack:
+
+| Tool | Purpose |
+|---|---|
+| **Rust / Cargo** | Underlying implementations |
+| **Maturin** | Building Python wheels and managing PyO3 bindings |
+| **uv** | Fast Python environment and dependency management |
+| **Ruff** | Python linting and formatting |
+| **Pyright** | Strict static type checking in Python |
+
+### Initial Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/bmsuisse/rustfuzz.git
+cd rustfuzz
+
+# Create a virtual environment and sync dependencies
+uv sync --all-groups
+```
+
+To build the development version of the Rust extension:
+
+```bash
+# Debug build (fast compile, slower runtime)
+uv run maturin develop
+
+# Release build (use this for benchmarking)
+uv run maturin develop --release
+```
+
+## 2. The Core Optimization Loop
+
+Our development philosophy is summarized by this repeating cycle:
+
+<Steps>
+  <Step title="Research">
+    Run profilers to identify bottlenecks or missing algorithm fast-paths.
+  </Step>
+  <Step title="Build">
+    Implement the logic in Rust and expose it via PyO3.
+  </Step>
+  <Step title="Test">
+    Validate against existing tests to ensure 100% equivalence and correctness.
+  </Step>
+  <Step title="Benchmark">
+    Run the `pytest-benchmark` suite to measure the impact.
+  </Step>
+  <Step title="Repeat">
+    The next bottleneck is always waiting.
+  </Step>
+</Steps>
+
+<Note>
+  You can trigger the automated benchmark workflow via the `/research-build-test-benchmark` command if using the dedicated AI agent flow.
+</Note>
+
+## 3. Coding Standards & Rules
+
+<CardGroup cols={2}>
+  <Card title="1000 Lines Max" icon="file-lines">
+    No file may exceed 1000 lines. If a module grows too large, refactor it into smaller pieces.
+  </Card>
+  <Card title="Feature Branches" icon="code-branch">
+    Create a dedicated branch for every new feature or bugfix. Never push directly to `main`.
+  </Card>
+  <Card title="Typing First" icon="code">
+    Python features must be fully typed. Run `uv run pyright` before committing.
+  </Card>
+  <Card title="Linting" icon="check">
+    `ruff` is enforced for linting and formatting. Run `uv run ruff check .` before committing.
+  </Card>
+</CardGroup>
+
+## 4. Testing & QA
+
+**Before every commit:**
+
+```bash
+# Run the full test suite
+uv run pytest
+
+# Type checking
+uv run basedpyright
+
+# Linting
+uv run ruff check .
+uv run ruff format --check
+```
+
+<Warning>
+  E2E verification is required whenever implementing a major new feature (a new core algorithm, a new architectural integration). Write comprehensive tests validating the full pipeline from Python → FFI → Rust → back out.
+</Warning>
+
+## 5. Documenting Functions
+
+- Python wrappers must have standard docstrings.
+- Ensure any new Python stubs (`.pyi`) are kept perfectly in sync with the `src/*.rs` Rust implementation signatures.
+- Never do manual browser testing — always use **Playwright** for automated, reproducible E2E browser tests if visual dashboards are added.

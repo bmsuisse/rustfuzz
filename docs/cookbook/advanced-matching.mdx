@@ -1,0 +1,202 @@
+---
+title: Advanced Matching
+description: "Distance metrics, edit operations, and pairwise distance matrices."
+---
+
+This guide covers the full **distance** API, edit operations, alignment objects, and `process.cdist` for pairwise matrices.
+
+Topics:
+1. The `rustfuzz.distance` API — `distance`, `similarity`, `normalized_*`
+2. Edit-operation objects: `Editops`, `Opcodes`, `MatchingBlock`
+3. Per-metric deep-dives: Levenshtein, Jaro-Winkler, DamerauLevenshtein, Hamming
+4. `process.cdist` — pairwise distance matrices
+5. Real-world deduplication recipe
+
+```python
+import rustfuzz.fuzz as fuzz
+from rustfuzz import process
+from rustfuzz.distance import (
+    OSA,
+    DamerauLevenshtein,
+    Hamming,
+    Indel,
+    Jaro,
+    JaroWinkler,
+    Levenshtein,
+)
+
+print("imports OK ✅")
+```
+
+## 1. Distance API Overview
+
+Every metric module exposes the same interface:
+
+| Method | Returns | Meaning |
+|---|---|---|
+| `.distance(a, b)` | `int` | Raw edit distance (lower = closer) |
+| `.similarity(a, b)` | `int` | Matching characters / operations |
+| `.normalized_distance(a, b)` | `float [0,1]` | 0.0 = identical |
+| `.normalized_similarity(a, b)` | `float [0,1]` | 1.0 = identical |
+
+```python
+word_pairs = [("kitten", "sitting"), ("sunday", "saturday"), ("rust", "trust")]
+
+metrics = [Levenshtein, Hamming, Indel, OSA, DamerauLevenshtein]
+metric_names = ["Levenshtein", "Hamming", "Indel", "OSA", "DamerauLevenshtein"]
+
+for a, b in word_pairs:
+    print(f"\n── {a!r} vs {b!r} ──")
+    for name, M in zip(metric_names, metrics, strict=False):
+        try:
+            d = M.distance(a, b)
+            nd = M.normalized_distance(a, b)
+            print(f"  {name:20}  distance={d:2d}  norm_dist={nd:.3f}")
+        except Exception as e:
+            print(f"  {name:20}  N/A ({e})")
+```
+
+## 2. Jaro & Jaro-Winkler
+
+Jaro-Winkler is particularly good for **short strings and proper names** — it gives extra weight to a common prefix.
+
+```python
+name_pairs = [
+    ("martha", "marhta"),   # transposition
+    ("dwayne", "duane"),
+    ("john",   "jon"),
+    ("smith",  "smythe"),
+    ("alice",  "bob"),
+]
+
+print(f"{'A':10} {'B':10} {'Jaro':>8} {'JaroWinkler':>12}")
+print("-" * 45)
+for a, b in name_pairs:
+    j  = Jaro.similarity(a, b)
+    jw = JaroWinkler.similarity(a, b)
+    print(f"{a:10} {b:10} {j:8.4f} {jw:12.4f}")
+```
+
+## 3. Edit Operations — `Editops` and `Opcodes`
+
+`Levenshtein.editops(a, b)` returns the minimal list of operations (insert, delete, replace) to transform `a` into `b`.
+
+`Levenshtein.opcodes(a, b)` returns contiguous blocks in a format compatible with `difflib`.
+
+```python
+src = "kitten"
+dst = "sitting"
+
+ops = Levenshtein.editops(src, dst)
+print(f"editops({src!r} → {dst!r}):")
+for op in ops:
+    print(f"  {op}")
+
+print()
+codes = Levenshtein.opcodes(src, dst)
+print("opcodes:")
+for block in codes:
+    print(f"  {block}")
+```
+
+```python
+# Apply opcodes to visualise the diff
+def visualise_diff(src: str, dst: str) -> None:
+    codes = Levenshtein.opcodes(src, dst)
+    out = []
+    for block in codes:
+        tag = block.tag
+        s1, s2, d1, d2 = block.src_start, block.src_end, block.dest_start, block.dest_end
+        if tag == "equal":
+            out.append(src[s1:s2])
+        elif tag == "replace":
+            out.append(f"[{src[s1:s2]}→{dst[d1:d2]}]")
+        elif tag == "insert":
+            out.append(f"[+{dst[d1:d2]}]")
+        elif tag == "delete":
+            out.append(f"[-{src[s1:s2]}]")
+    print("".join(out))
+
+visualise_diff("kitten", "sitting")
+visualise_diff("hello world", "hello cruel world")
+visualise_diff("New York City", "New Orleans")
+```
+
+## 4. Hamming Distance
+
+Hamming distance counts **positions where characters differ**. It only works on strings of **equal length**.
+
+```python
+same_len_pairs = [
+    ("karolin", "kathrin"),
+    ("1011101", "1001001"),
+    ("GGACTGA", "GGCCTGA"),
+]
+
+for a, b in same_len_pairs:
+    d  = Hamming.distance(a, b)
+    ns = Hamming.normalized_similarity(a, b)
+    print(f"{a!r} vs {b!r}  → distance={d}  norm_similarity={ns:.3f}")
+```
+
+## 5. `process.cdist` — Pairwise Distance Matrix
+
+Computes a full N×M matrix of similarity scores. Requires `numpy`.
+
+```python
+try:
+    import pandas as pd
+
+    queries  = ["New York", "Los Angeles", "Chicago"]
+    choices  = ["New York City", "Los Angeles", "Newark", "Chicago Heights", "New Orleans"]
+
+    matrix = process.cdist(queries, choices, scorer=fuzz.ratio)
+
+    df = pd.DataFrame(matrix, index=queries, columns=choices)
+    print(df.to_string())
+
+except ImportError:
+    print("Install numpy + pandas: uv pip install rustfuzz[all] pandas")
+```
+
+## 6. Real-world recipe — Deduplication
+
+Group a list of messy city names into deduplicated clusters using `process.extract` and a score threshold.
+
+```python
+import rustfuzz.utils as utils
+
+messy = [
+    "New York", "new york", "New-York", "N.Y.",
+    "Los Angeles", "los angeles", "L.A.", "Los Angles",
+    "Chicago", "chicago", "Chikago",
+    "Houston", "Huston",
+]
+
+THRESHOLD = 75.0
+
+clusters: list[list[str]] = []
+assigned: set[int] = set()
+
+for i, name in enumerate(messy):
+    if i in assigned:
+        continue
+    cluster = [name]
+    assigned.add(i)
+    for j, other in enumerate(messy):
+        if j in assigned:
+            continue
+        score = fuzz.token_set_ratio(
+            utils.default_process(name),
+            utils.default_process(other),
+        )
+        if score >= THRESHOLD:
+            cluster.append(other)
+            assigned.add(j)
+    clusters.append(cluster)
+
+for c in clusters:
+    canonical = c[0]
+    dupes = c[1:]
+    print(f"  {canonical!r:15} ← {dupes}")
+```

@@ -521,7 +521,7 @@ pub fn lcs_from_pm64(pm: &PatternMask64<u8>, q_len: usize, s2: &[u8], max_dist: 
 /// This is O(N) bit-ops total vs O(N × M/64) with per-window indel_distance.
 ///
 /// Returns the best score in [0.0, 100.0].
-pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
+pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8], q_pm: Option<&PatternMask64<u8>>) -> f64 {
     let m = needle.len();
     let n = haystack.len();
 
@@ -540,11 +540,17 @@ pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
         return 100.0;
     }
 
-    // Build PatternMask for needle (query) — done ONCE
-    let mut pm = PatternMask64::<u8>::new();
-    for (i, &c) in needle.iter().enumerate() {
-        pm.insert(c, 1u64 << i);
-    }
+    // Use precomputed PatternMask if available, else build one
+    let mut pm_owned;
+    let pm = if let Some(p) = q_pm {
+        p
+    } else {
+        pm_owned = PatternMask64::<u8>::new();
+        for (i, &c) in needle.iter().enumerate() {
+            pm_owned.insert(c, 1u64 << i);
+        }
+        &pm_owned
+    };
     let mask = if m == 64 { !0u64 } else { (1u64 << m) - 1 };
     let lensum = 2 * m; // numerator for all windows: needle.len() + window.len() = 2m
 

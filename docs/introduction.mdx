@@ -1,0 +1,132 @@
+---
+title: Introduction
+description: "Blazing-fast fuzzy string matching — implemented entirely in Rust."
+---
+
+<p align="center">
+  <img src="/logo.svg" alt="rustfuzz" width="320"/>
+</p>
+
+<p align="center">
+  <em>Blazing-fast fuzzy string matching — implemented entirely in Rust.</em><br/>
+  <strong>Built entirely by AI. Designed to beat RapidFuzz.</strong>
+</p>
+
+## The Story
+
+**rustfuzz** started as an experiment: *can an AI agent, starting from scratch, build a fuzzy-matching library that outperforms [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — one of the best-optimised C++ string-matching libraries in the Python ecosystem?*
+
+No human wrote the Rust. No human tuned the algorithm parameters. The AI drove every iteration, read every benchmark result, and decided what to rewrite next.
+
+The answer the AI kept coming back to: **Rust + PyO3 + tight Python-boundary design**.
+
+## The Development Loop
+
+Every feature and optimisation went through the same cycle:
+
+<Steps>
+  <Step title="Research">
+    Profile output & algorithm gaps — where is the remaining Python overhead?
+  </Step>
+  <Step title="Build">
+    Move the hot path into a Rust core via PyO3. Eliminate copies, reduce allocations.
+  </Step>
+  <Step title="Test">
+    The full test suite must pass before proceeding. No broken correctness, no skipped edge cases.
+  </Step>
+  <Step title="Benchmark">
+    Run head-to-head comparisons vs RapidFuzz. Numbers don't lie.
+  </Step>
+  <Step title="Repeat">
+    The next bottleneck is always waiting.
+  </Step>
+</Steps>
+
+## Why This Matters
+
+RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optimisation make it a formidable target. The goal of this project was never to dismiss it, but to prove that:
+
+1. **AI can drive non-trivial systems programming** — not just generate boilerplate.
+2. **Rust + PyO3 can match C++ at the Python boundary** — with the added safety guarantees Rust provides.
+3. **Iterative AI-driven optimisation works** — each benchmark loop produced measurable gains.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="⚡ Blazing Fast" icon="bolt">
+    Core algorithms in Rust — no Python overhead, no GIL bottlenecks.
+  </Card>
+  <Card title="🧠 Smart Matching" icon="brain">
+    `ratio`, `partial_ratio`, token sort/set, Levenshtein, Jaro-Winkler, and more.
+  </Card>
+  <Card title="🔒 Memory Safe" icon="shield-halved">
+    Rust's borrow checker — no segfaults, no buffer overflows.
+  </Card>
+  <Card title="🐍 Pythonic API" icon="python">
+    Fully typed interface — `import rustfuzz.fuzz as fuzz` and go.
+  </Card>
+  <Card title="📦 No Build Step" icon="box">
+    Pre-compiled wheels for Python 3.10–3.14 on Linux, macOS, and Windows.
+  </Card>
+  <Card title="🏔️ Big Data Ready" icon="mountain">
+    Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks.
+  </Card>
+  <Card title="🧩 Ecosystem Integrations" icon="puzzle-piece">
+    BM25, Hybrid Search, and LangChain Retrievers for Vector DBs.
+  </Card>
+</CardGroup>
+
+## Installation
+
+<CodeGroup>
+```bash pip
+pip install rustfuzz
+```
+```bash uv
+uv pip install rustfuzz
+```
+</CodeGroup>
+
+## Quick Example
+
+```python
+import rustfuzz.fuzz as fuzz
+from rustfuzz.distance import Levenshtein, JaroWinkler
+from rustfuzz import process
+
+# Similarity ratios
+fuzz.ratio("hello world", "hello wrold")            # ~96.0
+fuzz.partial_ratio("hello", "say hello world")      # 100.0
+fuzz.token_sort_ratio("fuzzy wuzzy", "wuzzy fuzzy") # 100.0
+
+# Edit distance
+Levenshtein.distance("kitten", "sitting")           # 3
+JaroWinkler.similarity("martha", "marhta")          # ~0.96
+
+# Batch matching
+process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
+# ('New York', 100.0, 0)
+```
+
+## Cookbook Recipes
+
+<CardGroup cols={2}>
+  <Card title="Introduction" icon="book-open" href="/cookbook/introduction">
+    Get started — basic matching and terminology.
+  </Card>
+  <Card title="Advanced Matching" icon="sliders" href="/cookbook/advanced-matching">
+    Partial ratios, token sorts, distance metrics, edit operations.
+  </Card>
+  <Card title="Benchmarks" icon="chart-bar" href="/cookbook/benchmarks">
+    Head-to-head speed comparisons vs RapidFuzz.
+  </Card>
+  <Card title="Hybrid Search" icon="magnifying-glass" href="/cookbook/hybrid-search">
+    BM25 + vector embeddings with RRF fusion.
+  </Card>
+  <Card title="LangChain" icon="link" href="/cookbook/langchain">
+    Drop-in `BaseRetriever` for LangChain pipelines.
+  </Card>
+  <Card title="Real-World Examples" icon="globe" href="/cookbook/real-world">
+    S&P 500 company matching and US city standardisation.
+  </Card>
+</CardGroup>

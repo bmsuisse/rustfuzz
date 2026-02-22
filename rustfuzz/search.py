@@ -8,9 +8,15 @@ using Reciprocal Rank Fusion (RRF).
 
 from __future__ import annotations
 
+import sys
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
 
 from . import _rustfuzz
 
@@ -125,6 +131,7 @@ class BM25(AbstractSearchIndex):
         """
         return self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
 
+    @override
     def search(self, query: str, *, n: int = 5) -> list[tuple[str, float]]:
         """
         Return the top N results using BM25 + Levenshtein Reciprocal Rank Fusion.
@@ -190,8 +197,9 @@ class HybridSearch(AbstractSearchIndex):
     def has_vectors(self) -> bool:
         return self._embeddings is not None
 
+    @override
     def search(
-        self, query: str, query_embedding: Any = None, n: int = 5, rrf_k: int = 60
+        self, query: str, *, query_embedding: Any = None, n: int = 5, rrf_k: int = 60
     ) -> list[tuple[str, float]]:
         """
         Run hybrid search fusing BM25 text relevance and cosine semantic similarity.

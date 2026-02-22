@@ -1,0 +1,64 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "rustfuzz",
+  "logo": {
+    "dark": "/logo.svg",
+    "light": "/logo.svg"
+  },
+  "favicon": "/logo.svg",
+  "colors": {
+    "primary": "#a855f7",
+    "light": "#c084fc",
+    "dark": "#7e22ce",
+    "anchors": {
+      "from": "#a855f7",
+      "to": "#22c55e"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "PyPI",
+      "url": "https://pypi.org/project/rustfuzz/"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/bmsuisse/rustfuzz"
+  },
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/bmsuisse/rustfuzz"
+    },
+    {
+      "name": "PyPI",
+      "icon": "python",
+      "url": "https://pypi.org/project/rustfuzz/"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": ["introduction"]
+    },
+    {
+      "group": "Internals",
+      "pages": ["architecture", "developer-guide"]
+    },
+    {
+      "group": "Cookbook",
+      "pages": [
+        "cookbook/introduction",
+        "cookbook/advanced-matching",
+        "cookbook/benchmarks",
+        "cookbook/hybrid-search",
+        "cookbook/langchain",
+        "cookbook/real-world"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/bmsuisse/rustfuzz"
+  }
+}

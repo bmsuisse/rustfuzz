@@ -160,44 +160,22 @@ fn score_bytes_parallel(
     cache: Option<&crate::fuzz::QueryTokenCache>,
 ) -> Option<f64> {
     if matches!(stype, ScorerType::Ratio | ScorerType::QRatio) {
-        let q_len = q_slice.len();
-        let lensum = q_len + c_slice.len();
-        if lensum == 0 {
-            return if score_cutoff.map_or(true, |co| 100.0 >= co) { Some(100.0) } else { None };
-        }
-
-        let allowed_edits = score_cutoff
-            .map(|co| (lensum as f64 * (1.0 - co / 100.0)).max(0.0).floor() as usize);
-
-        if let Some(max_ed) = allowed_edits {
-            if q_slice.len().abs_diff(c_slice.len()) > max_ed { return None; }
-            let mut c_hist = [0i32; 256];
-            for &c in c_slice { c_hist[c as usize] += 1; }
-            let diff: i32 = q_hist.iter().zip(c_hist.iter()).map(|(&q, &c)| (q - c).abs()).sum();
-            if diff as usize > max_ed { return None; }
-        }
-
-        let dist = if use_pm {
-            let lcs = crate::algorithms::lcs_from_pm64(q_pm, q_len, c_slice, allowed_edits);
-            (q_len + c_slice.len()) - 2 * lcs
-        } else {
-            crate::algorithms::indel_distance(q_slice, c_slice, allowed_edits)
-        };
-
-        if dist == usize::MAX { return None; }
-        let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
+        let score = crate::fuzz::ratio_bytes_fast(
+            q_slice, c_slice, Some(q_hist), if use_pm { Some(q_pm) } else { None }, score_cutoff
+        );
         return if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None };
     }
 
+    let pm_opt = if use_pm { Some(q_pm) } else { None };
     let score = match stype {
-         ScorerType::WRatio => crate::fuzz::wratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::PartialRatio => crate::fuzz::partial_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::TokenSortRatio => crate::fuzz::token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::PartialTokenSortRatio => crate::fuzz::partial_token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::TokenSetRatio => crate::fuzz::token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::PartialTokenSetRatio => crate::fuzz::partial_token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::TokenRatio => crate::fuzz::token_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
-         ScorerType::PartialTokenRatio => crate::fuzz::partial_token_ratio_bytes(q_slice, c_slice, score_cutoff, cache),
+         ScorerType::WRatio => crate::fuzz::wratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::PartialRatio => crate::fuzz::partial_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::TokenSortRatio => crate::fuzz::token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::PartialTokenSortRatio => crate::fuzz::partial_token_sort_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::TokenSetRatio => crate::fuzz::token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::PartialTokenSetRatio => crate::fuzz::partial_token_set_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::TokenRatio => crate::fuzz::token_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
+         ScorerType::PartialTokenRatio => crate::fuzz::partial_token_ratio_bytes(q_slice, c_slice, score_cutoff, cache, Some(q_hist), pm_opt),
          _ => 0.0,
     };
     

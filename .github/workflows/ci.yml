@@ -200,26 +200,13 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   docs:
-    name: Deploy docs
+    name: Deploy docs (Mintlify)
     runs-on: ubuntu-latest
     needs: [test]
     if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') }}
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Install docs dependencies
-        run: uv sync --group docs
-
-      - name: Build docs
-        run: uv run mkdocs build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Deploy to Mintlify
+        uses: mintlify/action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          version: 4
