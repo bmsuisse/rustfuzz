@@ -49,8 +49,13 @@ jobs:
       - name: Run pytest
         run: uv run pytest tests/ -q -x
 
-      - name: Run pyright
-        run: uv run pyright
+      - name: Run basedpyright
+        run: uv run basedpyright
+
+      - name: Run ruff
+        run: |
+          uv run ruff check
+          uv run ruff format --check
 
   linux:
     runs-on: ${{ matrix.platform.runner }}
