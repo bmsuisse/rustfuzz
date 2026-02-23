@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use pyo3::types::{PyList, PyTuple, PyType};
 use std::collections::HashMap;
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,53 @@ impl BKTree {
             }
         }
         unique
+    }
+
+    /// Collect all values in the tree via DFS.
+    fn all_values(&self) -> Vec<String> {
+        let mut result = Vec::new();
+        if self.nodes.is_empty() {
+            return result;
+        }
+        let mut stack = vec![0usize];
+        while let Some(idx) = stack.pop() {
+            result.push(self.nodes[idx].value.clone());
+            for &child_idx in self.nodes[idx].children.values() {
+                stack.push(child_idx);
+            }
+        }
+        result
+    }
+
+    /// Pickle support: serialise as (cls, args, state) — pickle calls cls(), then __setstate__(state).
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<BKTree>(py);
+        let new_args = PyTuple::empty(py);
+        let state = slf.__getstate__(py)?;
+        // 3-tuple: (callable, args, state)
+        Ok(PyTuple::new(py, [
+            cls.into_any().unbind(),
+            new_args.into_any().unbind(),
+            state,
+        ])?.into_any().unbind())
+    }
+
+    fn __getstate__(&self, py: Python<'_>) -> PyResult<PyObject> {
+        let values = self.all_values();
+        let py_values: Vec<PyObject> = values.iter()
+            .map(|s| s.clone().into_pyobject(py).map(|v| v.into_any().unbind()))
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(PyList::new(py, py_values)?.into_any().unbind())
+    }
+
+    fn __setstate__(&mut self, state: &Bound<'_, PyAny>) -> PyResult<()> {
+        self.nodes.clear();
+        for item in state.try_iter()? {
+            let item = item?;
+            let s: String = item.extract()?;
+            self.insert(s);
+        }
+        Ok(())
     }
 }
 

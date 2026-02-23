@@ -40,4 +40,5 @@ __all__ = [
     "Prefix",
     "Gotoh",
     "NGram",
+    "Soundex",
 ]

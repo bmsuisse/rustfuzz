@@ -1,31 +1,71 @@
-from collections.abc import Callable, Iterable
-from typing import Any, TypeVar
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any
 
-T = TypeVar('T')
-TScore = TypeVar('TScore', int, float)
 
-def extract(query: Any, choices: Iterable[Any], *, processor: Callable[[Any], Any] | None = None, scorer: Callable[..., float] | None = None, limit: int | None = 5, score_cutoff: float | None = None) -> list[tuple[Any, float, int]]:
-    ...
+def extract(
+    query: Any,
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    limit: int | None = 5,
+    score_cutoff: float | None = None,
+) -> list[tuple[Any, float, int]]: ...
 
-def extractBests(*args, **kwargs) -> Any:
+
+def extractBests(
+    query: Any,
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    limit: int | None = None,
+    score_cutoff: float | None = 0.0,
+) -> list[tuple[Any, float, int]]:
     """Returns all matches with score >= score_cutoff, sorted by score."""
     ...
 
-def extractOne(*args, **kwargs) -> Any:
-    ...
 
-def extract_iter(query: Any, choices: Iterable[Any], *, processor: Callable[[Any], Any] | None = None, scorer: Callable[..., float] | None = None, score_cutoff: float | None = None) -> Iterable[tuple[Any, float, int]]:
-    ...
+def extractOne(
+    query: Any,
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> tuple[Any, float, int] | None: ...
 
-def cdist(*args, **kwargs) -> Any:
+
+def extract_iter(
+    query: Any,
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> Iterator[tuple[Any, float, int]]: ...
+
+
+def cdist(
+    queries: Iterable[Any],
+    choices: Iterable[Any],
+    *,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+    dtype: Any = None,
+    workers: int = 1,
+) -> Any:
     """Compute a pairwise distance matrix. Requires numpy."""
     ...
 
-def dedupe(*args, **kwargs) -> Any:
-    """
-    Deduplicate a list of choices using a BK-Tree.
-    Note: Threshold is absolute Levenshtein distance (max allowed edits),
-    default 2. Not a percentage score.
-    """
-    ...
 
+def dedupe(
+    choices: Iterable[Any],
+    *,
+    threshold: int = 2,
+    scorer: Callable[..., float] | None = None,
+    processor: Callable[..., Any] | None = None,
+) -> list[Any]:
+    """Deduplicate a list of choices using a BK-Tree."""
+    ...

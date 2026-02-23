@@ -36,6 +36,9 @@ class BM25:
         # Type assertion for safety
         if corpus_list and not isinstance(corpus_list[0], str):
             raise TypeError("corpus must be an iterable of strings")
+        self._corpus = corpus_list
+        self._k1 = k1
+        self._b = b
         self._index = _rustfuzz.BM25Index(corpus_list, k1, b)
 
     @property
@@ -101,6 +104,28 @@ class BM25:
         """
         return self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
 
+    def fuzzy_only(
+        self,
+        query: str,
+        n: int = 5,
+    ) -> list[tuple[str, float]]:
+        """
+        Pure fuzzy string ranking over the indexed corpus (no BM25 scores).
+
+        Ranks all documents by WRatio fuzzy similarity to `query` and returns the
+        top `n` results. Useful when the query is very short or misspelled.
+
+        Parameters
+        ----------
+        query : str
+        n : int, default 5
+            Number of documents to return.
+        """
+        return self._index.fuzzy_only(query, n)
+
+    def __reduce__(self) -> tuple[type, tuple[list[str], float, float]]:
+        return (BM25, (self._corpus, self._k1, self._b))
+
 
 class HybridSearch:
     """
@@ -132,7 +157,9 @@ class HybridSearch:
     ):
         self._corpus = list(corpus)
         self._bm25 = BM25(self._corpus, k1=k1, b=b)
-        self._embeddings = None
+        self._k1 = k1
+        self._b = b
+        self._embeddings: list[list[float]] | None = None
 
         if embeddings is not None:
             # We try to convert embeddings to a standard list of lists of floats
@@ -148,9 +175,10 @@ class HybridSearch:
                     "embeddings must be convertible to a list of lists of floats"
                 ) from e
 
-            if len(self._embeddings) > 0 and len(self._corpus) != len(self._embeddings):
+            emb = self._embeddings
+            if emb is not None and len(emb) > 0 and len(self._corpus) != len(emb):
                 raise ValueError(
-                    f"Length mismatch: {len(self._corpus)} documents, {len(self._embeddings)} embeddings"
+                    f"Length mismatch: {len(self._corpus)} documents, {len(emb)} embeddings"
                 )
 
     @property
@@ -193,6 +221,7 @@ class HybridSearch:
 
         # Step 2: Semantic ranks (cosine sim) via Rust fast dot product
         # Vectorise the single query by wrapping in a list
+        assert self._embeddings is not None  # guarded by has_vectors above
         q_wrapped = [query_embedding]
         flat_matrix, _, _ = _rustfuzz.cosine_similarity_matrix(
             q_wrapped, self._embeddings
@@ -213,6 +242,9 @@ class HybridSearch:
         final_results = [(self._corpus[i], score) for i, score in enumerate(rrf_scores)]
         final_results.sort(key=lambda x: x[1], reverse=True)
         return final_results[:n]
+
+    def __reduce__(self) -> tuple[type, tuple[list[str], Any, float, float]]:
+        return (HybridSearch, (self._corpus, self._embeddings, self._k1, self._b))
 
 
 __all__ = ["BM25", "HybridSearch"]

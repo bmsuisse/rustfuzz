@@ -3,6 +3,7 @@
 // All heavy computation runs outside the GIL via Rayon.
 
 use pyo3::prelude::*;
+use pyo3::types::{PyTuple, PyType};
 use rayon::prelude::*;
 use rustc_hash::FxHashMap;
 
@@ -96,6 +97,21 @@ impl BM25Index {
         }).collect();
 
         BM25Index { corpus, tokenised, idf, tf_norm, avgdl, k1, b }
+    }
+
+    /// Pickle support: serialise as (corpus, k1, b), rebuild on unpickle.
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<BM25Index>(py);
+        let corpus_list: Vec<PyObject> = slf.corpus.iter()
+            .map(|s| s.clone().into_pyobject(py).map(|v| v.into_any().unbind()))
+            .collect::<Result<Vec<_>, _>>()?;
+        let py_corpus = pyo3::types::PyList::new(py, corpus_list)?;
+        let args = PyTuple::new(py, [
+            py_corpus.into_any().unbind(),
+            slf.k1.into_pyobject(py)?.into_any().unbind(),
+            slf.b.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 
     /// Number of documents in the index.

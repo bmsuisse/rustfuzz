@@ -4,7 +4,7 @@
 #![allow(unused_variables, unused_assignments)]
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyTuple};
+use pyo3::types::{PyList, PyTuple, PyType};
 
 // ---------------------------------------------------------------------------
 // Editop
@@ -105,6 +105,12 @@ impl Editop {
             return Err(pyo3::exceptions::PyIndexError::new_err("index out of range"));
         }
         Ok(items[i as usize].clone_ref(py))
+    }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<Editop>(py);
+        let args = PyTuple::new(py, [slf.tag.clone().into_pyobject(py)?.into_any().unbind(), slf.src_pos.into_pyobject(py)?.into_any().unbind(), slf.dest_pos.into_pyobject(py)?.into_any().unbind()])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 }
 
@@ -233,6 +239,18 @@ impl Opcode {
         }
         Ok(items[i as usize].clone_ref(py))
     }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<Opcode>(py);
+        let args = PyTuple::new(py, [
+            slf.tag.clone().into_pyobject(py)?.into_any().unbind(),
+            slf.src_start.into_pyobject(py)?.into_any().unbind(),
+            slf.src_end.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_start.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_end.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -263,6 +281,12 @@ impl MatchingBlock {
 
     fn __eq__(&self, other: &MatchingBlock) -> bool {
         self == other
+    }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<MatchingBlock>(py);
+        let args = PyTuple::new(py, [slf.a.into_pyobject(py)?.into_any().unbind(), slf.b.into_pyobject(py)?.into_any().unbind(), slf.size.into_pyobject(py)?.into_any().unbind()])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 }
 
@@ -328,6 +352,18 @@ impl ScoreAlignment {
         ];
         let list = PyList::new(py, items)?;
         Ok(list.as_any().call_method0("__iter__")?.unbind())
+    }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<ScoreAlignment>(py);
+        let args = PyTuple::new(py, [
+            slf.score.into_pyobject(py)?.into_any().unbind(),
+            slf.src_start.into_pyobject(py)?.into_any().unbind(),
+            slf.src_end.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_start.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_end.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 }
 
@@ -529,6 +565,17 @@ impl Editops {
 
     fn copy(&self) -> Editops {
         self.clone()
+    }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<Editops>(py);
+        let ops_list = slf.as_list(py)?;
+        let args = PyTuple::new(py, [
+            ops_list,
+            slf.src_len.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_len.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 
     fn as_list(&self, py: Python<'_>) -> PyResult<PyObject> {
@@ -790,6 +837,17 @@ impl Opcodes {
 
     fn copy(&self) -> Opcodes {
         self.clone()
+    }
+
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<Opcodes>(py);
+        let ops_list = slf.as_list(py)?;
+        let args = PyTuple::new(py, [
+            ops_list,
+            slf.src_len.into_pyobject(py)?.into_any().unbind(),
+            slf.dest_len.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }
 
     fn as_list(&self, py: Python<'_>) -> PyResult<PyObject> {

@@ -1,8 +1,5 @@
 """
 rustfuzz.process — batch matching and extraction utilities.
-
-extract, extractOne, extract_iter, cdist and cpdist will be implemented
-in Rust (process.rs) in a follow-up. Stubs are provided for API compatibility.
 """
 
 from __future__ import annotations

@@ -65,6 +65,7 @@ features = ["pyo3/extension-module"]
 
 [tool.basedpyright]
 include = ["rustfuzz"]
+exclude = ["rustfuzz/spark.py"]
 pythonVersion = "3.10"
 
 [tool.pytest.ini_options]
