@@ -47,7 +47,7 @@ jobs:
         run: uv run pytest tests/ -q -x
 
       - name: Run basedpyright
-        run: uv run basedpyright
+        run: uv run basedpyright rustfuzz/
 
       - name: Run ruff
         run: |
