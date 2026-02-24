@@ -200,6 +200,52 @@ rows = fuzzy_join({"products": products, "inventory": inventory}, n=1)
 # inventory[1] = "Samsung Galxy" →  products[1] = "Samsung Galaxy S23 Ultra"  ✓
 ```
 
+### Messy Company Names (Real-World Data)
+
+When resolving entities across different databases, company names are often noisy, abbreviated, or missing legal suffixes. This is where the combination of BM25 (word overlap) and indel fuzzy (typo tolerance) shines:
+
+```python
+import pandas as pd
+from rustfuzz.join import fuzzy_join
+
+# Our internal CRM database
+crm_records = [
+    "Acme Corp LLC",
+    "Global Logistics International",
+    "Tech Solutions Inc.",
+    "Smith & Sons Hardware",
+]
+
+# External billing list with noisy data from user input
+billing_list = [
+    "ACME Corporation",           # expanded suffix, caps
+    "Global Logistic Int.",       # missing 's', abbreviated suffix
+    "TechSolution",               # missing space, missing suffix
+    "Smith and Sons Hardware Co", # 'and' instead of '&', extra suffix
+    "Unknown Entity",             # no match
+]
+
+rows = fuzzy_join(
+    {"crm": crm_records, "billing": billing_list},
+    n=1,
+    how="inner",
+    score_cutoff=0.015, # drop confident mismatches like 'Unknown Entity'
+)
+
+df = pd.DataFrame(rows)[["src_text", "tgt_text", "score"]]
+df.columns = ["CRM Name", "Matched Billing Name", "Score"]
+print(df)
+```
+
+Output:
+```text
+                         CRM Name        Matched Billing Name     Score
+0                   Acme Corp LLC            ACME Corporation  0.033333
+1  Global Logistics International        Global Logistic Int.  0.032787
+2             Tech Solutions Inc.                TechSolution  0.027778
+3           Smith & Sons Hardware  Smith and Sons Hardware Co  0.030769
+```
+
 ### Dense-only: semantic embedding matching
 
 ```python
