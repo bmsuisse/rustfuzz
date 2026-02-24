@@ -16,6 +16,7 @@ def test_bktree_dedupe():
     assert "apples" not in unique
     assert "appl" not in unique
 
+
 def test_bktree_dedupe_exact():
     choices = ["foo", "bar", "foo", "baz"]
     # Exact deduplication

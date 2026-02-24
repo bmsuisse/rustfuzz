@@ -15,7 +15,9 @@ from rustfuzz.search import BM25
 def _import_langchain() -> tuple[Any, Any, Any, Any]:
     """Lazy-import langchain_core and pydantic, raising a helpful error."""
     try:
-        from langchain_core.callbacks import CallbackManagerForRetrieverRun  # type: ignore
+        from langchain_core.callbacks import (
+            CallbackManagerForRetrieverRun,  # type: ignore
+        )
         from langchain_core.documents import Document  # type: ignore
         from langchain_core.retrievers import BaseRetriever  # type: ignore
         from pydantic import Field  # type: ignore
@@ -80,7 +82,7 @@ def _build_retriever_class() -> type:
             k1: float = 1.5,
             b: float = 0.75,
             **kwargs: Any,
-        ) -> "RustfuzzBM25Retriever":
+        ) -> RustfuzzBM25Retriever:
             """
             Create a RustfuzzBM25Retriever from a list of texts.
             """
@@ -103,7 +105,7 @@ def _build_retriever_class() -> type:
             k1: float = 1.5,
             b: float = 0.75,
             **kwargs: Any,
-        ) -> "RustfuzzBM25Retriever":
+        ) -> RustfuzzBM25Retriever:
             """
             Create a RustfuzzBM25Retriever from a list of Documents.
             """
@@ -119,10 +121,12 @@ def _build_retriever_class() -> type:
             scores = self.vectorizer.get_scores(query)
 
             # Collect positive scores and sort descending
-            scored_docs = [(score, idx) for idx, score in enumerate(scores) if score > 0.0]
+            scored_docs = [
+                (score, idx) for idx, score in enumerate(scores) if score > 0.0
+            ]
             scored_docs.sort(reverse=True, key=lambda x: x[0])
 
-            top_k = scored_docs[:self.k]
+            top_k = scored_docs[: self.k]
 
             results = []
             for score, idx in top_k:
@@ -145,4 +149,4 @@ def __getattr__(name: str) -> Any:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["RustfuzzBM25Retriever"]
+__all__ = ["RustfuzzBM25Retriever"]  # noqa: F822

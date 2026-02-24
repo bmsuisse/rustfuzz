@@ -54,124 +54,487 @@ def default_process(s: Any, *, processor: Callable[..., Any] | None = None) -> s
 # Fuzz
 # ---------------------------------------------------------------------------
 
-def fuzz_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_partial_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_partial_ratio_alignment(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> ScoreAlignment | None: ...
-def fuzz_token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_token_set_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_token_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_partial_token_sort_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_partial_token_set_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_partial_token_ratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_wratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def fuzz_qratio(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def fuzz_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_partial_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_partial_ratio_alignment(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> ScoreAlignment | None: ...
+def fuzz_token_sort_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_token_set_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_token_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_partial_token_sort_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_partial_token_set_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_partial_token_ratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_wratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def fuzz_qratio(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Process
 # ---------------------------------------------------------------------------
 
-def extract(query: Any, choices: Iterable[Any], scorer_name: str, scorer_obj: Any | None, processor: Callable[..., Any] | None, limit: int | None, score_cutoff: float | None) -> list[tuple[Any, float, int]]: ...
-def extract_one(query: Any, choices: Iterable[Any], scorer_name: str, scorer_obj: Any | None, processor: Callable[..., Any] | None, score_cutoff: float | None) -> tuple[Any, float, int] | None: ...
-def extract_iter(query: Any, choices: Iterable[Any], scorer_name: str, scorer_obj: Any | None, processor: Callable[..., Any] | None, score_cutoff: float | None) -> list[tuple[Any, float, int]]: ...
-def cdist(queries: Iterable[Any], choices: Iterable[Any], scorer_name: str, scorer_obj: Any | None, processor: Callable[..., Any] | None, score_cutoff: float | None) -> tuple[list[float], int, int]: ...
+def extract(
+    query: Any,
+    choices: Iterable[Any],
+    scorer_name: str,
+    scorer_obj: Any | None,
+    processor: Callable[..., Any] | None,
+    limit: int | None,
+    score_cutoff: float | None,
+) -> list[tuple[Any, float, int]]: ...
+def extract_one(
+    query: Any,
+    choices: Iterable[Any],
+    scorer_name: str,
+    scorer_obj: Any | None,
+    processor: Callable[..., Any] | None,
+    score_cutoff: float | None,
+) -> tuple[Any, float, int] | None: ...
+def extract_iter(
+    query: Any,
+    choices: Iterable[Any],
+    scorer_name: str,
+    scorer_obj: Any | None,
+    processor: Callable[..., Any] | None,
+    score_cutoff: float | None,
+) -> list[tuple[Any, float, int]]: ...
+def cdist(
+    queries: Iterable[Any],
+    choices: Iterable[Any],
+    scorer_name: str,
+    scorer_obj: Any | None,
+    processor: Callable[..., Any] | None,
+    score_cutoff: float | None,
+) -> tuple[list[float], int, int]: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Levenshtein
 # ---------------------------------------------------------------------------
 
-def levenshtein_distance(s1: Any, s2: Any, *, weights: tuple[int, int, int] | None = None, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def levenshtein_similarity(s1: Any, s2: Any, *, weights: tuple[int, int, int] | None = None, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def levenshtein_normalized_distance(s1: Any, s2: Any, *, weights: tuple[int, int, int] | None = None, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def levenshtein_normalized_similarity(s1: Any, s2: Any, *, weights: tuple[int, int, int] | None = None, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def levenshtein_editops(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Editops: ...
-def levenshtein_opcodes(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Opcodes: ...
+def levenshtein_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    weights: tuple[int, int, int] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def levenshtein_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    weights: tuple[int, int, int] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def levenshtein_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    weights: tuple[int, int, int] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def levenshtein_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    weights: tuple[int, int, int] | None = None,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def levenshtein_editops(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Editops: ...
+def levenshtein_opcodes(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Opcodes: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Hamming
 # ---------------------------------------------------------------------------
 
-def hamming_distance(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def hamming_similarity(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def hamming_normalized_distance(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def hamming_normalized_similarity(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def hamming_editops(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None) -> Editops: ...
-def hamming_opcodes(s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None) -> Opcodes: ...
+def hamming_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    pad: bool = True,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def hamming_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    pad: bool = True,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def hamming_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    pad: bool = True,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def hamming_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    pad: bool = True,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def hamming_editops(
+    s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None
+) -> Editops: ...
+def hamming_opcodes(
+    s1: Any, s2: Any, *, pad: bool = True, processor: Callable[..., Any] | None = None
+) -> Opcodes: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Indel
 # ---------------------------------------------------------------------------
 
-def indel_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def indel_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def indel_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def indel_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def indel_editops(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Editops: ...
-def indel_opcodes(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Opcodes: ...
+def indel_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def indel_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def indel_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def indel_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def indel_editops(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Editops: ...
+def indel_opcodes(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Opcodes: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Jaro
 # ---------------------------------------------------------------------------
 
-def jaro_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def jaro_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Jaro-Winkler
 # ---------------------------------------------------------------------------
 
-def jaro_winkler_distance(s1: Any, s2: Any, *, prefix_weight: float = 0.1, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_winkler_similarity(s1: Any, s2: Any, *, prefix_weight: float = 0.1, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_winkler_normalized_distance(s1: Any, s2: Any, *, prefix_weight: float = 0.1, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaro_winkler_normalized_similarity(s1: Any, s2: Any, *, prefix_weight: float = 0.1, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def jaro_winkler_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    prefix_weight: float = 0.1,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_winkler_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    prefix_weight: float = 0.1,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_winkler_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    prefix_weight: float = 0.1,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaro_winkler_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    prefix_weight: float = 0.1,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: LCSseq
 # ---------------------------------------------------------------------------
 
-def lcs_seq_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def lcs_seq_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def lcs_seq_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def lcs_seq_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def lcs_seq_editops(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Editops: ...
-def lcs_seq_opcodes(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None) -> Opcodes: ...
+def lcs_seq_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def lcs_seq_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def lcs_seq_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def lcs_seq_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def lcs_seq_editops(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Editops: ...
+def lcs_seq_opcodes(
+    s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None
+) -> Opcodes: ...
 
 # ---------------------------------------------------------------------------
 # Distance: OSA
 # ---------------------------------------------------------------------------
 
-def osa_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def osa_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def osa_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def osa_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def osa_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def osa_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def osa_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def osa_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Damerau-Levenshtein
 # ---------------------------------------------------------------------------
 
-def damerau_levenshtein_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def damerau_levenshtein_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def damerau_levenshtein_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def damerau_levenshtein_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def damerau_levenshtein_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def damerau_levenshtein_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def damerau_levenshtein_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def damerau_levenshtein_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Prefix
 # ---------------------------------------------------------------------------
 
-def prefix_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def prefix_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def prefix_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def prefix_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def prefix_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def prefix_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def prefix_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def prefix_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Postfix
 # ---------------------------------------------------------------------------
 
-def postfix_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def postfix_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: int | None = None) -> int: ...
-def postfix_normalized_distance(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def postfix_normalized_similarity(s1: Any, s2: Any, *, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def postfix_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def postfix_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: int | None = None,
+) -> int: ...
+def postfix_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def postfix_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: Soundex (phonetic)
@@ -187,17 +550,63 @@ def soundex_normalized_similarity(s1: str, s2: str) -> float: ...
 # Distance: Gotoh (affine gap)
 # ---------------------------------------------------------------------------
 
-def gotoh_distance(s1: Any, s2: Any, *, open_penalty: float = 1.0, extend_penalty: float = 0.5, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def gotoh_similarity(s1: Any, s2: Any, *, open_penalty: float = 1.0, extend_penalty: float = 0.5, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def gotoh_normalized_distance(s1: Any, s2: Any, *, open_penalty: float = 1.0, extend_penalty: float = 0.5, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def gotoh_normalized_similarity(s1: Any, s2: Any, *, open_penalty: float = 1.0, extend_penalty: float = 0.5, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def gotoh_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    open_penalty: float = 1.0,
+    extend_penalty: float = 0.5,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def gotoh_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    open_penalty: float = 1.0,
+    extend_penalty: float = 0.5,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def gotoh_normalized_distance(
+    s1: Any,
+    s2: Any,
+    *,
+    open_penalty: float = 1.0,
+    extend_penalty: float = 0.5,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def gotoh_normalized_similarity(
+    s1: Any,
+    s2: Any,
+    *,
+    open_penalty: float = 1.0,
+    extend_penalty: float = 0.5,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Distance: NGram
 # ---------------------------------------------------------------------------
 
-def sorensen_dice(s1: Any, s2: Any, *, n: int = 2, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
-def jaccard(s1: Any, s2: Any, *, n: int = 2, processor: Callable[..., Any] | None = None, score_cutoff: float | None = None) -> float: ...
+def sorensen_dice(
+    s1: Any,
+    s2: Any,
+    *,
+    n: int = 2,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
+def jaccard(
+    s1: Any,
+    s2: Any,
+    *,
+    n: int = 2,
+    processor: Callable[..., Any] | None = None,
+    score_cutoff: float | None = None,
+) -> float: ...
 
 # ---------------------------------------------------------------------------
 # Search: BM25
@@ -210,11 +619,21 @@ class BM25Index:
     def get_scores(self, query: str) -> list[float]: ...
     def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
     def get_batch_scores(self, queries: list[str]) -> list[list[float]]: ...
-    def get_top_n_fuzzy(self, query: str, n: int = 5, bm25_candidates: int = 50, fuzzy_weight: float = 0.3) -> list[tuple[str, float]]: ...
-    def get_top_n_rrf(self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60) -> list[tuple[str, float]]: ...
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[tuple[str, float]]: ...
+    def get_top_n_rrf(
+        self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
+    ) -> list[tuple[str, float]]: ...
     def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
 
-def cosine_similarity_matrix(a: list[list[float]], b: list[list[float]]) -> tuple[list[float], int, int]: ...
+def cosine_similarity_matrix(
+    a: list[list[float]], b: list[list[float]]
+) -> tuple[list[float], int, int]: ...
 
 # ---------------------------------------------------------------------------
 # Join: MultiJoiner
@@ -229,6 +648,7 @@ class MultiJoiner:
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
         rrf_k: int = 60,
+        bm25_candidates: int = 100,
     ) -> None: ...
     @property
     def num_arrays(self) -> int: ...
@@ -239,8 +659,8 @@ class MultiJoiner:
         sparse: list[dict[int, float] | None] | None = None,
         dense: list[list[float] | None] | None = None,
     ) -> None: ...
-    def join(self, n: int = 1) -> list[dict]: ...
-    def join_pair(self, src_name: str, tgt_name: str, n: int = 1) -> list[dict]: ...
+    def join(self, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
+    def join_pair(self, src_name: str, tgt_name: str, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
 
 # ---------------------------------------------------------------------------
 # BK-Tree

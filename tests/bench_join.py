@@ -28,11 +28,48 @@ from rustfuzz.join import MultiJoiner, fuzzy_join
 _RNG = random.Random(42)
 
 _WORDS = [
-    "apple", "iphone", "samsung", "galaxy", "google", "pixel", "pro", "ultra",
-    "max", "mini", "air", "plus", "note", "tab", "watch", "book", "pad",
-    "studio", "chip", "nano", "micro", "lite", "edge", "fold", "flip",
-    "zoom", "arc", "prime", "neo", "opus", "nova", "apex", "flex", "core",
-    "smart", "turbo", "speed", "rapid", "swift", "light", "wave", "peak",
+    "apple",
+    "iphone",
+    "samsung",
+    "galaxy",
+    "google",
+    "pixel",
+    "pro",
+    "ultra",
+    "max",
+    "mini",
+    "air",
+    "plus",
+    "note",
+    "tab",
+    "watch",
+    "book",
+    "pad",
+    "studio",
+    "chip",
+    "nano",
+    "micro",
+    "lite",
+    "edge",
+    "fold",
+    "flip",
+    "zoom",
+    "arc",
+    "prime",
+    "neo",
+    "opus",
+    "nova",
+    "apex",
+    "flex",
+    "core",
+    "smart",
+    "turbo",
+    "speed",
+    "rapid",
+    "swift",
+    "light",
+    "wave",
+    "peak",
 ]
 
 
@@ -66,14 +103,14 @@ _EMBS: dict[tuple[int, int], tuple] = {
 _SWEEP_A, _SWEEP_B = _texts(1000), _texts(1000)
 # N-array data (200 elements each)
 _NARRAYS: dict[int, dict[str, list[str]]] = {
-    n: {f"arr{i}": _texts(200) for i in range(n)}
-    for n in [2, 3, 5, 10]
+    n: {f"arr{i}": _texts(200) for i in range(n)} for n in [2, 3, 5, 10]
 }
 
 
 # ---------------------------------------------------------------------------
 # 1. Text-only: varying array size
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("size", [100, 500, 1000, 2000])
 def test_bench_text_join(benchmark, size):
@@ -84,6 +121,7 @@ def test_bench_text_join(benchmark, size):
 # ---------------------------------------------------------------------------
 # 2. Dense-only: varying size and embedding dimension
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("size,dim", [(100, 128), (500, 128), (1000, 128), (500, 512)])
 def test_bench_dense_join(benchmark, size, dim):
@@ -105,6 +143,7 @@ def test_bench_dense_join(benchmark, size, dim):
 #    Uses the SAME array pair for all values.
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize("bm25_candidates", [10, 25, 50, 100, 200, 500, 1000])
 def test_bench_bm25_candidates(benchmark, bm25_candidates):
     """Shows the quality/speed tradeoff of the BM25 candidate pre-filter."""
@@ -120,6 +159,7 @@ def test_bench_bm25_candidates(benchmark, bm25_candidates):
 # 4. N-array scaling (200 elements/array, text only)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize("n_arrays", [2, 3, 5, 10])
 def test_bench_n_arrays(benchmark, n_arrays):
     arrays = _NARRAYS[n_arrays]
@@ -130,6 +170,7 @@ def test_bench_n_arrays(benchmark, n_arrays):
 # 5. Top-N scaling
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.parametrize("top_n", [1, 5, 10, 50])
 def test_bench_top_n(benchmark, top_n):
     a, b = _TEXTS[500]
@@ -139,6 +180,7 @@ def test_bench_top_n(benchmark, top_n):
 # ---------------------------------------------------------------------------
 # 6. Mixed channels (text + dense, same data)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("size", [100, 500, 1000])
 def test_bench_mixed_join(benchmark, size):
@@ -160,6 +202,7 @@ def test_bench_mixed_join(benchmark, size):
 # 7. join_wide overhead vs join (3 arrays x 200 elements)
 # ---------------------------------------------------------------------------
 
+
 def test_bench_join_long(benchmark):
     arrays = _NARRAYS[3]
     j = MultiJoiner()
@@ -179,6 +222,7 @@ def test_bench_join_wide(benchmark):
 # ---------------------------------------------------------------------------
 # 8. Inner join (score_cutoff now in Rust, not Python)
 # ---------------------------------------------------------------------------
+
 
 def test_bench_inner_join(benchmark):
     a, b = _TEXTS[1000]

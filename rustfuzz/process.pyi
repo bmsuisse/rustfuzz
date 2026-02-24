@@ -1,7 +1,6 @@
 from collections.abc import Callable, Iterable, Iterator
 from typing import Any
 
-
 def extract(
     query: Any,
     choices: Iterable[Any],
@@ -11,8 +10,6 @@ def extract(
     limit: int | None = 5,
     score_cutoff: float | None = None,
 ) -> list[tuple[Any, float, int]]: ...
-
-
 def extractBests(
     query: Any,
     choices: Iterable[Any],
@@ -25,7 +22,6 @@ def extractBests(
     """Returns all matches with score >= score_cutoff, sorted by score."""
     ...
 
-
 def extractOne(
     query: Any,
     choices: Iterable[Any],
@@ -34,8 +30,6 @@ def extractOne(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> tuple[Any, float, int] | None: ...
-
-
 def extract_iter(
     query: Any,
     choices: Iterable[Any],
@@ -44,8 +38,6 @@ def extract_iter(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> Iterator[tuple[Any, float, int]]: ...
-
-
 def cdist(
     queries: Iterable[Any],
     choices: Iterable[Any],
@@ -58,7 +50,6 @@ def cdist(
 ) -> Any:
     """Compute a pairwise distance matrix. Requires numpy."""
     ...
-
 
 def dedupe(
     choices: Iterable[Any],

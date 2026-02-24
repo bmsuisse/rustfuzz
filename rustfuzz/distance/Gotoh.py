@@ -17,8 +17,12 @@ def distance(
 ) -> float:
     """Calculates the Gotoh distance between two strings with affine gap penalties."""
     return _rustfuzz.gotoh_distance(
-        s1, s2, open_penalty=open_penalty, extend_penalty=extend_penalty,
-        processor=processor, score_cutoff=score_cutoff
+        s1,
+        s2,
+        open_penalty=open_penalty,
+        extend_penalty=extend_penalty,
+        processor=processor,
+        score_cutoff=score_cutoff,
     )
 
 
@@ -33,8 +37,12 @@ def similarity(
 ) -> float:
     """Calculates the Gotoh similarity between two strings with affine gap penalties."""
     return _rustfuzz.gotoh_similarity(
-        s1, s2, open_penalty=open_penalty, extend_penalty=extend_penalty,
-        processor=processor, score_cutoff=score_cutoff
+        s1,
+        s2,
+        open_penalty=open_penalty,
+        extend_penalty=extend_penalty,
+        processor=processor,
+        score_cutoff=score_cutoff,
     )
 
 
@@ -49,8 +57,12 @@ def normalized_distance(
 ) -> float:
     """Calculates the normalized Gotoh distance (0.0–1.0) between two strings."""
     return _rustfuzz.gotoh_normalized_distance(
-        s1, s2, open_penalty=open_penalty, extend_penalty=extend_penalty,
-        processor=processor, score_cutoff=score_cutoff
+        s1,
+        s2,
+        open_penalty=open_penalty,
+        extend_penalty=extend_penalty,
+        processor=processor,
+        score_cutoff=score_cutoff,
     )
 
 
@@ -65,8 +77,12 @@ def normalized_similarity(
 ) -> float:
     """Calculates the normalized Gotoh similarity (0.0–1.0) between two strings."""
     return _rustfuzz.gotoh_normalized_similarity(
-        s1, s2, open_penalty=open_penalty, extend_penalty=extend_penalty,
-        processor=processor, score_cutoff=score_cutoff
+        s1,
+        s2,
+        open_penalty=open_penalty,
+        extend_penalty=extend_penalty,
+        processor=processor,
+        score_cutoff=score_cutoff,
     )
 
 

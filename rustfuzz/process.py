@@ -167,7 +167,9 @@ def dedupe(
     default 2. Not a percentage score.
     """
     from . import _rustfuzz
+
     bktree = _rustfuzz.BKTree()
     return bktree.dedupe(list(choices), threshold)
+
 
 __all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]

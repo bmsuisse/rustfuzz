@@ -28,6 +28,7 @@ def generate_big_corpus(size=1_000_000):
         corpus.append(f"{base} variant ID-{i}")
     return corpus
 
+
 def run_benchmarks():
     corpus = generate_big_corpus()
     query = "apple macbook m3 max 64gb"
@@ -37,14 +38,14 @@ def run_benchmarks():
     t0 = time.time()
     rf_process.extract(query, corpus, limit=10)
     t1 = time.time()
-    print(f"RapidFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
+    print(f"RapidFuzz process.extract: {(t1 - t0) * 1000:.2f} ms")
 
     # 2. Rustfuzz process.extract (Sequential/Parallel)
     print("\n--- 2. RustFuzz Extract ---")
     t0 = time.time()
     res2 = rust_process.extract(query, corpus, limit=10)
     t1 = time.time()
-    print(f"RustFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
+    print(f"RustFuzz process.extract: {(t1 - t0) * 1000:.2f} ms")
     print("Top match:", res2[0] if res2 else None)
 
     # 3. Rustfuzz BM25 Hybrid Pipeline
@@ -52,14 +53,15 @@ def run_benchmarks():
     t0 = time.time()
     index = BM25(corpus)
     t1 = time.time()
-    print(f"Index build time: {(t1 - t0)*1000:.2f} ms")
+    print(f"Index build time: {(t1 - t0) * 1000:.2f} ms")
 
     t0 = time.time()
     # Find top 10 using BM25, fallback to fuzzy if needed
     res3 = index.get_top_n_fuzzy(query, n=10, bm25_candidates=500, fuzzy_weight=0.3)
     t1 = time.time()
-    print(f"BM25 + Semantic Hybrid Search: {(t1 - t0)*1000:.2f} ms")
+    print(f"BM25 + Semantic Hybrid Search: {(t1 - t0) * 1000:.2f} ms")
     print("Top hybrid match:", res3[0] if res3 else None)
+
 
 if __name__ == "__main__":
     run_benchmarks()

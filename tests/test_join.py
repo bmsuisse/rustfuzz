@@ -6,7 +6,6 @@ import pytest
 
 from rustfuzz.join import MultiJoiner, fuzzy_join
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -67,9 +66,7 @@ def test_text_only_top_match_correct() -> None:
 
 def test_text_only_three_arrays() -> None:
     """Works with 3 arrays: 6 ordered pairs, 3 elements each → 18 rows."""
-    rows = fuzzy_join(
-        {"A": PRODUCTS, "B": LISTINGS, "C": TYPOS}, n=1
-    )
+    rows = fuzzy_join({"A": PRODUCTS, "B": LISTINGS, "C": TYPOS}, n=1)
     assert len(rows) == 18  # 3 arrays × 2 directions × 3 elements
 
 
@@ -100,9 +97,9 @@ EMBEDDINGS_A = [
     [0.0, 0.0, 1.0],
 ]
 EMBEDDINGS_B = [
-    [0.99, 0.01, 0.0],   # closest to A[0]
-    [0.01, 0.99, 0.0],   # closest to A[1]
-    [0.0,  0.01, 0.99],  # closest to A[2]
+    [0.99, 0.01, 0.0],  # closest to A[0]
+    [0.01, 0.99, 0.0],  # closest to A[1]
+    [0.0, 0.01, 0.99],  # closest to A[2]
 ]
 
 
@@ -144,9 +141,9 @@ SPARSE_A = [
     {4: 1.0},
 ]
 SPARSE_B = [
-    {0: 0.9, 2: 0.6},   # best match for A[0]
-    {1: 0.7, 3: 0.9},   # best match for A[1]
-    {4: 0.95},           # best match for A[2]
+    {0: 0.9, 2: 0.6},  # best match for A[0]
+    {1: 0.7, 3: 0.9},  # best match for A[1]
+    {4: 0.95},  # best match for A[2]
 ]
 
 
@@ -224,11 +221,7 @@ def test_num_arrays_property() -> None:
 
 def test_add_array_chaining() -> None:
     """add_array returns self for method chaining."""
-    joiner = (
-        MultiJoiner()
-        .add_array("A", texts=PRODUCTS)
-        .add_array("B", texts=LISTINGS)
-    )
+    joiner = MultiJoiner().add_array("A", texts=PRODUCTS).add_array("B", texts=LISTINGS)
     assert joiner.num_arrays == 2
 
 
@@ -286,9 +279,11 @@ def test_sparse_bm25_fallback_activates() -> None:
 
     # sparse_score should be populated (BM25 auto-fallback)
     for r in rows:
-        assert r["sparse_score"] is not None, "Expected BM25 auto-fallback for sparse_score"
-        assert r["text_score"] is None      # text channel disabled
-        assert r["dense_score"] is None     # dense channel disabled
+        assert r["sparse_score"] is not None, (
+            "Expected BM25 auto-fallback for sparse_score"
+        )
+        assert r["text_score"] is None  # text channel disabled
+        assert r["dense_score"] is None  # dense channel disabled
 
 
 def test_sparse_bm25_fallback_correct_match() -> None:
@@ -347,8 +342,8 @@ def test_inner_join_on_join_pair() -> None:
 # ---------------------------------------------------------------------------
 
 CATALOGUES = ["Apple iPhone 14", "Samsung Galaxy S23", "Google Pixel 7"]
-SHOP_A     = ["iphone 14 pro",   "galaxy s23 ultra",   "pixel 7a"]
-SHOP_B     = ["Apple Iphone",    "Samsung Galxy",       "Google Pixal"]   # typos
+SHOP_A = ["iphone 14 pro", "galaxy s23 ultra", "pixel 7a"]
+SHOP_B = ["Apple Iphone", "Samsung Galxy", "Google Pixal"]  # typos
 
 
 def test_join_wide_columns() -> None:
@@ -384,8 +379,10 @@ def test_join_wide_correct_matches() -> None:
     for idx in range(len(CATALOGUES)):
         row = next(r for r in rows if r["src_idx"] == idx)
         # match_shopA should map to the aligned element
-        assert SHOP_A[idx].split()[0].lower() in (row["match_shopA"] or "").lower() or \
-               row["match_shopA"] == SHOP_A[idx]
+        assert (
+            SHOP_A[idx].split()[0].lower() in (row["match_shopA"] or "").lower()
+            or row["match_shopA"] == SHOP_A[idx]
+        )
 
 
 def test_join_wide_default_src_is_first() -> None:
@@ -418,9 +415,7 @@ def test_join_wide_n_gt1_returns_lists() -> None:
 def test_join_wide_inner_drops_no_match_rows() -> None:
     """join_wide(how='inner') drops source rows with no match above cutoff."""
     joiner = (
-        MultiJoiner()
-        .add_array("src", texts=CATALOGUES)
-        .add_array("tgt", texts=SHOP_A)
+        MultiJoiner().add_array("src", texts=CATALOGUES).add_array("tgt", texts=SHOP_A)
     )
     rows_full = joiner.join_wide("src", n=1, how="full")
     # Impossibly high cutoff — everything dropped
@@ -447,4 +442,3 @@ def test_ten_arrays_join() -> None:
     # 10 arrays × 9 directions × 5 elements = 450 rows
     assert len(rows) == 450
     assert all("score" in r for r in rows)
-

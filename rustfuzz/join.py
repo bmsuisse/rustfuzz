@@ -42,8 +42,13 @@ class MultiJoiner:
         bm25_candidates: int = 100,
     ) -> None:
         self._inner = _rustfuzz.MultiJoiner(
-            text_weight, sparse_weight, dense_weight,
-            bm25_k1, bm25_b, rrf_k, bm25_candidates,
+            text_weight,
+            sparse_weight,
+            dense_weight,
+            bm25_k1,
+            bm25_b,
+            rrf_k,
+            bm25_candidates,
         )
         self._names: list[str] = []
 
@@ -116,7 +121,11 @@ class MultiJoiner:
         Pivoted join — one row per source element with match_X/score_X columns
         for every other registered array.
         """
-        pivot_src = src_name if src_name is not None else (self._names[0] if self._names else "")
+        pivot_src = (
+            src_name
+            if src_name is not None
+            else (self._names[0] if self._names else "")
+        )
         tgt_names = [nm for nm in self._names if nm != pivot_src]
         cutoff = score_cutoff if how == "inner" else None
 
@@ -128,7 +137,9 @@ class MultiJoiner:
             idx = r["src_idx"]
             if idx not in src_elements:
                 src_elements[idx] = {
-                    "src_array": pivot_src, "src_idx": idx, "src_text": r["src_text"],
+                    "src_array": pivot_src,
+                    "src_idx": idx,
+                    "src_text": r["src_text"],
                 }
 
         for tgt in tgt_names:
@@ -138,7 +149,9 @@ class MultiJoiner:
                     tgt_map.setdefault(r["src_idx"], []).append(r)
 
             for idx, wide_row in src_elements.items():
-                matches = sorted(tgt_map.get(idx, []), key=lambda r: r["score"], reverse=True)[:n]
+                matches = sorted(
+                    tgt_map.get(idx, []), key=lambda r: r["score"], reverse=True
+                )[:n]
                 if cutoff is not None:
                     matches = [m for m in matches if m["score"] >= cutoff]
 
@@ -156,7 +169,8 @@ class MultiJoiner:
 
         if how == "inner":
             result = [
-                r for r in result
+                r
+                for r in result
                 if any(r.get(f"score_{t}") not in (None, []) for t in tgt_names)
             ]
 
@@ -166,6 +180,7 @@ class MultiJoiner:
 # ---------------------------------------------------------------------------
 # Convenience function
 # ---------------------------------------------------------------------------
+
 
 def fuzzy_join(
     arrays: dict[str, list[str]],
@@ -185,13 +200,18 @@ def fuzzy_join(
 ) -> list[dict[str, Any]]:
     """Fuzzy full/inner join across N named arrays."""
     joiner = MultiJoiner(
-        text_weight=text_weight, sparse_weight=sparse_weight,
-        dense_weight=dense_weight, bm25_k1=bm25_k1,
-        bm25_b=bm25_b, rrf_k=rrf_k, bm25_candidates=bm25_candidates,
+        text_weight=text_weight,
+        sparse_weight=sparse_weight,
+        dense_weight=dense_weight,
+        bm25_k1=bm25_k1,
+        bm25_b=bm25_b,
+        rrf_k=rrf_k,
+        bm25_candidates=bm25_candidates,
     )
     for name, texts in arrays.items():
         joiner.add_array(
-            name, texts=texts,
+            name,
+            texts=texts,
             sparse=sparse.get(name) if sparse else None,
             dense=dense.get(name) if dense else None,
         )

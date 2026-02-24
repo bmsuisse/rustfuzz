@@ -120,7 +120,11 @@ class TestPickleOpcodes:
 # ---------------------------------------------------------------------------
 class TestPickleBM25:
     def test_round_trip(self) -> None:
-        corpus = ["the cat sat on the mat", "the dog chased the cat", "the mouse ran fast"]
+        corpus = [
+            "the cat sat on the mat",
+            "the dog chased the cat",
+            "the mouse ran fast",
+        ]
         bm25 = BM25(corpus, k1=1.2, b=0.8)
         restored = _round_trip(bm25)
         assert isinstance(restored, BM25)
@@ -189,12 +193,14 @@ class TestPickleStatelessFunctions:
 class TestSparkModule:
     def test_import(self) -> None:
         from rustfuzz import spark
+
         assert hasattr(spark, "ratio_udf")
         assert hasattr(spark, "levenshtein_distance_udf")
         assert hasattr(spark, "jaro_winkler_similarity_udf")
 
     def test_all_exports(self) -> None:
         from rustfuzz import spark
+
         expected = [
             "ratio_udf",
             "partial_ratio_udf",

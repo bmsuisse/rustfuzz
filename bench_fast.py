@@ -1,13 +1,17 @@
 import time
-from rapidfuzz import process as rf_process
-import rustfuzz.process as rust_process
+
 from examples_realworld_benchmark import load_corpus
+from rapidfuzz import process as rf_process
+
+import rustfuzz.process as rust_process
+
 
 def timeit_ms(func, *args, **kwargs):
     t0 = time.perf_counter_ns()
     res = func(*args, **kwargs)
     t1 = time.perf_counter_ns()
     return res, (t1 - t0) / 1_000_000
+
 
 corpus = load_corpus(target=30_000)
 query = "San Fransisco downtown"

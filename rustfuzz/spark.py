@@ -52,6 +52,7 @@ def _make_udf(
 # Fuzzy ratio UDFs
 # ---------------------------------------------------------------------------
 
+
 def ratio_udf() -> UserDefinedFunction:
     """PySpark UDF for ``rustfuzz.fuzz.ratio(s1, s2) -> float``."""
     from pyspark.sql.functions import udf as spark_udf
@@ -115,6 +116,7 @@ def qratio_udf() -> UserDefinedFunction:
 # ---------------------------------------------------------------------------
 # Distance UDFs
 # ---------------------------------------------------------------------------
+
 
 def levenshtein_distance_udf() -> UserDefinedFunction:
     """PySpark UDF for ``rustfuzz.distance.Levenshtein.distance(s1, s2) -> int``."""
