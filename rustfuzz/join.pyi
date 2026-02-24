@@ -12,6 +12,7 @@ class MultiJoiner:
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
         rrf_k: int = 60,
+        bm25_candidates: int = 100,
     ) -> None: ...
     @property
     def num_arrays(self) -> int: ...
@@ -63,6 +64,7 @@ def fuzzy_join(
     bm25_k1: float = 1.5,
     bm25_b: float = 0.75,
     rrf_k: int = 60,
+    bm25_candidates: int = 100,
 ) -> list[dict[str, Any]]: ...
 
 __all__ = ["MultiJoiner", "fuzzy_join"]
