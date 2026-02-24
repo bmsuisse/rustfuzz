@@ -304,3 +304,147 @@ def test_sparse_bm25_fallback_correct_match() -> None:
             f"BM25 fallback: products[{idx}] should match listings[{idx}], "
             f"got listings[{m['tgt_idx']}] ({m['tgt_text']!r})"
         )
+
+
+# ---------------------------------------------------------------------------
+# Inner join (score_cutoff / how="inner")
+# ---------------------------------------------------------------------------
+
+
+def test_inner_join_drops_low_scores() -> None:
+    """how='inner' with high cutoff removes rows below threshold."""
+    rows_full = fuzzy_join({"A": PRODUCTS, "B": LISTINGS}, n=1, how="full")
+    # A cutoff higher than all RRF scores should drop everything
+    max_score = max(r["score"] for r in rows_full)
+    rows_inner = fuzzy_join(
+        {"A": PRODUCTS, "B": LISTINGS},
+        n=1,
+        how="inner",
+        score_cutoff=max_score + 1.0,  # impossible to satisfy
+    )
+    assert len(rows_inner) == 0
+
+
+def test_inner_join_keeps_good_matches() -> None:
+    """how='inner' with cutoff=0 keeps everything (same as full)."""
+    rows_full = fuzzy_join({"A": PRODUCTS, "B": LISTINGS}, n=1, how="full")
+    rows_inner = fuzzy_join(
+        {"A": PRODUCTS, "B": LISTINGS}, n=1, how="inner", score_cutoff=0.0
+    )
+    assert len(rows_inner) == len(rows_full)
+
+
+def test_inner_join_on_join_pair() -> None:
+    """how='inner' works on join_pair."""
+    joiner = MultiJoiner().add_array("A", texts=PRODUCTS).add_array("B", texts=LISTINGS)
+    rows_full = joiner.join_pair("A", "B", n=1, how="full")
+    rows_inner = joiner.join_pair("A", "B", n=1, how="inner", score_cutoff=0.0)
+    assert len(rows_inner) == len(rows_full)
+
+
+# ---------------------------------------------------------------------------
+# join_wide — N arrays → pivoted / wide output
+# ---------------------------------------------------------------------------
+
+CATALOGUES = ["Apple iPhone 14", "Samsung Galaxy S23", "Google Pixel 7"]
+SHOP_A     = ["iphone 14 pro",   "galaxy s23 ultra",   "pixel 7a"]
+SHOP_B     = ["Apple Iphone",    "Samsung Galxy",       "Google Pixal"]   # typos
+
+
+def test_join_wide_columns() -> None:
+    """join_wide returns one row per source with match_X / score_X columns."""
+    joiner = (
+        MultiJoiner()
+        .add_array("cats", texts=CATALOGUES)
+        .add_array("shopA", texts=SHOP_A)
+        .add_array("shopB", texts=SHOP_B)
+    )
+    rows = joiner.join_wide("cats", n=1)
+    assert len(rows) == len(CATALOGUES)
+    for r in rows:
+        assert "src_idx" in r
+        assert "src_text" in r
+        assert "match_shopA" in r
+        assert "score_shopA" in r
+        assert "match_shopB" in r
+        assert "score_shopB" in r
+        # source array itself should NOT appear as match columns
+        assert "match_cats" not in r
+
+
+def test_join_wide_correct_matches() -> None:
+    """join_wide resolves the correct match in each target array."""
+    joiner = (
+        MultiJoiner()
+        .add_array("cats", texts=CATALOGUES)
+        .add_array("shopA", texts=SHOP_A)
+        .add_array("shopB", texts=SHOP_B)
+    )
+    rows = joiner.join_wide("cats", n=1)
+    for idx in range(len(CATALOGUES)):
+        row = next(r for r in rows if r["src_idx"] == idx)
+        # match_shopA should map to the aligned element
+        assert SHOP_A[idx].split()[0].lower() in (row["match_shopA"] or "").lower() or \
+               row["match_shopA"] == SHOP_A[idx]
+
+
+def test_join_wide_default_src_is_first() -> None:
+    """join_wide(src_name=None) uses the first registered array."""
+    joiner = (
+        MultiJoiner()
+        .add_array("first", texts=CATALOGUES)
+        .add_array("second", texts=SHOP_A)
+    )
+    rows_implicit = joiner.join_wide(n=1)
+    rows_explicit = joiner.join_wide("first", n=1)
+    assert len(rows_implicit) == len(rows_explicit)
+    assert all(r["src_array"] == "first" for r in rows_implicit)
+
+
+def test_join_wide_n_gt1_returns_lists() -> None:
+    """join_wide(n=2) returns lists of matches per target column."""
+    joiner = (
+        MultiJoiner()
+        .add_array("src", texts=CATALOGUES)
+        .add_array("tgt", texts=SHOP_A + ["extra item"])
+    )
+    rows = joiner.join_wide("src", n=2)
+    for r in rows:
+        assert isinstance(r["match_tgt"], list)
+        assert isinstance(r["score_tgt"], list)
+        assert len(r["match_tgt"]) <= 2
+
+
+def test_join_wide_inner_drops_no_match_rows() -> None:
+    """join_wide(how='inner') drops source rows with no match above cutoff."""
+    joiner = (
+        MultiJoiner()
+        .add_array("src", texts=CATALOGUES)
+        .add_array("tgt", texts=SHOP_A)
+    )
+    rows_full = joiner.join_wide("src", n=1, how="full")
+    # Impossibly high cutoff — everything dropped
+    rows_inner = joiner.join_wide("src", n=1, how="inner", score_cutoff=999.0)
+    assert len(rows_inner) == 0
+    assert len(rows_full) > 0
+
+
+def test_array_names_property() -> None:
+    """array_names returns registered names in insertion order."""
+    joiner = (
+        MultiJoiner()
+        .add_array("first", texts=CATALOGUES)
+        .add_array("second", texts=SHOP_A)
+        .add_array("third", texts=SHOP_B)
+    )
+    assert joiner.array_names == ["first", "second", "third"]
+
+
+def test_ten_arrays_join() -> None:
+    """join() handles 10 arrays without errors — N-array scalability check."""
+    arrays = {f"arr{i}": [f"item{j}_{i}" for j in range(5)] for i in range(10)}
+    rows = fuzzy_join(arrays, n=1)
+    # 10 arrays × 9 directions × 5 elements = 450 rows
+    assert len(rows) == 450
+    assert all("score" in r for r in rows)
+

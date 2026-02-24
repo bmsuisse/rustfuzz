@@ -3,7 +3,7 @@
 !!! tip "When to use this"
     Use `fuzzy_join` / `MultiJoiner` when you have **two or more arrays of records** that you want to link by similarity — without a shared key. Classic use cases: product matching, entity resolution, record linkage, cross-catalogue deduplication.
 
-`rustfuzz` provides a **Rust-native, Rayon-parallel fuzzy full join** that compares every element in each array against every element in every other array and returns the top-N matches.
+`rustfuzz` provides a **Rust-native, Rayon-parallel fuzzy join** across any number of named arrays. Supports full-join and inner-join modes, pairwise and wide (pivoted) output formats.
 
 Three complementary signals are supported and fused via **Reciprocal Rank Fusion (RRF)**:
 
@@ -108,6 +108,14 @@ rows = fuzzy_join(
 
 All keys in `sparse` / `dense` must appear in `arrays`.
 
+New parameters:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `how` | `"full"` | `"full"` — return all top-N rows. `"inner"` — only rows with `score >= score_cutoff`. |
+| `score_cutoff` | `None` | Minimum score for inner join mode (defaults to `0.0` when `how="inner"`). |
+
+
 ### `MultiJoiner` — fine-grained control
 
 ```python
@@ -129,8 +137,11 @@ joiner = (
     .add_array("B", texts=[...], sparse=[...])
 )
 
-rows = joiner.join(n=1)              # all ordered pairs
-rows = joiner.join_pair("A", "B", n=3)  # single direction only
+rows = joiner.join(n=1)                  # full join — all ordered pairs
+rows = joiner.join(n=1, how="inner",     # inner join — only good matches
+                   score_cutoff=0.01)
+rows = joiner.join_pair("A", "B", n=3)  # single direction, top-3
+rows = joiner.join_wide("A", n=1)       # pivoted — one row per A element
 ```
 
 `add_array` parameters:
@@ -146,9 +157,8 @@ At least one of `texts`, `sparse`, or `dense` must be non-`None`.
 
 ### Return schema
 
-Each row is a Python `dict`:
-
 ```python
+# Pairwise long format (join / join_pair)
 {
     "src_array":    str,           # source array name
     "src_idx":      int,           # index within source array
@@ -160,6 +170,16 @@ Each row is a Python `dict`:
     "text_score":   float | None,  # raw text-channel RRF (or None if disabled)
     "sparse_score": float | None,  # dot-product or BM25 score (or None if disabled)
     "dense_score":  float | None,  # cosine similarity (or None if disabled)
+}
+
+# Wide/pivoted format (join_wide) — one row per source element
+{
+    "src_array": str,
+    "src_idx":   int,
+    "src_text":  str | None,
+    # One pair of columns per target array X:
+    "match_X":  str | list[str] | None,    # matched text (or list when n>1)
+    "score_X":  float | list[float] | None, # score (or list when n>1)
 }
 ```
 
@@ -286,13 +306,134 @@ top1 = (
 
 ---
 
+## Join Types
+
+### Full join (default)
+
+Always returns the top-N target matches for every source element. Equivalent to a filtered cross join.
+
+```python
+rows = fuzzy_join({"A": array_a, "B": array_b}, n=3, how="full")
+# 3 elements × 2 directions × n=3 → 18 rows, all returned
+```
+
+### Inner join
+
+Only keeps rows where the best match is confident enough.
+
+```python
+rows = fuzzy_join(
+    {"A": array_a, "B": array_b},
+    n=1,
+    how="inner",
+    score_cutoff=0.015,   # tune based on your data
+)
+# Only elements with a real match survive
+```
+
+!!! tip "Choosing score_cutoff"
+    RRF scores depend on `rrf_k` and the number of active channels. A practical starting point for 2 channels with `rrf_k=60` is **0.010–0.020**. Inspect `pd.DataFrame(rows)["score"].describe()` to set a data-driven threshold.
+
+---
+
+## N-Array Joins and Wide Format
+
+`MultiJoiner` supports **any number of arrays** — add as many as you need.
+
+### Pairwise long format (default)
+
+```python
+from rustfuzz.join import fuzzy_join
+
+# 5 catalogues — produces 5×4 = 20 ordered pairs
+arrays = {
+    "source":  ["Apple iPhone", "Galaxy S23"],
+    "shopA":   ["iphone 14",    "galaxy s23 ultra"],
+    "shopB":   ["Apple Iphone", "Samsung Galxy"],
+    "shopC":   ["iPhone Pro",   "GalaxyS23"],
+    "shopD":   ["iPhne",        "galaxys 23"],
+}
+rows = fuzzy_join(arrays, n=1)  # 2 elements × 20 pairs = 40 rows
+```
+
+### Wide / pivoted format (`join_wide`)
+
+Returns **one row per source element** with match columns for every other array — ideal when you want a single output table:
+
+```python
+from rustfuzz.join import MultiJoiner
+
+catalogues = ["Apple iPhone 14", "Samsung Galaxy S23", "Google Pixel 7"]
+shop_a     = ["iphone 14 pro",   "galaxy s23 ultra",   "pixel 7a"]
+shop_b     = ["Apple Iphone",    "Samsung Galxy",       "Google Pixal"]
+inventory  = ["Apple Inc phone", "Samsung S23",         "Pixel phone 7"]
+
+joiner = (
+    MultiJoiner()
+    .add_array("catalogues", texts=catalogues)
+    .add_array("shop_a",     texts=shop_a)
+    .add_array("shop_b",     texts=shop_b)
+    .add_array("inventory",  texts=inventory)
+)
+
+# One row per catalogue entry, with best match in each other array
+rows = joiner.join_wide("catalogues", n=1)
+for r in rows:
+    print(f"{r['src_text']:<22}  "
+          f"shop_a={r['match_shop_a']!r:<20}  "
+          f"shop_b={r['match_shop_b']!r:<20}  "
+          f"inventory={r['match_inventory']!r}")
+```
+
+Output:
+```
+Apple iPhone 14        shop_a='iphone 14 pro'      shop_b='Apple Iphone'       inventory='Apple Inc phone'
+Samsung Galaxy S23     shop_a='galaxy s23 ultra'   shop_b='Samsung Galxy'      inventory='Samsung S23'
+Google Pixel 7         shop_a='pixel 7a'           shop_b='Google Pixal'       inventory='Pixel phone 7'
+```
+
+`join_wide` with `n=2` returns lists per column:
+
+```python
+rows = joiner.join_wide("catalogues", n=2)
+# rows[0]["match_shop_a"] == ["iphone 14 pro", "galaxy s23 ultra"]
+# rows[0]["score_shop_a"] == [0.025, 0.012]
+```
+
+`join_wide` with `how="inner"` drops source rows that have no qualifying match in any target:
+
+```python
+rows = joiner.join_wide("catalogues", n=1, how="inner", score_cutoff=0.01)
+```
+
+### Pandas / Polars integration
+
+```python
+import pandas as pd
+
+# Long format
+df_long = pd.DataFrame(joiner.join(n=1))
+
+# Wide format — ready to merge with your master table
+df_wide = pd.DataFrame(joiner.join_wide("catalogues", n=1))
+print(df_wide.columns.tolist())
+# ['src_array', 'src_idx', 'src_text',
+#  'match_shop_a', 'score_shop_a',
+#  'match_shop_b', 'score_shop_b',
+#  'match_inventory', 'score_inventory']
+```
+
+---
+
 ## Performance Notes
 
 - All cross-array scoring is **Rayon-parallel** — uses all CPU cores automatically.
 - BM25 index per target array is built **once** and reused for all source queries in a pair.
 - Sparse dot product uses a **merge-join** on sorted `(token_id, weight)` pairs — O(n+m) instead of O(nm).
 - Dense cosine is a **SIMD-friendly dot product** in Rust — same throughput as a tuned BLAS gemv on unit vectors.
+- `join_wide` is a Python-side pivot of the Rust pairwise results — no extra Rust calls.
 - Memory footprint: one BM25 index per active (src, tgt) text pair + source/target arrays held in Python.
 
 !!! tip "Scaling to millions of rows"
     For very large arrays (>100k docs), consider pre-filtering with a fast ANN library (e.g. FAISS, hnswlib) and feeding the candidate set as a smaller array to `MultiJoiner` rather than doing a full cross join.
+
