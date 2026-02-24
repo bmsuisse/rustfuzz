@@ -32,7 +32,7 @@ struct Bm25Index {
 }
 
 impl Bm25Index {
-    fn build(docs: &[Option<String>], k1: f64, b: f64) -> Self {
+    fn build(docs: &[Option<String>], variant: &str, k1: f64, b: f64) -> Self {
         let n = docs.len();
         let n_f = n as f64;
         let tokenised: Vec<Vec<String>> = docs
@@ -65,22 +65,70 @@ impl Bm25Index {
             .collect();
 
         // Build inverted posting lists with normalised TF
+        // Using correct variant logic
         let mut postings: FxHashMap<String, Vec<(u32, f32)>> = FxHashMap::default();
-        for (doc_idx, doc) in tokenised.iter().enumerate() {
-            let dl = doc.len() as f64;
-            // Raw term frequency within doc
-            let mut raw: FxHashMap<&str, usize> = FxHashMap::default();
-            for term in doc {
-                *raw.entry(term.as_str()).or_insert(0) += 1;
+        
+        let delta = if variant == "BM25L" { 0.5 } else if variant == "BM25Plus" { 1.0 } else { 0.0 };
+
+        if variant == "BM25T" {
+            // BM25T requires calculation of Information Gain k1dash across all term postings
+            let base_gk1 = if (k1 - 1.0).abs() < f64::EPSILON {
+                1.0
+            } else {
+                (k1 / (k1 - 1.0)) * k1.ln()
+            };
+
+            let mut term_postings: FxHashMap<&str, Vec<(usize, f64)>> = FxHashMap::default();
+            for (doc_idx, doc) in tokenised.iter().enumerate() {
+                let mut raw: FxHashMap<&str, f64> = FxHashMap::default();
+                for term in doc { *raw.entry(term.as_str()).or_insert(0.0) += 1.0; }
+                for (term, tf) in raw { term_postings.entry(term).or_default().push((doc_idx, tf)); }
             }
-            for (term, tf) in raw {
-                let tf_f = tf as f64;
-                let dl_norm = 1.0 - b + b * dl / avgdl;
-                let tf_norm = (tf_f * (k1 + 1.0) / (tf_f + k1 * dl_norm)) as f32;
-                postings
-                    .entry(term.to_owned())
-                    .or_default()
-                    .push((doc_idx as u32, tf_norm));
+
+            for (term, tpostings) in term_postings {
+                let dft_f = tpostings.len() as f64;
+                let mut k1dash_num = 0.0;
+                for &(doc_idx, tf) in &tpostings {
+                    let dl = tokenised[doc_idx].len() as f64;
+                    let ctd = tf / (1.0 - b + b * dl / avgdl);
+                    k1dash_num += (ctd + 1.0).ln();
+                }
+                let k1dash = (base_gk1 - k1dash_num / dft_f).powi(2);
+
+                let mut term_posting_list = Vec::with_capacity(tpostings.len());
+                for (doc_idx, tf) in tpostings {
+                    let dl = tokenised[doc_idx].len() as f64;
+                    let ctd = tf / (1.0 - b + b * dl / avgdl);
+                    let norm = (ctd * (k1dash + 1.0)) / (k1dash + ctd);
+                    term_posting_list.push((doc_idx as u32, norm as f32));
+                }
+                postings.insert(term.to_owned(), term_posting_list);
+            }
+        } else {
+            // Okapi, BM25L, BM25Plus
+            for (doc_idx, doc) in tokenised.iter().enumerate() {
+                let dl = doc.len() as f64;
+                let mut raw: FxHashMap<&str, usize> = FxHashMap::default();
+                for term in doc { *raw.entry(term.as_str()).or_insert(0) += 1; }
+                
+                for (term, tf) in raw {
+                    let tf_f = tf as f64;
+                    let norm = if variant == "BM25L" {
+                        let ctd = tf_f / (1.0 - b + b * dl / avgdl);
+                        (k1 + 1.0) * (ctd + delta) / (k1 + ctd + delta)
+                    } else if variant == "BM25Plus" {
+                        delta + (tf_f * (k1 + 1.0)) / (k1 * (1.0 - b + b * dl / avgdl) + tf_f)
+                    } else {
+                        // Default Okapi
+                        let dl_norm = 1.0 - b + b * dl / avgdl;
+                        (tf_f * (k1 + 1.0)) / (tf_f + k1 * dl_norm)
+                    };
+                    
+                    postings
+                        .entry(term.to_owned())
+                        .or_default()
+                        .push((doc_idx as u32, norm as f32));
+                }
             }
         }
 
@@ -254,6 +302,7 @@ pub struct MultiJoiner {
     dense_weight: f64,
     bm25_k1: f64,
     bm25_b: f64,
+    bm25_variant: String,
     rrf_k: usize,
     /// Maximum number of BM25 candidates passed to the fuzzy re-ranker.
     /// Limits the expensive O(n_tgt) indel computation to the top-K docs.
@@ -269,6 +318,7 @@ impl MultiJoiner {
         dense_weight = 1.0,
         bm25_k1 = 1.5,
         bm25_b = 0.75,
+        bm25_variant = "BM25Okapi".to_string(),
         rrf_k = 60,
         bm25_candidates = 100,
     ))]
@@ -278,6 +328,7 @@ impl MultiJoiner {
         dense_weight: f64,
         bm25_k1: f64,
         bm25_b: f64,
+        bm25_variant: String,
         rrf_k: usize,
         bm25_candidates: usize,
     ) -> Self {
@@ -288,6 +339,7 @@ impl MultiJoiner {
             dense_weight,
             bm25_k1,
             bm25_b,
+            bm25_variant,
             rrf_k,
             bm25_candidates,
         }
@@ -455,7 +507,7 @@ impl MultiJoiner {
         let bm25 = if has_any_text
             && (self.text_weight > 0.0 || self.sparse_weight > 0.0)
         {
-            Some(Bm25Index::build(&tgt_texts, self.bm25_k1, self.bm25_b))
+            Some(Bm25Index::build(&tgt_texts, &self.bm25_variant, self.bm25_k1, self.bm25_b))
         } else {
             None
         };

@@ -19,11 +19,18 @@ class MultiJoiner:
     """
     Multi-array fuzzy joiner backed by Rust.
 
+    Seamlessly combines lexical vectors (BM25 + Indel) with semantic vectors
+    (Dense Embeddings) to perform true Hybrid Search natively outside the Python GIL.
+
     Parameters
     ----------
     text_weight, sparse_weight, dense_weight : float, default 1.0
+        Weights applied to each channel during Reciprocal Rank Fusion (RRF).
     bm25_k1 : float, default 1.5
     bm25_b : float, default 0.75
+    bm25_variant : str, default "BM25Okapi"
+        The mathematical BM25 formulation used for the text channel. Works
+        perfectly in tandem with Dense vectors (provided via `add_array(dense=...)`).
     rrf_k : int, default 60
     bm25_candidates : int, default 100
         Max number of BM25 top-k docs passed to the fuzzy re-ranker.
@@ -38,6 +45,7 @@ class MultiJoiner:
         dense_weight: float = 1.0,
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
+        bm25_variant: str = "BM25Okapi",
         rrf_k: int = 60,
         bm25_candidates: int = 100,
     ) -> None:
@@ -47,6 +55,7 @@ class MultiJoiner:
             dense_weight,
             bm25_k1,
             bm25_b,
+            bm25_variant,
             rrf_k,
             bm25_candidates,
         )
@@ -195,6 +204,7 @@ def fuzzy_join(
     score_cutoff: float | None = None,
     bm25_k1: float = 1.5,
     bm25_b: float = 0.75,
+    bm25_variant: str = "BM25Okapi",
     rrf_k: int = 60,
     bm25_candidates: int = 100,
 ) -> list[dict[str, Any]]:
@@ -205,6 +215,7 @@ def fuzzy_join(
         dense_weight=dense_weight,
         bm25_k1=bm25_k1,
         bm25_b=bm25_b,
+        bm25_variant=bm25_variant,
         rrf_k=rrf_k,
         bm25_candidates=bm25_candidates,
     )

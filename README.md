@@ -119,7 +119,18 @@ print(process.extract("new", choices, limit=3))
 | `rustfuzz.fuzz` | `ratio`, `partial_ratio`, `token_sort_ratio`, `token_set_ratio`, `token_ratio`, `WRatio`, `QRatio`, `partial_token_*` |
 | `rustfuzz.distance` | `Levenshtein`, `Hamming`, `Indel`, `Jaro`, `JaroWinkler`, `LCSseq`, `OSA`, `DamerauLevenshtein`, `Prefix`, `Postfix` |
 | `rustfuzz.process` | `extract`, `extractOne`, `extract_iter`, `cdist` |
+| `rustfuzz.search` | **`BM25` (Okapi)**, **`BM25L`**, **`BM25Plus`**, **`BM25T`** |
 | `rustfuzz.utils` | `default_process` |
+
+### The BM25 Search Engines
+
+`rustfuzz.search` implements lightning-fast Text Retrieval mathematical variants. The core differences:
+- **`BM25` (Okapi)**: The industry standard. Employs term frequency saturation (logarithmic decay) and document length normalization.
+- **`BM25L`**: Focuses on **length** penalization corrections. Introduces a static term shift `delta`, guaranteeing that matching terms yield a minimum baseline score even in massive documents where normalisation would normally suppress them.
+- **`BM25Plus`**: Also creates a lower-bound for any given matching term, but applies the shift *after* term saturation. Widely considered the best default for highly mixed-length corpuses.
+- **`BM25T`**: Introduces *Information Gain* adjustments to dynamically calculate the saturation limit `$k_1$` per term, restricting dominant variance. **`rustfuzz` hyper-optimises this by pre-computing term limits natively within the inverted index.**
+
+> You can see an end-to-end benchmark comparison of these algorithms resolving the BEIR SciFact dataset in `examples/bench_retrieval.py`.
 
 ## Documentation
 

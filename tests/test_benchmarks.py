@@ -505,6 +505,27 @@ def test_bm25_rustfuzz(benchmark: pytest.FixtureRequest) -> None:
     benchmark(bm25.get_scores, BM25_QUERY)
 
 
+def test_bm25l_rustfuzz(benchmark: pytest.FixtureRequest) -> None:
+    from rustfuzz.search import BM25L
+
+    bm25 = BM25L(BM25_CORPUS)
+    benchmark(bm25.get_scores, BM25_QUERY)
+
+
+def test_bm25plus_rustfuzz(benchmark: pytest.FixtureRequest) -> None:
+    from rustfuzz.search import BM25Plus
+
+    bm25 = BM25Plus(BM25_CORPUS)
+    benchmark(bm25.get_scores, BM25_QUERY)
+
+
+def test_bm25t_rustfuzz(benchmark: pytest.FixtureRequest) -> None:
+    from rustfuzz.search import BM25T
+
+    bm25 = BM25T(BM25_CORPUS)
+    benchmark(bm25.get_scores, BM25_QUERY)
+
+
 def test_bm25_rustfuzz_top_n(benchmark: pytest.FixtureRequest) -> None:
     from rustfuzz.search import BM25
 

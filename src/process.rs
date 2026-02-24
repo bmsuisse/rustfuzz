@@ -355,6 +355,51 @@ pub fn extract(
                 let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
                 let mut current_cutoff = init_cutoff;
                 let limit_val = limit.unwrap_or(usize::MAX);
+
+                // Fast path for extractOne / limit=1
+                if limit_val == 1 {
+                    let mut best_score: f64 = -1.0;
+                    let mut best_idx: usize = usize::MAX;
+
+                    for idx in 0..n {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                        if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
+                            if score > best_score {
+                                best_score = score;
+                                best_idx = idx;
+                                current_cutoff = current_cutoff.max(score);
+                            }
+                        }
+                    }
+
+                    if best_idx != usize::MAX && best_score >= init_cutoff {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, best_idx as isize) };
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                        results.push((obj, best_score, best_idx));
+                    }
+                    return Ok(results);
+                }
+
+                // Fast path for small arrays without BinaryHeap overhead
+                if n <= 256 || limit_val >= n {
+                    let mut items: Vec<ScoreItem> = Vec::with_capacity(n.min(256));
+                    for idx in 0..n {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                        if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(init_cutoff), token_cache) } {
+                            items.push(ScoreItem { score, idx });
+                        }
+                    }
+                    items.sort_unstable_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+                    if let Some(l) = limit { items.truncate(l); }
+                    
+                    for item in items {
+                        let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, item.idx as isize) };
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                        results.push((obj, item.score, item.idx));
+                    }
+                    return Ok(results);
+                }
+
                 let mut heap = BinaryHeap::with_capacity(limit_val.min(100));
 
                 for idx in 0..n {
@@ -393,6 +438,51 @@ pub fn extract(
                 let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
                 let mut current_cutoff = init_cutoff;
                 let limit_val = limit.unwrap_or(usize::MAX);
+
+                // Fast path for extractOne / limit=1
+                if limit_val == 1 {
+                    let mut best_score: f64 = -1.0;
+                    let mut best_idx: usize = usize::MAX;
+
+                    for idx in 0..n {
+                        let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, idx as isize) };
+                        if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
+                            if score > best_score {
+                                best_score = score;
+                                best_idx = idx;
+                                current_cutoff = current_cutoff.max(score);
+                            }
+                        }
+                    }
+
+                    if best_idx != usize::MAX && best_score >= init_cutoff {
+                        let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, best_idx as isize) };
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                        results.push((obj, best_score, best_idx));
+                    }
+                    return Ok(results);
+                }
+
+                // Fast path for small arrays without BinaryHeap overhead
+                if n <= 256 || limit_val >= n {
+                    let mut items: Vec<ScoreItem> = Vec::with_capacity(n.min(256));
+                    for idx in 0..n {
+                        let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, idx as isize) };
+                        if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(init_cutoff), token_cache) } {
+                            items.push(ScoreItem { score, idx });
+                        }
+                    }
+                    items.sort_unstable_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+                    if let Some(l) = limit { items.truncate(l); }
+                    
+                    for item in items {
+                        let raw = unsafe { pyo3::ffi::PyTuple_GetItem(tup_ptr, item.idx as isize) };
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                        results.push((obj, item.score, item.idx));
+                    }
+                    return Ok(results);
+                }
+
                 let mut heap = BinaryHeap::with_capacity(limit_val.min(100));
 
                 for idx in 0..n {
@@ -431,6 +521,39 @@ pub fn extract(
                 let mut key_ptr: *mut pyo3::ffi::PyObject = std::ptr::null_mut();
                 let mut val_ptr: *mut pyo3::ffi::PyObject = std::ptr::null_mut();
                 let mut idx = 0usize;
+                
+                let init_cutoff = score_cutoff.unwrap_or(0.0).max(0.0);
+                let mut current_cutoff = init_cutoff;
+                let limit_val = limit.unwrap_or(usize::MAX);
+
+                // Fast path for extractOne
+                if limit_val == 1 {
+                    let mut best_score: f64 = -1.0;
+                    let mut best_idx: usize = usize::MAX;
+                    let mut best_val_ptr: *mut pyo3::ffi::PyObject = std::ptr::null_mut();
+
+                    loop {
+                        let has_next = unsafe { pyo3::ffi::PyDict_Next(dict_ptr, &mut ppos, &mut key_ptr, &mut val_ptr) };
+                        if has_next == 0 { break; }
+                        if let Some((score, _)) = unsafe { score_raw(stype,val_ptr, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
+                            if score > best_score {
+                                best_score = score;
+                                best_idx = idx;
+                                best_val_ptr = val_ptr;
+                                current_cutoff = current_cutoff.max(score);
+                            }
+                        }
+                        idx += 1;
+                    }
+
+                    if best_idx != usize::MAX && best_score >= init_cutoff && !best_val_ptr.is_null() {
+                        let obj = unsafe { pyo3::ffi::Py_INCREF(best_val_ptr); PyObject::from_owned_ptr(py, best_val_ptr) };
+                        results.push((obj, best_score, best_idx));
+                    }
+                    return Ok(results);
+                }
+
+                // If not limit 1, collect all valid items - we typically don't heap dictionary traversal due to Python's API footprint
                 loop {
                     let has_next = unsafe { pyo3::ffi::PyDict_Next(dict_ptr, &mut ppos, &mut key_ptr, &mut val_ptr) };
                     if has_next == 0 { break; }
@@ -451,7 +574,7 @@ pub fn extract(
                 }
             }
 
-            results.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+            results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
             if let Some(l) = limit { results.truncate(l); }
             return Ok(results);
         }
@@ -545,9 +668,10 @@ pub fn cdist(
     let nq = q_list.len();
     let nc = c_list.len();
 
-    // Extract ASCII byte slices with optional processor
-    // Returns None for non-ASCII / non-string items
-    let extract_bytes = |obj: &PyObject| -> Option<Vec<u8>> {
+    // Extract ASCII byte slices with optional processor.
+    // Instead of cloning into Vec<u8>, we keep the PyObjects alive and borrow their memory.
+    // Returns None for non-ASCII / non-string items.
+    let extract_bytes = |obj: &PyObject| -> Option<&'static [u8]> {
         let bound = obj.bind(py);
         let processed = if let Some(ref proc) = processor {
             match proc.call1(py, (bound,)) {
@@ -558,17 +682,17 @@ pub fn cdist(
             bound.clone()
         };
         match crate::types::extract_single(&processed) {
-            Ok(crate::types::Seq::Ascii(s)) => Some(s.to_vec()),
+            Ok(crate::types::Seq::Ascii(s)) => Some(unsafe { std::mem::transmute(s) }),
             _ => None,
         }
     };
 
-    let q_bytes: Vec<Option<Vec<u8>>> = q_list.iter().map(|o| extract_bytes(o)).collect();
-    let c_bytes: Vec<Option<Vec<u8>>> = c_list.iter().map(|o| extract_bytes(o)).collect();
+    let q_bytes: Vec<Option<&'static [u8]>> = q_list.iter().map(|o| extract_bytes(o)).collect();
+    let c_bytes: Vec<Option<&'static [u8]>> = c_list.iter().map(|o| extract_bytes(o)).collect();
 
     // Build per-query histogram and PM for fast scoring
     struct QueryCache {
-        bytes: Vec<u8>,
+        bytes: &'static [u8],
         hist: [i32; 256],
         pm: crate::algorithms::PatternMask64<u8>,
         use_pm: bool,
@@ -578,7 +702,7 @@ pub fn cdist(
     let is_token_scorer = matches!(stype, ScorerType::WRatio | ScorerType::TokenSortRatio | ScorerType::TokenSetRatio | ScorerType::TokenRatio | ScorerType::PartialTokenSortRatio | ScorerType::PartialTokenSetRatio | ScorerType::PartialTokenRatio);
 
     let q_caches: Vec<Option<QueryCache>> = q_bytes.iter().map(|opt| {
-        opt.as_ref().map(|b| {
+        opt.map(|b| {
             let mut hist = [0i32; 256];
             for &c in b { hist[c as usize] += 1; }
             let use_pm = b.len() <= 64 && !b.is_empty();
@@ -592,24 +716,42 @@ pub fn cdist(
                 let s = unsafe { std::str::from_utf8_unchecked(b) };
                 Some(crate::fuzz::QueryTokenCache::new(s))
             } else { None };
-            QueryCache { bytes: b.clone(), hist, pm, use_pm, token_cache }
+            QueryCache { bytes: b, hist, pm, use_pm, token_cache }
         })
     }).collect();
 
-    // Parallel computation: each row (query) is a Rayon task
+    let use_parallel = (nq * nc) >= 1000;
+
     let matrix: Vec<f64> = py.allow_threads(|| {
-        q_caches.par_iter().flat_map(|q_opt| {
-            (0..nc).map(|j| {
-                let (qc, cb) = match (q_opt, &c_bytes[j]) {
-                    (Some(q), Some(c)) => (q, c),
-                    _ => return 0.0,
-                };
-                let score = score_bytes_parallel(
-                    stype, cb, &qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
-                );
-                score.unwrap_or(0.0)
-            }).collect::<Vec<f64>>()
-        }).collect()
+        if use_parallel {
+            // Parallel computation: each row (query) is a Rayon task
+            q_caches.par_iter().flat_map(|q_opt| {
+                (0..nc).map(|j| {
+                    let (qc, cb) = match (q_opt, &c_bytes[j]) {
+                        (Some(q), Some(c)) => (q, c),
+                        _ => return 0.0,
+                    };
+                    let score = score_bytes_parallel(
+                        stype, *cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
+                    );
+                    score.unwrap_or(0.0)
+                }).collect::<Vec<f64>>()
+            }).collect()
+        } else {
+            // Sequential fast path for small data
+            q_caches.iter().flat_map(|q_opt| {
+                (0..nc).map(|j| {
+                    let (qc, cb) = match (q_opt, &c_bytes[j]) {
+                        (Some(q), Some(c)) => (q, c),
+                        _ => return 0.0,
+                    };
+                    let score = score_bytes_parallel(
+                        stype, *cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
+                    );
+                    score.unwrap_or(0.0)
+                }).collect::<Vec<f64>>()
+            }).collect()
+        }
     });
 
     Ok((matrix, nq, nc))

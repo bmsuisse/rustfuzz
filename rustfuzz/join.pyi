@@ -11,6 +11,7 @@ class MultiJoiner:
         dense_weight: float = 1.0,
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
+        bm25_variant: str = "BM25Okapi",
         rrf_k: int = 60,
         bm25_candidates: int = 100,
     ) -> None: ...
@@ -63,6 +64,7 @@ def fuzzy_join(
     score_cutoff: float | None = None,
     bm25_k1: float = 1.5,
     bm25_b: float = 0.75,
+    bm25_variant: str = "BM25Okapi",
     rrf_k: int = 60,
     bm25_candidates: int = 100,
 ) -> list[dict[str, Any]]: ...

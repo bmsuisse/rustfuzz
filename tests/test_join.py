@@ -424,6 +424,30 @@ def test_join_wide_inner_drops_no_match_rows() -> None:
     assert len(rows_full) > 0
 
 
+def test_bm25_variants_in_join() -> None:
+    """Verify that different BM25 variants can be passed into the fuzzy joiner."""
+    arrays = {
+        "A": ["a very long document with specific keywords like wind"],
+        "B": ["windy"],
+    }
+    
+    # Run with Okapi
+    res_okapi = fuzzy_join(arrays, bm25_variant="BM25Okapi")
+    
+    # Run with BM25+
+    res_plus = fuzzy_join(arrays, bm25_variant="BM25Plus")
+    
+    # Run with BM25L
+    res_l = fuzzy_join(arrays, bm25_variant="BM25L")
+    
+    # Run with BM25T
+    res_t = fuzzy_join(arrays, bm25_variant="BM25T")
+    
+    assert len(res_okapi) > 0
+    assert len(res_plus) > 0
+    assert len(res_l) > 0
+    assert len(res_t) > 0
+
 def test_array_names_property() -> None:
     """array_names returns registered names in insertion order."""
     joiner = (

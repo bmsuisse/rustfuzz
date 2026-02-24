@@ -1,4 +1,4 @@
-from . import distance, fuzz, process, search, utils
+from . import distance, fuzz, join, process, search, utils
 from ._rustfuzz import (
     Editop,
     Editops,
@@ -14,6 +14,7 @@ __author__: str
 __all__ = [
     "distance",
     "fuzz",
+    "join",
     "process",
     "search",
     "utils",

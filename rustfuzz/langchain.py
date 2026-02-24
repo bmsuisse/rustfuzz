@@ -149,4 +149,12 @@ def __getattr__(name: str) -> Any:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["RustfuzzBM25Retriever"]  # noqa: F822
+if TYPE_CHECKING:
+    # This class is built lazily at runtime via __getattr__ to avoid a hard
+    # dependency on langchain_core. Declare it here so pyright/mypy accept
+    # it in __all__ without an F822/reportUnsupportedDunderAll diagnostic.
+    class RustfuzzBM25Retriever:  # noqa: F811
+        """LangChain BM25 retriever backed by rustfuzz (lazy import)."""
+
+
+__all__ = ["RustfuzzBM25Retriever"]
