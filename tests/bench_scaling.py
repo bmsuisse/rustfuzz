@@ -1,66 +1,69 @@
+"""
+Scalability benchmark for MultiJoiner.
+Measures search latency of N_src queries against N_tgt documents.
+
+Usage:
+    uv run pytest tests/bench_scaling.py -v --benchmark-sort=mean
+"""
+
+from __future__ import annotations
+
+import random
 import time
 
-import rapidfuzz.process as rf_process
+import pytest
 
-import rustfuzz.process as rust_process
-from rustfuzz.search import BM25
+_RNG = random.Random(42)
 
 
-def generate_big_corpus(size):
-    print("\n==============================")
-    print(f"Generating {size:,} rows corpus...")
-    print("==============================\n")
-    base_strings = [
-        "apple macbook pro m3 max 64gb",
-        "apple macbook pro m2 16gb",
-        "apple iphone 15 pro max titanium",
-        "samsung galaxy s24 ultra",
-        "sony playstation 5 slim edition",
-        "nintendo switch oled mario kart bundle",
-        "dell xps 15 laptop oled 32gb",
-        "lenovo thinkpad x1 carbon gen 12",
-        "asus rog zephyrus g14 gaming laptop",
-        "microsoft surface pro 9 platinum",
-    ]
-    # Multiply and add some noise
-    corpus = []
-    for i in range(size):
-        base = base_strings[i % len(base_strings)]
-        # Add index to make it somewhat unique
-        corpus.append(f"{base} variant ID-{i}")
-    return corpus
+def _rand_text(n_words: int = 4) -> str:
+    # Use a large vocabulary (100k) so that documents are sparse.
+    # A 25-word vocab means every document matches every query!
+    return " ".join(f"word_{_RNG.randint(1, 100_000)}" for _ in range(n_words))
 
-def run_benchmarks(size):
-    corpus = generate_big_corpus(size)
-    query = "apple macbook m3 max 64gb"
 
-    # 1. Rapidfuzz process.extract (Sequential)
-    print("--- 1. RapidFuzz Extract WRatio (Sequential) ---")
-    t0 = time.time()
-    rf_process.extract(query, corpus, limit=10)
-    t1 = time.time()
-    print(f"RapidFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
+def _texts(n: int) -> list[str]:
+    return [_rand_text(4) for _ in range(n)]
 
-    # 2. Rustfuzz process.extract (Parallel via Rayon)
-    print("\n--- 2. RustFuzz Extract WRatio (Parallel) ---")
-    t0 = time.time()
-    rust_process.extract(query, corpus, limit=10)
-    t1 = time.time()
-    print(f"RustFuzz process.extract: {(t1 - t0)*1000:.2f} ms")
 
-    # 3. Rustfuzz BM25 Hybrid Pipeline
-    print("\n--- 3. RustFuzz BM25 Hybrid Pipeline ---")
-    t0 = time.time()
-    index = BM25(corpus)
-    t1 = time.time()
-    print(f"Index build time: {(t1 - t0)*1000:.2f} ms")
+# Pre-generate target corpora of different sizes
+# We'll use a small fixed number of queries (N_src=100) to measure the O(N_tgt) lookup cost
+N_SRC = 100
+QUERIES = _texts(N_SRC)
 
-    t0 = time.time()
-    # Find top 10 using BM25, fallback to fuzzy if needed
-    index.get_top_n_fuzzy(query, n=10, bm25_candidates=min(size // 100, 500), fuzzy_weight=0.3)
-    t1 = time.time()
-    print(f"BM25 + Semantic Hybrid Search: {(t1 - t0)*1000:.2f} ms")
+# Pre-generate sizes up to 2 million.
+# Note: generating 2M strings takes a few seconds in Python and uses ~150MB RAM.
+SIZES = [200, 2_000, 20_000, 200_000, 2_000_000]
 
-if __name__ == "__main__":
-    for size in [10_000, 100_000, 1_000_000]:
-        run_benchmarks(size)
+print(f"Pre-generating data for sizes {SIZES}...")
+t0 = time.time()
+_CORPORA = {sz: _texts(sz) for sz in SIZES}
+print(f"Done in {time.time() - t0:.2f}s")
+
+
+@pytest.mark.parametrize("n_tgt", SIZES)
+def test_bench_text_scaling(benchmark, n_tgt):
+    """
+    Measures the time to execute N_SRC (100) queries against n_tgt documents.
+    This exposes the O(N_tgt) scaling factor per query.
+    """
+    queries = QUERIES
+    corpus = _CORPORA[n_tgt]
+
+    # Pre-build the joiner outside the timing loop!
+    # Otherwise we measure PyO3 deep-copying 2 million Python strings into Rust on every iteration.
+    from rustfuzz.join import MultiJoiner
+
+    joiner = MultiJoiner()
+    joiner.add_array("queries", texts=queries)
+    joiner.add_array("corpus", texts=corpus)
+
+    def _run():
+        return joiner.join_pair(
+            "queries",
+            "corpus",
+            n=1,
+            score_cutoff=0.01,
+        )
+
+    benchmark(_run)

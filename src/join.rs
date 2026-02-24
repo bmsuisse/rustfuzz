@@ -88,21 +88,86 @@ impl Bm25Index {
     }
 
     /// Score ALL documents against `query_terms` in a single pass.
-    /// Returns a flat Vec<f32> of length n_docs.
+    /// Uses `scores` as a thread-local workspace and records non-zero docs in `touched`.
     #[inline]
-    fn score_all(&self, query_terms: &[String]) -> Vec<f32> {
-        let mut scores = vec![0.0f32; self.n_docs];
+    fn score_all(&self, query_terms: &[String], scores: &mut [f32], touched: &mut Vec<u32>) {
         for term in query_terms {
             if let (Some(&idf), Some(posting)) =
                 (self.idf.get(term), self.postings.get(term))
             {
                 for &(doc_idx, tf) in posting {
-                    // SAFETY: doc_idx was built from 0..n_docs
-                    unsafe { *scores.get_unchecked_mut(doc_idx as usize) += idf * tf; }
+                    let d = doc_idx as usize;
+                    // SAFETY: doc_idx was built from 0..n_docs, and scores is length n_docs
+                    unsafe {
+                        let s = scores.get_unchecked_mut(d);
+                        if *s == 0.0 {
+                            touched.push(doc_idx);
+                        }
+                        *s += idf * tf;
+                    }
                 }
             }
         }
-        scores
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Thread-local workspace to avoid O(n_tgt) allocations per source query
+// ---------------------------------------------------------------------------
+struct JoinWorkspace {
+    bm25_scores: Vec<f32>,
+    bm25_touched: Vec<u32>,
+    text_rrf: Vec<f64>,
+    sparse_rrf: Vec<f64>,
+    dense_rrf: Vec<f64>,
+    combined: Vec<f64>,
+    seen: Vec<bool>,
+    touched: Vec<u32>,
+    text_raw: Vec<f64>,
+    sparse_raw: Vec<f64>,
+    dense_raw: Vec<f64>,
+}
+
+impl JoinWorkspace {
+    fn new(n: usize) -> Self {
+        Self {
+            bm25_scores: vec![0.0; n],
+            bm25_touched: Vec::new(),
+            text_rrf: vec![0.0; n],
+            sparse_rrf: vec![0.0; n],
+            dense_rrf: vec![0.0; n],
+            combined: vec![0.0; n],
+            seen: vec![false; n],
+            touched: Vec::new(),
+            text_raw: vec![0.0; n],
+            sparse_raw: vec![0.0; n],
+            dense_raw: vec![0.0; n],
+        }
+    }
+
+    #[inline]
+    fn mark_seen(&mut self, j: usize) {
+        if !self.seen[j] {
+            self.seen[j] = true;
+            self.touched.push(j as u32);
+        }
+    }
+
+    #[inline]
+    fn clear(&mut self) {
+        for &j32 in &self.touched {
+            let j = j32 as usize;
+            self.text_rrf[j] = 0.0;
+            self.sparse_rrf[j] = 0.0;
+            self.dense_rrf[j] = 0.0;
+            self.combined[j] = 0.0;
+            self.seen[j] = false;
+            self.text_raw[j] = 0.0;
+            self.sparse_raw[j] = 0.0;
+            self.dense_raw[j] = 0.0;
+        }
+        self.touched.clear();
+        self.bm25_touched.clear();
     }
 }
 
@@ -399,242 +464,201 @@ impl MultiJoiner {
         let rows: Vec<JoinRow> = src_entries
             .par_iter()
             .enumerate()
-            .flat_map(|(src_idx, src)| {
-                // Per-target scores for each active channel
-                let n_tgt = tgt_entries.len();
+            .map_init(
+                || JoinWorkspace::new(tgt_entries.len()),
+                |ws, (src_idx, src)| {
+                    ws.clear();
+                    let n_tgt = tgt_entries.len();
+                    
+                    let mut text_active = false;
+                    let mut sparse_active = false;
+                    let mut dense_active = false;
 
-                // Text channel: inverted-index BM25 (one pass) + indel fuzzy
-                // on top-K BM25 candidates → RRF.
-                let text_final_scores: Option<Vec<f64>> =
+                    // 1. Text channel
                     if self.text_weight > 0.0 {
-                        if let (Some(bm25_idx), Some(src_text)) =
-                            (&bm25, &src.text)
-                        {
-                        let q_terms = tokenise(src_text);
-
-                        // One-pass BM25: O(|q| × avg_posting_len)
-                        let bm25_raw = bm25_idx.score_all(&q_terms); // Vec<f32>
-
-                        // Sort indices by BM25 score descending
-                        let mut bm25_ranked: Vec<usize> = (0..n_tgt).collect();
-                        bm25_ranked.sort_unstable_by(|&a, &b| {
-                            bm25_raw[b].partial_cmp(&bm25_raw[a])
-                                .unwrap_or(std::cmp::Ordering::Equal)
-                        });
-
-                        // Indel fuzzy on top-K candidates only
-                        let k = bm25_candidates.min(n_tgt);
-                        let q_bytes = src_text.as_bytes();
-                        let q_is_ascii = src_text.is_ascii();
-                        let fuzzy_scores: Vec<(usize, f64)> = bm25_ranked[..k]
-                            .iter()
-                            .map(|&j| {
-                                let sim = tgt_entries[j]
-                                    .text
-                                    .as_deref()
-                                    .map(|d| {
-                                        if q_is_ascii && d.is_ascii() {
-                                            let d_b = d.as_bytes();
-                                            let ls = q_bytes.len() + d_b.len();
-                                            if ls == 0 { 1.0 } else {
-                                                use crate::algorithms::indel_distance;
-                                                1.0 - indel_distance(q_bytes, d_b, None)
-                                                    as f64 / ls as f64
-                                            }
-                                        } else {
-                                            let qv: Vec<u32> = src_text.chars()
-                                                .map(|c| c as u32).collect();
-                                            let dv: Vec<u32> = d.chars()
-                                                .map(|c| c as u32).collect();
-                                            let ls = qv.len() + dv.len();
-                                            if ls == 0 { 1.0 } else {
-                                                use crate::algorithms::indel_distance;
-                                                1.0 - indel_distance(&qv, &dv, None)
-                                                    as f64 / ls as f64
-                                            }
+                        if let (Some(bm25_idx), Some(src_text)) = (&bm25, &src.text) {
+                            text_active = true;
+                            let q_terms = tokenise(src_text);
+                            bm25_idx.score_all(&q_terms, &mut ws.bm25_scores, &mut ws.bm25_touched);
+                            
+                            let mut bm25_ranked = Vec::with_capacity(ws.bm25_touched.len());
+                            for k in 0..ws.bm25_touched.len() {
+                                let j = ws.bm25_touched[k] as usize;
+                                let s = ws.bm25_scores[j];
+                                bm25_ranked.push((j, s as f64));
+                                ws.bm25_scores[j] = 0.0; // reset
+                            }
+                            ws.bm25_touched.clear();
+                            
+                            bm25_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                            
+                            let k = bm25_candidates.min(bm25_ranked.len());
+                            let q_bytes = src_text.as_bytes();
+                            let q_is_ascii = src_text.is_ascii();
+                            
+                            let mut fuzzy_ranked = Vec::with_capacity(k);
+                            for &(j, _) in &bm25_ranked[..k] {
+                                let sim = tgt_entries[j].text.as_deref().map(|d| {
+                                    if q_is_ascii && d.is_ascii() {
+                                        let d_b = d.as_bytes();
+                                        let ls = q_bytes.len() + d_b.len();
+                                        if ls == 0 { 1.0 } else {
+                                            use crate::algorithms::indel_distance;
+                                            1.0 - indel_distance(q_bytes, d_b, None) as f64 / ls as f64
                                         }
-                                    })
-                                    .unwrap_or(0.0);
-                                (j, sim)
-                            })
-                            .collect();
-
-                        let mut fuzzy_ranked = fuzzy_scores.clone();
-                        fuzzy_ranked.sort_unstable_by(|a, b| {
-                            b.1.partial_cmp(&a.1)
-                                .unwrap_or(std::cmp::Ordering::Equal)
-                        });
-
-                        // RRF: BM25 rank (all docs) + fuzzy rank (top-K)
-                        let mut rrf = vec![0.0f64; n_tgt];
-                        for (rank, &j) in bm25_ranked.iter().enumerate() {
-                            rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                                    } else {
+                                        let qv: Vec<u32> = src_text.chars().map(|c| c as u32).collect();
+                                        let dv: Vec<u32> = d.chars().map(|c| c as u32).collect();
+                                        let ls = qv.len() + dv.len();
+                                        if ls == 0 { 1.0 } else {
+                                            use crate::algorithms::indel_distance;
+                                            1.0 - indel_distance(&qv, &dv, None) as f64 / ls as f64
+                                        }
+                                    }
+                                }).unwrap_or(0.0);
+                                fuzzy_ranked.push((j, sim));
+                            }
+                            fuzzy_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                            
+                            for (rank, &(j, _)) in bm25_ranked.iter().enumerate() {
+                                ws.text_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                                ws.text_raw[j] = ws.text_rrf[j];
+                                ws.mark_seen(j);
+                            }
+                            for (rank, &(j, _)) in fuzzy_ranked.iter().enumerate() {
+                                ws.text_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                                ws.text_raw[j] = ws.text_rrf[j];
+                            }
                         }
-                        for (rank, (j, _)) in fuzzy_ranked.iter().enumerate() {
-                            rrf[*j] += 1.0 / (rrf_k + rank + 1) as f64;
-                        }
-                        Some(rrf)
-                        } else {
-                            None
-                        }
-                    } else {
-                        None
-                    };
+                    }
 
-                // Sparse channel: explicit dot product, or BM25 auto-fallback.
-                // When no sparse vectors are provided but text + BM25 are
-                // available, pure BM25 scores are used as the sparse signal.
-                // This means the sparse channel captures term-overlap
-                // independently from the BM25+fuzzy RRF in the text channel.
-                let sparse_scores: Option<Vec<f64>> =
+                    // 2. Sparse channel
                     if self.sparse_weight > 0.0 {
                         if let Some(sv) = src.sparse.as_ref() {
-                            // Explicit sparse vectors — merge-join dot product
-                            Some(
-                                tgt_entries
-                                    .iter()
-                                    .map(|tgt| {
-                                        tgt.sparse
-                                            .as_ref()
-                                            .map(|tv| sparse_dot(sv, tv) as f64)
-                                            .unwrap_or(0.0)
-                                    })
-                                    .collect(),
-                            )
-                        } else if let (Some(bm25_idx), Some(src_text)) =
-                            (&bm25, &src.text)
-                        {
-                            // BM25 auto-fallback via inverted index (one pass)
+                            sparse_active = true;
+                            let mut sparse_ranked = Vec::new();
+                            for (j, tgt) in tgt_entries.iter().enumerate() {
+                                if let Some(tv) = tgt.sparse.as_ref() {
+                                    let s = sparse_dot(sv, tv) as f64;
+                                    if s > 0.0 {
+                                        sparse_ranked.push((j, s));
+                                        ws.sparse_raw[j] = s;
+                                        ws.mark_seen(j);
+                                    }
+                                }
+                            }
+                            sparse_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                            for (rank, &(j, _)) in sparse_ranked.iter().enumerate() {
+                                ws.sparse_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                            }
+                        } else if let (Some(bm25_idx), Some(src_text)) = (&bm25, &src.text) {
+                            sparse_active = true;
                             let q_terms = tokenise(src_text);
-                            Some(
-                                bm25_idx.score_all(&q_terms)
-                                    .into_iter()
-                                    .map(|s| s as f64)
-                                    .collect(),
-                            )
-                        } else {
-                            None
+                            bm25_idx.score_all(&q_terms, &mut ws.bm25_scores, &mut ws.bm25_touched);
+                            
+                            let mut bm25_ranked = Vec::with_capacity(ws.bm25_touched.len());
+                            for k in 0..ws.bm25_touched.len() {
+                                let j = ws.bm25_touched[k] as usize;
+                                let s = ws.bm25_scores[j] as f64;
+                                ws.sparse_raw[j] = s;
+                                ws.mark_seen(j);
+                                bm25_ranked.push((j, s));
+                                ws.bm25_scores[j] = 0.0;
+                            }
+                            ws.bm25_touched.clear();
+                            
+                            bm25_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                            for (rank, &(j, _)) in bm25_ranked.iter().enumerate() {
+                                ws.sparse_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                            }
                         }
-                    } else {
-                        None
-                    };
+                    }
 
-                // Dense channel: cosine (dot on normalised) per tgt
-                let dense_scores: Option<Vec<f64>> =
+                    // 3. Dense channel
                     if self.dense_weight > 0.0 {
-                        src.dense.as_ref().map(|sv| {
-                            tgt_entries
-                                .iter()
-                                .map(|tgt| {
-                                    tgt.dense
-                                        .as_ref()
-                                        .map(|tv| dense_dot(sv, tv) as f64)
-                                        .unwrap_or(0.0)
-                                })
-                                .collect()
-                        })
-                    } else {
-                        None
+                        if let Some(sv) = src.dense.as_ref() {
+                            dense_active = true;
+                            let mut dense_ranked = Vec::with_capacity(n_tgt);
+                            for (j, tgt) in tgt_entries.iter().enumerate() {
+                                if let Some(tv) = tgt.dense.as_ref() {
+                                    let s = dense_dot(sv, tv) as f64;
+                                    ws.dense_raw[j] = s;
+                                    ws.mark_seen(j);
+                                    dense_ranked.push((j, s));
+                                }
+                            }
+                            dense_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                            for (rank, &(j, _)) in dense_ranked.iter().enumerate() {
+                                ws.dense_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
+                            }
+                        }
+                    }
+
+                    let mut total_weight = 0.0;
+                    if text_active { total_weight += self.text_weight; }
+                    if sparse_active { total_weight += self.sparse_weight; }
+                    if dense_active { total_weight += self.dense_weight; }
+                    total_weight = total_weight.max(1e-10);
+
+                    let mut candidates = Vec::with_capacity(ws.touched.len());
+                    for &j32 in &ws.touched {
+                        let j = j32 as usize;
+                        let mut sum_rrf = 0.0;
+                        if text_active { sum_rrf += ws.text_rrf[j] * self.text_weight; }
+                        if sparse_active { sum_rrf += ws.sparse_rrf[j] * self.sparse_weight; }
+                        if dense_active { sum_rrf += ws.dense_rrf[j] * self.dense_weight; }
+                        
+                        let s = sum_rrf / total_weight;
+                        ws.combined[j] = s;
+                        
+                        if let Some(cutoff) = score_cutoff {
+                            if s >= cutoff {
+                                candidates.push((j, s));
+                            }
+                        } else {
+                            candidates.push((j, s));
+                        }
+                    }
+
+                    candidates.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                    candidates.truncate(n);
+
+                    let pad_zeroes = match score_cutoff {
+                        None => true,
+                        Some(c) => c <= 0.0,
                     };
 
-                // RRF-rank sparse and dense channels
-                let sparse_rrf: Option<Vec<f64>> =
-                    sparse_scores.as_ref().map(|scores| {
-                        let mut ranked: Vec<(usize, f64)> =
-                            scores.iter().cloned().enumerate().collect();
-                        ranked.sort_by(|a, b| {
-                            b.1.partial_cmp(&a.1)
-                                .unwrap_or(std::cmp::Ordering::Equal)
-                        });
-                        let mut rrf = vec![0.0f64; n_tgt];
-                        for (rank, (j, _)) in ranked.iter().enumerate() {
-                            rrf[*j] += 1.0 / (rrf_k + rank + 1) as f64;
+                    if pad_zeroes && candidates.len() < n {
+                        for j in 0..n_tgt {
+                            if !ws.seen[j] {
+                                candidates.push((j, 0.0));
+                                if candidates.len() >= n {
+                                    break;
+                                }
+                            }
                         }
-                        rrf
-                    });
+                    }
 
-                let dense_rrf: Option<Vec<f64>> =
-                    dense_scores.as_ref().map(|scores| {
-                        let mut ranked: Vec<(usize, f64)> =
-                            scores.iter().cloned().enumerate().collect();
-                        ranked.sort_by(|a, b| {
-                            b.1.partial_cmp(&a.1)
-                                .unwrap_or(std::cmp::Ordering::Equal)
+                    let mut local_rows = Vec::with_capacity(candidates.len());
+                    for (j, s) in candidates {
+                        local_rows.push(JoinRow {
+                            src_array: src_name.to_string(),
+                            src_idx,
+                            src_text: src.text.clone(),
+                            tgt_array: tgt_name.to_string(),
+                            tgt_idx: j,
+                            tgt_text: tgt_entries[j].text.clone(),
+                            score: s,
+                            text_score: if text_active { Some(ws.text_raw[j]) } else { None },
+                            sparse_score: if sparse_active { Some(ws.sparse_raw[j]) } else { None },
+                            dense_score: if dense_active { Some(ws.dense_raw[j]) } else { None },
                         });
-                        let mut rrf = vec![0.0f64; n_tgt];
-                        for (rank, (j, _)) in ranked.iter().enumerate() {
-                            rrf[*j] += 1.0 / (rrf_k + rank + 1) as f64;
-                        }
-                        rrf
-                    });
-
-                // Combine channel RRF scores with weights
-                let total_weight = {
-                    let mut w = 0.0f64;
-                    if text_final_scores.is_some() {
-                        w += self.text_weight;
                     }
-                    if sparse_rrf.is_some() {
-                        w += self.sparse_weight;
-                    }
-                    if dense_rrf.is_some() {
-                        w += self.dense_weight;
-                    }
-                    w.max(1e-10)
-                };
 
-                let combined_scores: Vec<f64> = (0..n_tgt)
-                    .map(|j| {
-                        let t = text_final_scores
-                            .as_ref()
-                            .map(|v| self.text_weight * v[j])
-                            .unwrap_or(0.0);
-                        let s = sparse_rrf
-                            .as_ref()
-                            .map(|v| self.sparse_weight * v[j])
-                            .unwrap_or(0.0);
-                        let d = dense_rrf
-                            .as_ref()
-                            .map(|v| self.dense_weight * v[j])
-                            .unwrap_or(0.0);
-                        (t + s + d) / total_weight
-                    })
-                    .collect();
-
-                // Pick top-n tgt by combined score, apply score_cutoff in Rust
-                let mut ranked_tgt: Vec<usize> = (0..n_tgt).collect();
-                ranked_tgt.sort_unstable_by(|&a, &b| {
-                    combined_scores[b]
-                        .partial_cmp(&combined_scores[a])
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                });
-                ranked_tgt.truncate(n);
-                if let Some(cutoff) = score_cutoff {
-                    ranked_tgt.retain(|&j| combined_scores[j] >= cutoff);
+                    local_rows
                 }
-
-                ranked_tgt
-                    .into_iter()
-                    .map(|tgt_idx| JoinRow {
-                        src_array: src_name.to_string(),
-                        src_idx,
-                        src_text: src.text.clone(),
-                        tgt_array: tgt_name.to_string(),
-                        tgt_idx,
-                        tgt_text: tgt_entries[tgt_idx].text.clone(),
-                        score: combined_scores[tgt_idx],
-                        text_score: text_final_scores
-                            .as_ref()
-                            .map(|v| v[tgt_idx]),
-                        sparse_score: sparse_scores
-                            .as_ref()
-                            .map(|v| v[tgt_idx]),
-                        dense_score: dense_scores
-                            .as_ref()
-                            .map(|v| v[tgt_idx]),
-                    })
-                    .collect::<Vec<_>>()
-            })
+            )
+            .flatten()
             .collect();
 
         rows
