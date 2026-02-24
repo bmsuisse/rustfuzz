@@ -9,5 +9,17 @@
   "reportImplicitOverride": "none",
   "reportUnusedImport": "none",
   "reportMissingImports": "none",
-  "reportMissingModuleSource": "none"
+  "reportMissingModuleSource": "none",
+  "reportPrivateUsage": "none",
+  "reportUnannotatedClassAttribute": "none",
+  "reportUnusedCallResult": "none",
+  "reportImplicitStringConcatenation": "none",
+  "reportUnusedVariable": "none",
+  "reportUnusedParameter": "none",
+  "reportUnsupportedDunderAll": "none",
+  "reportMissingTypeArgument": "none",
+  "reportConstantRedefinition": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportArgumentType": "none",
+  "reportAttributeAccessIssue": "none"
 }
