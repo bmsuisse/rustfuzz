@@ -217,6 +217,32 @@ class BM25Index:
 def cosine_similarity_matrix(a: list[list[float]], b: list[list[float]]) -> tuple[list[float], int, int]: ...
 
 # ---------------------------------------------------------------------------
+# Join: MultiJoiner
+# ---------------------------------------------------------------------------
+
+class MultiJoiner:
+    def __init__(
+        self,
+        text_weight: float = 1.0,
+        sparse_weight: float = 1.0,
+        dense_weight: float = 1.0,
+        bm25_k1: float = 1.5,
+        bm25_b: float = 0.75,
+        rrf_k: int = 60,
+    ) -> None: ...
+    @property
+    def num_arrays(self) -> int: ...
+    def add_array(
+        self,
+        name: str,
+        texts: list[str | None] | None = None,
+        sparse: list[dict[int, float] | None] | None = None,
+        dense: list[list[float] | None] | None = None,
+    ) -> None: ...
+    def join(self, n: int = 1) -> list[dict]: ...
+    def join_pair(self, src_name: str, tgt_name: str, n: int = 1) -> list[dict]: ...
+
+# ---------------------------------------------------------------------------
 # BK-Tree
 # ---------------------------------------------------------------------------
 

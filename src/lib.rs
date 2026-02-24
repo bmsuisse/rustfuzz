@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod algorithms;
 mod distance;
 mod fuzz;
+mod join;
 mod process;
 mod search;
 mod types;
@@ -30,6 +31,9 @@ fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Search module
     m.add_class::<search::BM25Index>()?;
     m.add_function(wrap_pyfunction!(search::cosine_similarity_matrix, m)?)?;
+
+    // Multi-array join
+    m.add_class::<join::MultiJoiner>()?;
 
     m.add_function(wrap_pyfunction!(fuzz::fuzz_ratio, m)?)?;
     m.add_function(wrap_pyfunction!(fuzz::fuzz_partial_ratio, m)?)?;

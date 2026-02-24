@@ -54,3 +54,4 @@ nav:
     - Vector DB Hybrid Search: cookbook/04_hybrid_search.md
     - LangChain Integration: cookbook/05_langchain.md
     - Real-World Examples: cookbook/06_real_world.md
+    - Fuzzy Full Join: cookbook/07_fuzzy_join.md
