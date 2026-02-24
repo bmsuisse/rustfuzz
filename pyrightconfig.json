@@ -1,3 +1,5 @@
 {
-  "exclude": ["rustfuzz/spark.py"]
+  "exclude": ["rustfuzz/spark.py", ".venv"],
+  "venvPath": ".",
+  "venv": ".venv"
 }
