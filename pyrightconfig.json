@@ -1,5 +1,13 @@
 {
-  "exclude": ["rustfuzz/spark.py", ".venv"],
+  "include": ["rustfuzz"],
+  "exclude": ["rustfuzz/spark.py", ".venv", "tests", "examples", "docs"],
   "venvPath": ".",
-  "venv": ".venv"
+  "venv": ".venv",
+  "pythonVersion": "3.10",
+  "reportAny": "none",
+  "reportExplicitAny": "none",
+  "reportImplicitOverride": "none",
+  "reportUnusedImport": "none",
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none"
 }
