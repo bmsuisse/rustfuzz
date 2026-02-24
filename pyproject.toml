@@ -67,6 +67,10 @@ features = ["pyo3/extension-module"]
 include = ["rustfuzz"]
 exclude = ["rustfuzz/spark.py"]
 pythonVersion = "3.10"
+reportAny = "none"
+reportExplicitAny = "none"
+reportImplicitOverride = "none"
+reportUnusedImport = "none"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
