@@ -1,6 +1,6 @@
 """Type stubs for the _rustfuzz native extension module."""
 
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from typing import Any
 
 # ---------------------------------------------------------------------------
@@ -685,9 +685,9 @@ class MultiJoiner:
     def add_array(
         self,
         name: str,
-        texts: list[str | None] | None = None,
-        sparse: list[dict[int, float] | None] | None = None,
-        dense: list[list[float] | None] | None = None,
+        texts: Sequence[str | None] | None = None,
+        sparse: Sequence[dict[int, float] | None] | None = None,
+        dense: Sequence[list[float] | None] | None = None,
     ) -> None: ...
     def join(self, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
     def join_pair(self, src_name: str, tgt_name: str, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
