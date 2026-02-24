@@ -689,8 +689,16 @@ class MultiJoiner:
         sparse: Sequence[dict[int, float] | None] | None = None,
         dense: Sequence[list[float] | None] | None = None,
     ) -> None: ...
-    def join(self, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
-    def join_pair(self, src_name: str, tgt_name: str, n: int = 1, score_cutoff: float | None = None) -> list[dict[str, Any]]: ...
+    def join(
+        self, n: int = 1, score_cutoff: float | None = None
+    ) -> list[dict[str, Any]]: ...
+    def join_pair(
+        self,
+        src_name: str,
+        tgt_name: str,
+        n: int = 1,
+        score_cutoff: float | None = None,
+    ) -> list[dict[str, Any]]: ...
 
 # ---------------------------------------------------------------------------
 # BK-Tree

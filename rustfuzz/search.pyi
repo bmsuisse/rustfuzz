@@ -29,7 +29,11 @@ class BM25:
 class BM25L:
     """BM25L full-text search index."""
     def __init__(
-        self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75, delta: float = 0.5
+        self,
+        corpus: Iterable[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 0.5,
     ) -> None: ...
     @property
     def num_docs(self) -> int: ...
@@ -39,7 +43,11 @@ class BM25L:
 class BM25Plus:
     """BM25+ (BM25Plus) full-text search index."""
     def __init__(
-        self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75, delta: float = 1.0
+        self,
+        corpus: Iterable[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 1.0,
     ) -> None: ...
     @property
     def num_docs(self) -> int: ...

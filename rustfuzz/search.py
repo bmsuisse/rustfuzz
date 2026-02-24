@@ -129,7 +129,14 @@ class BM25:
 
 class BM25L:
     """BM25L full-text search index."""
-    def __init__(self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75, delta: float = 0.5):
+
+    def __init__(
+        self,
+        corpus: Iterable[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 0.5,
+    ):
         corpus_list = list(corpus)
         if corpus_list and not isinstance(corpus_list[0], str):
             raise TypeError("corpus must be an iterable of strings")
@@ -152,7 +159,14 @@ class BM25L:
 
 class BM25Plus:
     """BM25+ (BM25Plus) full-text search index."""
-    def __init__(self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75, delta: float = 1.0):
+
+    def __init__(
+        self,
+        corpus: Iterable[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 1.0,
+    ):
         corpus_list = list(corpus)
         if corpus_list and not isinstance(corpus_list[0], str):
             raise TypeError("corpus must be an iterable of strings")
@@ -175,6 +189,7 @@ class BM25Plus:
 
 class BM25T:
     """BM25T full-text search index."""
+
     def __init__(self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75):
         corpus_list = list(corpus)
         if corpus_list and not isinstance(corpus_list[0], str):
@@ -193,7 +208,6 @@ class BM25T:
 
     def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]:
         return self._index.get_top_n(query, n)
-
 
 
 class HybridSearch:
