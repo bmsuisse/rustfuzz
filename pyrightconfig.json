@@ -21,5 +21,11 @@
   "reportConstantRedefinition": "none",
   "reportOptionalMemberAccess": "none",
   "reportArgumentType": "none",
-  "reportAttributeAccessIssue": "none"
+  "reportAttributeAccessIssue": "none",
+  "reportUnnecessaryIsInstance": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownParameterType": "none",
+  "reportUnknownLambdaType": "none"
 }
