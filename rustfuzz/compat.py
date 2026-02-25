@@ -132,9 +132,7 @@ def _extract_column(df: Any, column: str) -> list[str]:
     return _coerce_to_strings(col_data)
 
 
-def _extract_metadata(
-    df: Any, columns: list[str] | str
-) -> list[dict[str, Any]]:
+def _extract_metadata(df: Any, columns: list[str] | str) -> list[dict[str, Any]]:
     """
     Extract per-row metadata dicts from one or more DataFrame columns.
 

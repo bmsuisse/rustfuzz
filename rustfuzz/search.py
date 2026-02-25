@@ -129,9 +129,7 @@ class BM25:
         """
         return self._index.get_scores(query)
 
-    def get_top_n(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         """
         Return the top N matching documents and their BM25 scores.
         Only documents with score > 0.0 are returned (up to n).
@@ -268,9 +266,7 @@ class BM25L:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.get_top_n(query, n),
             self._corpus,
@@ -305,9 +301,7 @@ class BM25L:
             self._corpus_index,
         )
 
-    def fuzzy_only(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.fuzzy_only(query, n),
             self._corpus,
@@ -365,9 +359,7 @@ class BM25Plus:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.get_top_n(query, n),
             self._corpus,
@@ -402,9 +394,7 @@ class BM25Plus:
             self._corpus_index,
         )
 
-    def fuzzy_only(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.fuzzy_only(query, n),
             self._corpus,
@@ -460,9 +450,7 @@ class BM25T:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.get_top_n(query, n),
             self._corpus,
@@ -497,9 +485,7 @@ class BM25T:
             self._corpus_index,
         )
 
-    def fuzzy_only(
-        self, query: str, n: int = 5
-    ) -> list[_Result] | list[_MetaResult]:
+    def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
         return _enrich(
             self._index.fuzzy_only(query, n),
             self._corpus,
@@ -550,9 +536,7 @@ class HybridSearch:
         self._b = b
         self._metadata = _validate_metadata(metadata, len(self._corpus))
         self._corpus_index: dict[str, int] | None = (
-            _build_corpus_index(self._corpus)
-            if self._metadata is not None
-            else None
+            _build_corpus_index(self._corpus) if self._metadata is not None else None
         )
         self._embeddings: list[list[float]] | None = None
 
