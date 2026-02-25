@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from rustfuzz.compat import _coerce_to_strings, _extract_column
-from rustfuzz.search import BM25, BM25L, BM25Plus, BM25T
+from rustfuzz.search import BM25, BM25L, BM25T, BM25Plus
 
 CORPUS = [
     "the quick brown fox jumps over the lazy dog",

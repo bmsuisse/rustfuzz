@@ -223,6 +223,183 @@ class BM25:
             self._corpus_index,
         )
 
+    # ── New features ──────────────────────────────────────────
+
+    def explain(self, query: str, doc: str | int) -> dict[str, Any]:
+        """
+        Per-term BM25 score breakdown for a query against a specific document.
+
+        Parameters
+        ----------
+        query : str
+            Query string.
+        doc : str | int
+            Either a document index (int) or a document string.
+
+        Returns
+        -------
+        dict
+            Keys: ``terms`` (list of per-term dicts with idf/tf/score),
+            ``total_score``, ``doc_idx``, ``doc_text``.
+        """
+        if isinstance(doc, str):
+            idx = self._corpus.index(doc)
+        else:
+            idx = doc
+        breakdown = self._index.explain(query, idx)
+        terms = [
+            {"term": t, "idf": idf, "tf_norm": tf, "score": s}
+            for t, idf, tf, s in breakdown
+        ]
+        total = sum(float(d["score"]) for d in terms)
+        return {
+            "terms": terms,
+            "total_score": total,
+            "doc_idx": idx,
+            "doc_text": self._corpus[idx],
+        }
+
+    def get_idf(self) -> dict[str, float]:
+        """Return the entire IDF map: term → IDF value."""
+        return dict(self._index.get_idf_map())
+
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]:
+        """Return the normalised TF vector for a specific document."""
+        return dict(self._index.get_document_vector(doc_idx))
+
+    def add_documents(
+        self,
+        docs: Iterable[str],
+        metadata: Iterable[Any] | None = None,
+    ) -> None:
+        """
+        Add documents to the index (rebuilds internally).
+
+        Parameters
+        ----------
+        docs : Iterable[str]
+            New documents to add.
+        metadata : Iterable[Any] | None
+            Optional metadata for the new documents.
+        """
+        new_docs = list(docs)
+        self._corpus.extend(new_docs)
+        if metadata is not None:
+            new_meta = list(metadata)
+            if len(new_meta) != len(new_docs):
+                raise ValueError("metadata length must match docs length")
+            if self._metadata is None:
+                self._metadata = [None] * (len(self._corpus) - len(new_docs))
+            self._metadata.extend(new_meta)
+        elif self._metadata is not None:
+            self._metadata.extend([None] * len(new_docs))
+        self._index = _rustfuzz.BM25Index(
+            self._corpus, self._k1, self._b, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def remove_documents(self, indices: list[int]) -> None:
+        """
+        Remove documents by index (rebuilds internally).
+
+        Parameters
+        ----------
+        indices : list[int]
+            Indices of documents to remove.
+        """
+        to_remove = set(indices)
+        self._corpus = [d for i, d in enumerate(self._corpus) if i not in to_remove]
+        if self._metadata is not None:
+            self._metadata = [
+                m for i, m in enumerate(self._metadata) if i not in to_remove
+            ]
+        self._index = _rustfuzz.BM25Index(
+            self._corpus, self._k1, self._b, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def get_top_n_reranked(
+        self,
+        query: str,
+        n: int = 5,
+        reranker: Any = None,
+        rerank_candidates: int = 50,
+    ) -> list[_Result] | list[_MetaResult]:
+        """
+        BM25 retrieval + external reranker callback.
+
+        Parameters
+        ----------
+        query : str
+        n : int
+            Final number of results.
+        reranker : Callable[[str, list[str]], list[float]] | None
+            Function ``(query, docs) -> scores``. If None, falls back to BM25.
+        rerank_candidates : int
+            How many BM25 candidates to pass to the reranker.
+        """
+        if reranker is None:
+            return self.get_top_n(query, n)
+
+        candidates = self._index.get_top_n(query, rerank_candidates)
+        if not candidates:
+            return []
+
+        docs = [d for d, _ in candidates]
+        rerank_scores = reranker(query, docs)
+        paired = sorted(
+            zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
+        )[:n]
+        results: list[_Result] = [(d, s) for d, s in paired]
+        return _enrich(results, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[_Result] | list[_MetaResult]:
+        """
+        BM25 scoring with phrase proximity boost.
+
+        Documents where query terms appear adjacent or within `proximity_window`
+        positions get a multiplicative boost.
+
+        Parameters
+        ----------
+        query : str
+        n : int, default 5
+        proximity_window : int, default 3
+            Maximum token distance for terms to be considered "adjacent".
+        phrase_boost : float, default 2.0
+            Multiplicative boost factor (1.0 = no boost).
+        """
+        return _enrich(
+            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    async def get_top_n_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        """Async wrapper around :meth:`get_top_n` (runs in a thread)."""
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n, query, n, **kwargs)
+
+    async def search_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        """Async wrapper around :meth:`get_top_n_rrf`."""
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
@@ -317,6 +494,112 @@ class BM25L:
             self._metadata,
             self._corpus_index,
         )
+
+    def explain(self, query: str, doc: str | int) -> dict[str, Any]:
+        """Per-term BM25 score breakdown for a query against a specific document."""
+        idx = self._corpus.index(doc) if isinstance(doc, str) else doc
+        breakdown = self._index.explain(query, idx)
+        terms = [
+            {"term": t, "idf": idf, "tf_norm": tf, "score": s}
+            for t, idf, tf, s in breakdown
+        ]
+        return {
+            "terms": terms,
+            "total_score": sum(float(d["score"]) for d in terms),
+            "doc_idx": idx,
+            "doc_text": self._corpus[idx],
+        }
+
+    def get_idf(self) -> dict[str, float]:
+        """Return the IDF map: term → IDF value."""
+        return dict(self._index.get_idf_map())
+
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]:
+        """Return the normalised TF vector for a specific document."""
+        return dict(self._index.get_document_vector(doc_idx))
+
+    def add_documents(
+        self, docs: Iterable[str], metadata: Iterable[Any] | None = None
+    ) -> None:
+        """Add documents to the index (rebuilds internally)."""
+        new_docs = list(docs)
+        self._corpus.extend(new_docs)
+        if metadata is not None:
+            new_meta = list(metadata)
+            if len(new_meta) != len(new_docs):
+                raise ValueError("metadata length must match docs length")
+            if self._metadata is None:
+                self._metadata = [None] * (len(self._corpus) - len(new_docs))
+            self._metadata.extend(new_meta)
+        elif self._metadata is not None:
+            self._metadata.extend([None] * len(new_docs))
+        self._index = _rustfuzz.BM25L(
+            self._corpus, self._k1, self._b, self._delta, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def remove_documents(self, indices: list[int]) -> None:
+        """Remove documents by index (rebuilds internally)."""
+        to_remove = set(indices)
+        self._corpus = [d for i, d in enumerate(self._corpus) if i not in to_remove]
+        if self._metadata is not None:
+            self._metadata = [
+                m for i, m in enumerate(self._metadata) if i not in to_remove
+            ]
+        self._index = _rustfuzz.BM25L(
+            self._corpus, self._k1, self._b, self._delta, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def get_top_n_reranked(
+        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+    ) -> list[_Result] | list[_MetaResult]:
+        """BM25 retrieval + external reranker callback."""
+        if reranker is None:
+            return self.get_top_n(query, n)
+        candidates = self._index.get_top_n(query, rerank_candidates)
+        if not candidates:
+            return []
+        docs = [d for d, _ in candidates]
+        rerank_scores = reranker(query, docs)
+        paired = sorted(
+            zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
+        )[:n]
+        results: list[_Result] = [(d, s) for d, s in paired]
+        return _enrich(results, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[_Result] | list[_MetaResult]:
+        """BM25 scoring with phrase proximity boost."""
+        return _enrich(
+            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    async def get_top_n_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        """Async wrapper around get_top_n."""
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n, query, n, **kwargs)
+
+    async def search_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        """Async wrapper around get_top_n_rrf."""
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
 
     def __reduce__(
         self,
@@ -420,6 +703,106 @@ class BM25Plus:
             self._corpus_index,
         )
 
+    def explain(self, query: str, doc: str | int) -> dict[str, Any]:
+        """Per-term BM25 score breakdown."""
+        idx = self._corpus.index(doc) if isinstance(doc, str) else doc
+        breakdown = self._index.explain(query, idx)
+        terms = [
+            {"term": t, "idf": idf, "tf_norm": tf, "score": s}
+            for t, idf, tf, s in breakdown
+        ]
+        return {
+            "terms": terms,
+            "total_score": sum(float(d["score"]) for d in terms),
+            "doc_idx": idx,
+            "doc_text": self._corpus[idx],
+        }
+
+    def get_idf(self) -> dict[str, float]:
+        return dict(self._index.get_idf_map())
+
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]:
+        return dict(self._index.get_document_vector(doc_idx))
+
+    def add_documents(
+        self, docs: Iterable[str], metadata: Iterable[Any] | None = None
+    ) -> None:
+        """Add documents (rebuilds internally)."""
+        new_docs = list(docs)
+        self._corpus.extend(new_docs)
+        if metadata is not None:
+            new_meta = list(metadata)
+            if len(new_meta) != len(new_docs):
+                raise ValueError("metadata length must match docs length")
+            if self._metadata is None:
+                self._metadata = [None] * (len(self._corpus) - len(new_docs))
+            self._metadata.extend(new_meta)
+        elif self._metadata is not None:
+            self._metadata.extend([None] * len(new_docs))
+        self._index = _rustfuzz.BM25Plus(
+            self._corpus, self._k1, self._b, self._delta, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def remove_documents(self, indices: list[int]) -> None:
+        """Remove documents by index (rebuilds internally)."""
+        to_remove = set(indices)
+        self._corpus = [d for i, d in enumerate(self._corpus) if i not in to_remove]
+        if self._metadata is not None:
+            self._metadata = [
+                m for i, m in enumerate(self._metadata) if i not in to_remove
+            ]
+        self._index = _rustfuzz.BM25Plus(
+            self._corpus, self._k1, self._b, self._delta, self._normalize
+        )
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def get_top_n_reranked(
+        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+    ) -> list[_Result] | list[_MetaResult]:
+        if reranker is None:
+            return self.get_top_n(query, n)
+        candidates = self._index.get_top_n(query, rerank_candidates)
+        if not candidates:
+            return []
+        docs = [d for d, _ in candidates]
+        rerank_scores = reranker(query, docs)
+        paired = sorted(
+            zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
+        )[:n]
+        results: list[_Result] = [(d, s) for d, s in paired]
+        return _enrich(results, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    async def get_top_n_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n, query, n, **kwargs)
+
+    async def search_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
@@ -519,6 +902,102 @@ class BM25T:
             self._metadata,
             self._corpus_index,
         )
+
+    def explain(self, query: str, doc: str | int) -> dict[str, Any]:
+        """Per-term BM25 score breakdown."""
+        idx = self._corpus.index(doc) if isinstance(doc, str) else doc
+        breakdown = self._index.explain(query, idx)
+        terms = [
+            {"term": t, "idf": idf, "tf_norm": tf, "score": s}
+            for t, idf, tf, s in breakdown
+        ]
+        return {
+            "terms": terms,
+            "total_score": sum(float(d["score"]) for d in terms),
+            "doc_idx": idx,
+            "doc_text": self._corpus[idx],
+        }
+
+    def get_idf(self) -> dict[str, float]:
+        return dict(self._index.get_idf_map())
+
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]:
+        return dict(self._index.get_document_vector(doc_idx))
+
+    def add_documents(
+        self, docs: Iterable[str], metadata: Iterable[Any] | None = None
+    ) -> None:
+        """Add documents (rebuilds internally)."""
+        new_docs = list(docs)
+        self._corpus.extend(new_docs)
+        if metadata is not None:
+            new_meta = list(metadata)
+            if len(new_meta) != len(new_docs):
+                raise ValueError("metadata length must match docs length")
+            if self._metadata is None:
+                self._metadata = [None] * (len(self._corpus) - len(new_docs))
+            self._metadata.extend(new_meta)
+        elif self._metadata is not None:
+            self._metadata.extend([None] * len(new_docs))
+        self._index = _rustfuzz.BM25T(self._corpus, self._k1, self._b, self._normalize)
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def remove_documents(self, indices: list[int]) -> None:
+        """Remove documents by index (rebuilds internally)."""
+        to_remove = set(indices)
+        self._corpus = [d for i, d in enumerate(self._corpus) if i not in to_remove]
+        if self._metadata is not None:
+            self._metadata = [
+                m for i, m in enumerate(self._metadata) if i not in to_remove
+            ]
+        self._index = _rustfuzz.BM25T(self._corpus, self._k1, self._b, self._normalize)
+        if self._metadata is not None:
+            self._corpus_index = _build_corpus_index(self._corpus)
+
+    def get_top_n_reranked(
+        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+    ) -> list[_Result] | list[_MetaResult]:
+        if reranker is None:
+            return self.get_top_n(query, n)
+        candidates = self._index.get_top_n(query, rerank_candidates)
+        if not candidates:
+            return []
+        docs = [d for d, _ in candidates]
+        rerank_scores = reranker(query, docs)
+        paired = sorted(
+            zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
+        )[:n]
+        results: list[_Result] = [(d, s) for d, s in paired]
+        return _enrich(results, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    async def get_top_n_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n, query, n, **kwargs)
+
+    async def search_async(
+        self, query: str, n: int = 5, **kwargs: Any
+    ) -> list[_Result] | list[_MetaResult]:
+        import asyncio
+
+        return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
 
     def __reduce__(
         self,

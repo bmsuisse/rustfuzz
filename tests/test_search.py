@@ -69,26 +69,27 @@ def test_bm25_normalized() -> None:
     # Test charabia tokenization and normalization
     vocab = ["Café", "naïf", "Thé", "hallo"]
     bm25 = BM25(vocab, normalize=True)
-    
+
     # "Thé" should be normalized to "the"
     scores = bm25.get_scores("the")
     assert scores[2] > 0
-    
+
     # "Café" should match "cafe"
     scores = bm25.get_scores("cafe")
     assert scores[0] > 0
-    
+
     # "naïf" should match "naif"
     scores = bm25.get_scores("naif")
     assert scores[1] > 0
+
 
 def test_bm25_not_normalized() -> None:
     # Test that without normalization, diacritics don't match base characters
     vocab = ["Café", "naïf", "Thé", "hallo"]
     bm25 = BM25(vocab, normalize=False)
-    
+
     scores = bm25.get_scores("the")
     assert scores[2] == 0
-    
+
     scores = bm25.get_scores("cafe")
     assert scores[0] == 0

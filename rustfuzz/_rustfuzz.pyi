@@ -614,7 +614,13 @@ def jaccard(
 
 class BM25Index:
     """Internal BM25Okapi index. Use ``rustfuzz.search.BM25`` instead."""
-    def __init__(self, corpus: list[str], k1: float = 1.5, b: float = 0.75, normalize: bool = False) -> None: ...
+    def __init__(
+        self,
+        corpus: list[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        normalize: bool = False,
+    ) -> None: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
@@ -631,11 +637,28 @@ class BM25Index:
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[tuple[str, float]]: ...
     def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_idf_map(self) -> dict[str, float]: ...
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]: ...
+    def explain(
+        self, query: str, doc_idx: int
+    ) -> list[tuple[str, float, float, float]]: ...
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[tuple[str, float]]: ...
 
 class BM25L:
     """Internal BM25L index. Use ``rustfuzz.search.BM25L`` instead."""
     def __init__(
-        self, corpus: list[str], k1: float = 1.5, b: float = 0.75, delta: float = 0.5, normalize: bool = False
+        self,
+        corpus: list[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 0.5,
+        normalize: bool = False,
     ) -> None: ...
     @property
     def num_docs(self) -> int: ...
@@ -653,11 +676,28 @@ class BM25L:
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[tuple[str, float]]: ...
     def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_idf_map(self) -> dict[str, float]: ...
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]: ...
+    def explain(
+        self, query: str, doc_idx: int
+    ) -> list[tuple[str, float, float, float]]: ...
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[tuple[str, float]]: ...
 
 class BM25Plus:
     """Internal BM25+ index. Use ``rustfuzz.search.BM25Plus`` instead."""
     def __init__(
-        self, corpus: list[str], k1: float = 1.5, b: float = 0.75, delta: float = 1.0, normalize: bool = False
+        self,
+        corpus: list[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        delta: float = 1.0,
+        normalize: bool = False,
     ) -> None: ...
     @property
     def num_docs(self) -> int: ...
@@ -675,10 +715,28 @@ class BM25Plus:
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[tuple[str, float]]: ...
     def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_idf_map(self) -> dict[str, float]: ...
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]: ...
+    def explain(
+        self, query: str, doc_idx: int
+    ) -> list[tuple[str, float, float, float]]: ...
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[tuple[str, float]]: ...
 
 class BM25T:
     """Internal BM25T index. Use ``rustfuzz.search.BM25T`` instead."""
-    def __init__(self, corpus: list[str], k1: float = 1.5, b: float = 0.75, normalize: bool = False) -> None: ...
+    def __init__(
+        self,
+        corpus: list[str],
+        k1: float = 1.5,
+        b: float = 0.75,
+        normalize: bool = False,
+    ) -> None: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
@@ -695,6 +753,18 @@ class BM25T:
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[tuple[str, float]]: ...
     def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_idf_map(self) -> dict[str, float]: ...
+    def get_document_vector(self, doc_idx: int) -> dict[str, float]: ...
+    def explain(
+        self, query: str, doc_idx: int
+    ) -> list[tuple[str, float, float, float]]: ...
+    def get_top_n_phrase(
+        self,
+        query: str,
+        n: int = 5,
+        proximity_window: int = 3,
+        phrase_boost: float = 2.0,
+    ) -> list[tuple[str, float]]: ...
 
 def cosine_similarity_matrix(
     a: list[list[float]], b: list[list[float]]

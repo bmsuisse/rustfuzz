@@ -68,6 +68,8 @@ fn tokenise(text: &str, normalize: bool) -> Vec<String> {
 pub struct BM25Index {
     /// The original corpus strings (for retrieval)
     corpus: Vec<String>,
+    /// Reverse lookup: document text → index
+    corpus_index: FxHashMap<String, usize>,
     /// Tokenised corpus
     #[allow(dead_code)]
     tokenised: Vec<Vec<String>>,
@@ -75,6 +77,8 @@ pub struct BM25Index {
     idf: FxHashMap<String, f64>,
     /// Normalised TF per document: tf_norm[doc][term] = raw_tf * (k1+1) / (raw_tf + k1*(1-b+b*dl/avgdl))
     tf_norm: Vec<FxHashMap<String, f64>>,
+    /// Token positions per document: positions[doc][term] = [pos0, pos1, ...]
+    positions: Vec<FxHashMap<String, Vec<usize>>>,
     /// Average document length (in tokens)
     #[allow(dead_code)]
     avgdl: f64,
@@ -93,6 +97,12 @@ impl BM25Index {
     pub fn new(corpus: Vec<String>, k1: f64, b: f64, normalize: bool) -> Self {
         let n = corpus.len() as f64;
         let tokenised: Vec<Vec<String>> = corpus.iter().map(|d| tokenise(d, normalize)).collect();
+
+        // Build reverse index: doc text → index
+        let mut corpus_index: FxHashMap<String, usize> = FxHashMap::default();
+        for (i, doc) in corpus.iter().enumerate() {
+            corpus_index.insert(doc.clone(), i);
+        }
 
         // Average document length
         let total_tokens: usize = tokenised.iter().map(|d| d.len()).sum();
@@ -116,13 +126,17 @@ impl BM25Index {
             (term.clone(), idf_val)
         }).collect();
 
-        // Per-document normalised TF
+        // Per-document normalised TF + positions
+        let mut positions: Vec<FxHashMap<String, Vec<usize>>> = Vec::with_capacity(tokenised.len());
         let tf_norm: Vec<FxHashMap<String, f64>> = tokenised.iter().map(|doc| {
             let dl = doc.len() as f64;
             let mut raw_tf: FxHashMap<String, usize> = FxHashMap::default();
-            for term in doc {
+            let mut doc_positions: FxHashMap<String, Vec<usize>> = FxHashMap::default();
+            for (pos, term) in doc.iter().enumerate() {
                 *raw_tf.entry(term.clone()).or_insert(0) += 1;
+                doc_positions.entry(term.clone()).or_default().push(pos);
             }
+            positions.push(doc_positions);
             raw_tf.into_iter().map(|(term, tf)| {
                 let tf_f = tf as f64;
                 let norm = tf_f * (k1 + 1.0) / (tf_f + k1 * (1.0 - b + b * dl / avgdl));
@@ -130,7 +144,7 @@ impl BM25Index {
             }).collect()
         }).collect();
 
-        BM25Index { corpus, tokenised, idf, tf_norm, avgdl, k1, b, normalize }
+        BM25Index { corpus, corpus_index, tokenised, idf, tf_norm, positions, avgdl, k1, b, normalize }
     }
 
     /// Pickle support: serialise as (corpus, k1, b, normalize), rebuild on unpickle.
@@ -294,14 +308,12 @@ impl BM25Index {
         // BM25 ranking
         let bm25_results = self.get_top_n(query, candidates_n);
         
-        // If BM25 yields nothing (e.g. completely misspelled), we must rank the entire corpus
-        // using fuzzy match, effectively treating the BM25 rank as tied at the bottom for all docs.
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             self.corpus.iter().enumerate().collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 (idx, doc)
             }).collect()
         };
@@ -331,13 +343,11 @@ impl BM25Index {
         }).collect();
         fuzzy_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
-        // RRF score per candidate index
-        // Use a hashmap or a vec sized to corpus
         let mut rrf_scores: Vec<f64> = vec![0.0; self.corpus.len()];
         
         if !is_bm25_empty {
             for (rank, (doc, _)) in bm25_results.iter().enumerate() {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 rrf_scores[idx] += 1.0 / (rrf_k + rank + 1) as f64;
             }
         }
@@ -346,7 +356,6 @@ impl BM25Index {
             rrf_scores[*idx] += 1.0 / (rrf_k + rank + 1) as f64;
         }
 
-        // Collect, sort by RRF score
         let mut results: Vec<(String, f64)> = target_docs.into_iter()
             .map(|(idx, doc)| (doc.clone(), rrf_scores[idx]))
             .collect();
@@ -397,6 +406,108 @@ impl BM25Index {
         results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         Ok(results.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect())
     }
+
+    // ── New methods ──────────────────────────────────────────────
+
+    /// Return the IDF map: term → idf value.
+    pub fn get_idf_map(&self) -> FxHashMap<String, f64> {
+        self.idf.clone()
+    }
+
+    /// Return the TF-norm vector for a specific document.
+    #[pyo3(signature = (doc_idx))]
+    pub fn get_document_vector(&self, doc_idx: usize) -> PyResult<FxHashMap<String, f64>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        Ok(self.tf_norm[doc_idx].clone())
+    }
+
+    /// Per-term score breakdown for a query against a specific document.
+    /// Returns Vec<(term, idf, tf_norm, term_score)>.
+    #[pyo3(signature = (query, doc_idx))]
+    pub fn explain(&self, query: &str, doc_idx: usize) -> PyResult<Vec<(String, f64, f64, f64)>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        let q_terms = tokenise(query, self.normalize);
+        let doc_tf = &self.tf_norm[doc_idx];
+        let mut breakdown = Vec::new();
+        for term in q_terms {
+            let idf_val = self.idf.get(&term).copied().unwrap_or(0.0);
+            let tf_val = doc_tf.get(&term).copied().unwrap_or(0.0);
+            let score = idf_val * tf_val;
+            breakdown.push((term, idf_val, tf_val, score));
+        }
+        Ok(breakdown)
+    }
+
+    /// BM25 scoring with phrase proximity boost.
+    /// Documents where query terms appear adjacent or within `window` positions
+    /// get a multiplicative boost.
+    #[pyo3(signature = (query, n=5, proximity_window=3, phrase_boost=2.0))]
+    pub fn get_top_n_phrase(
+        &self,
+        query: &str,
+        n: usize,
+        proximity_window: usize,
+        phrase_boost: f64,
+    ) -> Vec<(String, f64)> {
+        let bm25_scores = self.get_scores(query);
+        let q_terms = tokenise(query, self.normalize);
+
+        let mut scored: Vec<(usize, f64)> = bm25_scores.into_iter().enumerate()
+            .filter(|(_, s)| *s > 0.0)
+            .map(|(i, bm25)| {
+                let boost = phrase_proximity_boost(&q_terms, &self.positions[i], proximity_window);
+                let final_score = bm25 * (1.0 + (phrase_boost - 1.0) * boost);
+                (i, final_score)
+            })
+            .collect();
+
+        scored.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        scored.truncate(n);
+        scored.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect()
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Phrase proximity boost helper
+// ---------------------------------------------------------------------------
+
+/// Compute a phrase proximity boost in [0.0, 1.0].
+/// Returns 1.0 if all consecutive query term pairs appear within `window`
+/// positions of each other. Returns 0.0 if no pair is within range.
+fn phrase_proximity_boost(
+    q_terms: &[String],
+    doc_positions: &FxHashMap<String, Vec<usize>>,
+    window: usize,
+) -> f64 {
+    if q_terms.len() <= 1 {
+        return if q_terms.len() == 1 && doc_positions.contains_key(&q_terms[0]) { 1.0 } else { 0.0 };
+    }
+    let mut hits = 0usize;
+    let pairs = q_terms.len() - 1;
+    for pair in q_terms.windows(2) {
+        let (t1, t2) = (&pair[0], &pair[1]);
+        if let (Some(p1), Some(p2)) = (doc_positions.get(t1), doc_positions.get(t2)) {
+            // Check if any position pair is within window
+            'outer: for &a in p1 {
+                for &b in p2 {
+                    let dist = if a > b { a - b } else { b - a };
+                    if dist <= window {
+                        hits += 1;
+                        break 'outer;
+                    }
+                }
+            }
+        }
+    }
+    hits as f64 / pairs as f64
 }
 
 // ============================================================================
@@ -406,10 +517,12 @@ impl BM25Index {
 #[pyclass]
 pub struct BM25L {
     corpus: Vec<String>,
+    corpus_index: FxHashMap<String, usize>,
     #[allow(dead_code)]
     tokenised: Vec<Vec<String>>,
     idf: FxHashMap<String, f64>,
     tf_norm: Vec<FxHashMap<String, f64>>,
+    positions: Vec<FxHashMap<String, Vec<usize>>>,
     #[allow(dead_code)]
     avgdl: f64,
     #[allow(dead_code)]
@@ -430,11 +543,14 @@ impl BM25L {
         let n = corpus.len() as f64;
         let tokenised: Vec<Vec<String>> = corpus.iter().map(|d| tokenise(d, normalize)).collect();
 
-        // Average document length
+        let mut corpus_index: FxHashMap<String, usize> = FxHashMap::default();
+        for (i, doc) in corpus.iter().enumerate() {
+            corpus_index.insert(doc.clone(), i);
+        }
+
         let total_tokens: usize = tokenised.iter().map(|d| d.len()).sum();
         let avgdl = if n > 0.0 { total_tokens as f64 / n } else { 1.0 };
 
-        // Document frequency per term
         let mut df: FxHashMap<String, usize> = FxHashMap::default();
         for doc in &tokenised {
             let mut seen: FxHashMap<&str, bool> = FxHashMap::default();
@@ -445,20 +561,22 @@ impl BM25L {
             }
         }
 
-        // IDF: ln((N + 1) / (df + 0.5))
         let idf: FxHashMap<String, f64> = df.iter().map(|(term, &dft)| {
             let dft_f = dft as f64;
             let idf_val = ((n + 1.0) / (dft_f + 0.5)).ln();
             (term.clone(), idf_val)
         }).collect();
 
-        // Per-document normalised TF
+        let mut positions: Vec<FxHashMap<String, Vec<usize>>> = Vec::with_capacity(tokenised.len());
         let tf_norm: Vec<FxHashMap<String, f64>> = tokenised.iter().map(|doc| {
             let dl = doc.len() as f64;
             let mut raw_tf: FxHashMap<String, usize> = FxHashMap::default();
-            for term in doc {
+            let mut doc_positions: FxHashMap<String, Vec<usize>> = FxHashMap::default();
+            for (pos, term) in doc.iter().enumerate() {
                 *raw_tf.entry(term.clone()).or_insert(0) += 1;
+                doc_positions.entry(term.clone()).or_default().push(pos);
             }
+            positions.push(doc_positions);
             raw_tf.into_iter().map(|(term, tf)| {
                 let tf_f = tf as f64;
                 let ctd = tf_f / (1.0 - b + b * dl / avgdl);
@@ -467,7 +585,7 @@ impl BM25L {
             }).collect()
         }).collect();
 
-        BM25L { corpus, tokenised, idf, tf_norm, avgdl, k1, b, delta, normalize }
+        BM25L { corpus, corpus_index, tokenised, idf, tf_norm, positions, avgdl, k1, b, delta, normalize }
     }
 
     #[getter]
@@ -610,7 +728,7 @@ impl BM25L {
             self.corpus.iter().enumerate().collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 (idx, doc)
             }).collect()
         };
@@ -643,7 +761,7 @@ impl BM25L {
         
         if !is_bm25_empty {
             for (rank, (doc, _)) in bm25_results.iter().enumerate() {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 rrf_scores[idx] += 1.0 / (rrf_k + rank + 1) as f64;
             }
         }
@@ -702,6 +820,55 @@ impl BM25L {
         results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         Ok(results.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect())
     }
+
+    pub fn get_idf_map(&self) -> FxHashMap<String, f64> {
+        self.idf.clone()
+    }
+
+    #[pyo3(signature = (doc_idx))]
+    pub fn get_document_vector(&self, doc_idx: usize) -> PyResult<FxHashMap<String, f64>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        Ok(self.tf_norm[doc_idx].clone())
+    }
+
+    #[pyo3(signature = (query, doc_idx))]
+    pub fn explain(&self, query: &str, doc_idx: usize) -> PyResult<Vec<(String, f64, f64, f64)>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        let q_terms = tokenise(query, self.normalize);
+        let doc_tf = &self.tf_norm[doc_idx];
+        let mut breakdown = Vec::new();
+        for term in q_terms {
+            let idf_val = self.idf.get(&term).copied().unwrap_or(0.0);
+            let tf_val = doc_tf.get(&term).copied().unwrap_or(0.0);
+            let score = idf_val * tf_val;
+            breakdown.push((term, idf_val, tf_val, score));
+        }
+        Ok(breakdown)
+    }
+
+    #[pyo3(signature = (query, n=5, proximity_window=3, phrase_boost=2.0))]
+    pub fn get_top_n_phrase(&self, query: &str, n: usize, proximity_window: usize, phrase_boost: f64) -> Vec<(String, f64)> {
+        let bm25_scores = self.get_scores(query);
+        let q_terms = tokenise(query, self.normalize);
+        let mut scored: Vec<(usize, f64)> = bm25_scores.into_iter().enumerate()
+            .filter(|(_, s)| *s > 0.0)
+            .map(|(i, bm25)| {
+                let boost = phrase_proximity_boost(&q_terms, &self.positions[i], proximity_window);
+                let final_score = bm25 * (1.0 + (phrase_boost - 1.0) * boost);
+                (i, final_score)
+            }).collect();
+        scored.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        scored.truncate(n);
+        scored.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect()
+    }
 }
 
 // ============================================================================
@@ -711,10 +878,12 @@ impl BM25L {
 #[pyclass]
 pub struct BM25Plus {
     corpus: Vec<String>,
+    corpus_index: FxHashMap<String, usize>,
     #[allow(dead_code)]
     tokenised: Vec<Vec<String>>,
     idf: FxHashMap<String, f64>,
     tf_norm: Vec<FxHashMap<String, f64>>,
+    positions: Vec<FxHashMap<String, Vec<usize>>>,
     #[allow(dead_code)]
     avgdl: f64,
     #[allow(dead_code)]
@@ -755,14 +924,21 @@ impl BM25Plus {
             (term.clone(), idf_val)
         }).collect();
 
-        // Per-document normalised TF
-        // delta + (tf * (k1 + 1)) / (k1 * (1 - b + b * dl / avgdl) + tf)
+        let mut corpus_index: FxHashMap<String, usize> = FxHashMap::default();
+        for (i, doc) in corpus.iter().enumerate() {
+            corpus_index.insert(doc.clone(), i);
+        }
+
+        let mut positions: Vec<FxHashMap<String, Vec<usize>>> = Vec::with_capacity(tokenised.len());
         let tf_norm: Vec<FxHashMap<String, f64>> = tokenised.iter().map(|doc| {
             let dl = doc.len() as f64;
             let mut raw_tf: FxHashMap<String, usize> = FxHashMap::default();
-            for term in doc {
+            let mut doc_positions: FxHashMap<String, Vec<usize>> = FxHashMap::default();
+            for (pos, term) in doc.iter().enumerate() {
                 *raw_tf.entry(term.clone()).or_insert(0) += 1;
+                doc_positions.entry(term.clone()).or_default().push(pos);
             }
+            positions.push(doc_positions);
             raw_tf.into_iter().map(|(term, tf)| {
                 let tf_f = tf as f64;
                 let norm = delta + (tf_f * (k1 + 1.0)) / (k1 * (1.0 - b + b * dl / avgdl) + tf_f);
@@ -770,7 +946,7 @@ impl BM25Plus {
             }).collect()
         }).collect();
 
-        BM25Plus { corpus, tokenised, idf, tf_norm, avgdl, k1, b, delta, normalize }
+        BM25Plus { corpus, corpus_index, tokenised, idf, tf_norm, positions, avgdl, k1, b, delta, normalize }
     }
 
     #[getter]
@@ -910,7 +1086,7 @@ impl BM25Plus {
             self.corpus.iter().enumerate().collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 (idx, doc)
             }).collect()
         };
@@ -943,7 +1119,7 @@ impl BM25Plus {
         
         if !is_bm25_empty {
             for (rank, (doc, _)) in bm25_results.iter().enumerate() {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 rrf_scores[idx] += 1.0 / (rrf_k + rank + 1) as f64;
             }
         }
@@ -1002,19 +1178,67 @@ impl BM25Plus {
         results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         Ok(results.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect())
     }
-}
 
-// ============================================================================
-// BM25T
+    pub fn get_idf_map(&self) -> FxHashMap<String, f64> {
+        self.idf.clone()
+    }
+
+    #[pyo3(signature = (doc_idx))]
+    pub fn get_document_vector(&self, doc_idx: usize) -> PyResult<FxHashMap<String, f64>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        Ok(self.tf_norm[doc_idx].clone())
+    }
+
+    #[pyo3(signature = (query, doc_idx))]
+    pub fn explain(&self, query: &str, doc_idx: usize) -> PyResult<Vec<(String, f64, f64, f64)>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        let q_terms = tokenise(query, self.normalize);
+        let doc_tf = &self.tf_norm[doc_idx];
+        let mut breakdown = Vec::new();
+        for term in q_terms {
+            let idf_val = self.idf.get(&term).copied().unwrap_or(0.0);
+            let tf_val = doc_tf.get(&term).copied().unwrap_or(0.0);
+            let score = idf_val * tf_val;
+            breakdown.push((term, idf_val, tf_val, score));
+        }
+        Ok(breakdown)
+    }
+
+    #[pyo3(signature = (query, n=5, proximity_window=3, phrase_boost=2.0))]
+    pub fn get_top_n_phrase(&self, query: &str, n: usize, proximity_window: usize, phrase_boost: f64) -> Vec<(String, f64)> {
+        let bm25_scores = self.get_scores(query);
+        let q_terms = tokenise(query, self.normalize);
+        let mut scored: Vec<(usize, f64)> = bm25_scores.into_iter().enumerate()
+            .filter(|(_, s)| *s > 0.0)
+            .map(|(i, bm25)| {
+                let boost = phrase_proximity_boost(&q_terms, &self.positions[i], proximity_window);
+                let final_score = bm25 * (1.0 + (phrase_boost - 1.0) * boost);
+                (i, final_score)
+            }).collect();
+        scored.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        scored.truncate(n);
+        scored.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect()
+    }
+}
 // ============================================================================
 
 #[pyclass]
 pub struct BM25T {
     corpus: Vec<String>,
+    corpus_index: FxHashMap<String, usize>,
     #[allow(dead_code)]
     tokenised: Vec<Vec<String>>,
     idf: FxHashMap<String, f64>,
     tf_norm: Vec<FxHashMap<String, f64>>,
+    positions: Vec<FxHashMap<String, Vec<usize>>>,
     #[allow(dead_code)]
     avgdl: f64,
     #[allow(dead_code)]
@@ -1095,7 +1319,22 @@ impl BM25T {
             }
         }
 
-        BM25T { corpus, tokenised, idf, tf_norm, avgdl, k1, b, normalize }
+        let mut corpus_index: FxHashMap<String, usize> = FxHashMap::default();
+        for (i, doc) in corpus.iter().enumerate() {
+            corpus_index.insert(doc.clone(), i);
+        }
+
+        // Build positions
+        let mut positions: Vec<FxHashMap<String, Vec<usize>>> = Vec::with_capacity(tokenised.len());
+        for doc in &tokenised {
+            let mut doc_positions: FxHashMap<String, Vec<usize>> = FxHashMap::default();
+            for (pos, term) in doc.iter().enumerate() {
+                doc_positions.entry(term.clone()).or_default().push(pos);
+            }
+            positions.push(doc_positions);
+        }
+
+        BM25T { corpus, corpus_index, tokenised, idf, tf_norm, positions, avgdl, k1, b, normalize }
     }
 
     #[getter]
@@ -1235,7 +1474,7 @@ impl BM25T {
             self.corpus.iter().enumerate().collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 (idx, doc)
             }).collect()
         };
@@ -1268,7 +1507,7 @@ impl BM25T {
         
         if !is_bm25_empty {
             for (rank, (doc, _)) in bm25_results.iter().enumerate() {
-                let idx = self.corpus.iter().position(|d| d == doc).unwrap();
+                let idx = *self.corpus_index.get(doc).unwrap();
                 rrf_scores[idx] += 1.0 / (rrf_k + rank + 1) as f64;
             }
         }
@@ -1326,6 +1565,55 @@ impl BM25T {
         let mut results: Vec<(usize, f64)> = heap.into_iter().map(|Reverse(item)| (item.idx, item.score)).collect();
         results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         Ok(results.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect())
+    }
+
+    pub fn get_idf_map(&self) -> FxHashMap<String, f64> {
+        self.idf.clone()
+    }
+
+    #[pyo3(signature = (doc_idx))]
+    pub fn get_document_vector(&self, doc_idx: usize) -> PyResult<FxHashMap<String, f64>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        Ok(self.tf_norm[doc_idx].clone())
+    }
+
+    #[pyo3(signature = (query, doc_idx))]
+    pub fn explain(&self, query: &str, doc_idx: usize) -> PyResult<Vec<(String, f64, f64, f64)>> {
+        if doc_idx >= self.corpus.len() {
+            return Err(pyo3::exceptions::PyIndexError::new_err(
+                format!("doc_idx {} out of range (corpus has {} docs)", doc_idx, self.corpus.len())
+            ));
+        }
+        let q_terms = tokenise(query, self.normalize);
+        let doc_tf = &self.tf_norm[doc_idx];
+        let mut breakdown = Vec::new();
+        for term in q_terms {
+            let idf_val = self.idf.get(&term).copied().unwrap_or(0.0);
+            let tf_val = doc_tf.get(&term).copied().unwrap_or(0.0);
+            let score = idf_val * tf_val;
+            breakdown.push((term, idf_val, tf_val, score));
+        }
+        Ok(breakdown)
+    }
+
+    #[pyo3(signature = (query, n=5, proximity_window=3, phrase_boost=2.0))]
+    pub fn get_top_n_phrase(&self, query: &str, n: usize, proximity_window: usize, phrase_boost: f64) -> Vec<(String, f64)> {
+        let bm25_scores = self.get_scores(query);
+        let q_terms = tokenise(query, self.normalize);
+        let mut scored: Vec<(usize, f64)> = bm25_scores.into_iter().enumerate()
+            .filter(|(_, s)| *s > 0.0)
+            .map(|(i, bm25)| {
+                let boost = phrase_proximity_boost(&q_terms, &self.positions[i], proximity_window);
+                let final_score = bm25 * (1.0 + (phrase_boost - 1.0) * boost);
+                (i, final_score)
+            }).collect();
+        scored.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        scored.truncate(n);
+        scored.into_iter().map(|(i, s)| (self.corpus[i].clone(), s)).collect()
     }
 }
 

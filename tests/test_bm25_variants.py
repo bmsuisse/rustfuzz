@@ -128,4 +128,3 @@ def test_variant_fuzzy_only(cls, kwargs):
     assert len(results) == 2
     # All results should have scores > 0
     assert all(score > 0 for _, score in results)
-
