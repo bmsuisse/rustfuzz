@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rustfuzz"
-version = "0.1.8"
+version = "0.1.9"
 requires-python = ">= 3.10"
 authors = [
   {name = "BM Suisse", email = "info@bmsuisse.com"},
@@ -82,7 +82,7 @@ features = ["pyo3/extension-module"]
 
 [tool.basedpyright]
 include = ["rustfuzz"]
-exclude = ["rustfuzz/spark.py", ".venv", "tests", "examples", "docs", "examples_*.py", "bench_*.py"]
+exclude = ["rustfuzz/spark.py", "rustfuzz/compat.py", ".venv", "tests", "examples", "docs", "examples_*.py", "bench_*.py"]
 pythonVersion = "3.10"
 reportAny = "none"
 reportExplicitAny = "none"

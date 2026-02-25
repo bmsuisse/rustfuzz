@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://badge.fury.io/py/rustfuzz"><img src="https://badge.fury.io/py/rustfuzz.svg" alt="PyPI version"/></a>
   <a href="https://bmsuisse.github.io/rustfuzz/"><img src="https://img.shields.io/badge/docs-online-a855f7" alt="Docs"/></a>
-  <a href="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml"><img src="https://github.com/bmsuisse/rustfuzz/actions/workflows/test.yml/badge.svg" alt="Tests"/></a>
+  <a href="https://github.com/bmsuisse/rustfuzz/actions/workflows/ci.yml"><img src="https://github.com/bmsuisse/rustfuzz/actions/workflows/ci.yml/badge.svg" alt="Tests"/></a>
   <img src="https://img.shields.io/badge/License-MIT-22c55e.svg" alt="MIT License"/>
   <img src="https://img.shields.io/badge/Rust-powered-a855f7?logo=rust" alt="Rust powered"/>
   <img src="https://img.shields.io/badge/Built%20by-AI-6366f1?logo=google" alt="Built by AI"/>
