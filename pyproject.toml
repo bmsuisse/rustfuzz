@@ -41,8 +41,10 @@ dev = [
   "langchain-core>=0.1.0",
 ]
 docs = [
-  "zensical",
+  "mkdocs",
+  "mkdocs-material",
   "mkdocs-jupyter",
+  "pymdown-extensions",
   "jupyter",
   "plotly",
   "pandas",
