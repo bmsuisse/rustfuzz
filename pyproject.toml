@@ -88,6 +88,7 @@ reportAny = "none"
 reportExplicitAny = "none"
 reportImplicitOverride = "none"
 reportUnusedImport = "none"
+reportMissingTypeStubs = "none"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
