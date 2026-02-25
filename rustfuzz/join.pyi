@@ -22,7 +22,7 @@ class MultiJoiner:
     def add_array(
         self,
         name: str,
-        texts: list[str | None] | None = None,
+        texts: list[str | None] | Any | None = None,
         sparse: list[dict[int, float] | None] | None = None,
         dense: list[list[float] | None] | None = None,
     ) -> MultiJoiner: ...

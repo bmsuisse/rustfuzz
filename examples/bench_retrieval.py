@@ -96,12 +96,14 @@ def evaluate_ndcg_at_10(qrels: Dict[str, Dict[str, int]], runs: Dict[str, List[s
             
     return sum(ndcg_list) / len(ndcg_list) if ndcg_list else 0.0
 
-def benchmark_variant(variant_class, name, corpus_docs, doc_text_to_id, queries, qrels):
+def benchmark_variant(variant_class, name, corpus_docs, doc_text_to_id, queries, qrels, kwargs=None):
+    if kwargs is None:
+        kwargs = {}
     print(f"\\nEvaluating {name}...")
     
     # Indexing
     t0 = time.perf_counter()
-    index = variant_class(corpus_docs)
+    index = variant_class(corpus_docs, **kwargs)
     indexing_time = (time.perf_counter() - t0) * 1000  # ms
     
     # Retrieval
@@ -140,15 +142,17 @@ def main():
     print(f"Loaded {len(corpus_docs)} docs, {len(queries)} queries, {len(qrels)} qrels")
     
     variants = [
-        (BM25, "BM25Okapi"),
-        (BM25L, "BM25L"),
-        (BM25Plus, "BM25+"),
-        (BM25T, "BM25T")
+        (BM25, "BM25Okapi", {}),
+        (BM25, "BM25Okapi (Normalized)", {"normalize": True}),
+        (BM25L, "BM25L", {}),
+        (BM25Plus, "BM25+", {}),
+        (BM25Plus, "BM25+ (Normalized)", {"normalize": True}),
+        (BM25T, "BM25T", {})
     ]
     
     results = {}
-    for variant_class, name in variants:
-        latency, ndcg = benchmark_variant(variant_class, name, corpus_docs, doc_text_to_id, queries, qrels)
+    for variant_class, name, kwargs in variants:
+        latency, ndcg = benchmark_variant(variant_class, name, corpus_docs, doc_text_to_id, queries, qrels, kwargs)
         results[name] = {"latency": latency, "ndcg": ndcg}
         
     # Plotting
@@ -157,7 +161,7 @@ def main():
     ndcgs = [results[name]["ndcg"] for name in names]
     
     plt.figure(figsize=(10, 6))
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     
     for i in range(len(names)):
         plt.scatter(latencies[i], ndcgs[i], s=150, c=colors[i], label=names[i], alpha=0.8)

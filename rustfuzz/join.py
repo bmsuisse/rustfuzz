@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from typing import Any, Literal
 
 from . import _rustfuzz
+from .compat import _coerce_to_strings
 
 _HOW = Literal["full", "inner"]
 
@@ -72,14 +73,14 @@ class MultiJoiner:
     def add_array(
         self,
         name: str,
-        texts: Iterable[str | None] | None = None,
+        texts: Iterable[str | None] | Any | None = None,
         sparse: Iterable[dict[int, float] | None] | None = None,
         dense: Iterable[list[float] | None] | None = None,
     ) -> MultiJoiner:
         """Register a named array (chainable). At least one channel required."""
         self._inner.add_array(
             name,
-            list(texts) if texts is not None else None,
+            _coerce_to_strings(texts) if texts is not None else None,
             list(sparse) if sparse is not None else None,  # type: ignore[arg-type]
             list(dense) if dense is not None else None,
         )
