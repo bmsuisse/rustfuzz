@@ -1,18 +1,31 @@
-"""Type stubs for rustfuzz.search module."""
-
 from collections.abc import Iterable
 from typing import Any
 
-class BM25:
-    """BM25Okapi full-text search index."""
+_Result = tuple[str, float]
+_MetaResult = tuple[str, float, Any]
 
+class BM25:
     def __init__(
-        self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75
+        self,
+        corpus: Iterable[str] | Any,
+        k1: float = 1.5,
+        b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
     ) -> None: ...
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]: ...
     def get_top_n_fuzzy(
         self,
@@ -20,64 +33,160 @@ class BM25:
         n: int = 5,
         bm25_candidates: int = 50,
         fuzzy_weight: float = 0.3,
-    ) -> list[tuple[str, float]]: ...
+    ) -> list[_Result] | list[_MetaResult]: ...
     def get_top_n_rrf(
-        self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
-    ) -> list[tuple[str, float]]: ...
-    def fuzzy_only(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 100,
+        rrf_k: int = 60,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
 
 class BM25L:
-    """BM25L full-text search index."""
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         k1: float = 1.5,
         b: float = 0.75,
         delta: float = 0.5,
+        metadata: Iterable[Any] | None = None,
     ) -> None: ...
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25L: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]: ...
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_top_n_rrf(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 100,
+        rrf_k: int = 60,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
 
 class BM25Plus:
-    """BM25+ (BM25Plus) full-text search index."""
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         k1: float = 1.5,
         b: float = 0.75,
         delta: float = 1.0,
+        metadata: Iterable[Any] | None = None,
     ) -> None: ...
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25Plus: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]: ...
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_top_n_rrf(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 100,
+        rrf_k: int = 60,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
 
 class BM25T:
-    """BM25T full-text search index."""
     def __init__(
-        self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75
+        self,
+        corpus: Iterable[str] | Any,
+        k1: float = 1.5,
+        b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
     ) -> None: ...
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25T: ...
     @property
     def num_docs(self) -> int: ...
     def get_scores(self, query: str) -> list[float]: ...
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]: ...
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]: ...
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def get_top_n_rrf(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 100,
+        rrf_k: int = 60,
+    ) -> list[_Result] | list[_MetaResult]: ...
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]: ...
 
 class HybridSearch:
-    """Tier-3 Semantic Hybrid Search framework combining BM25 with vector search via RRF."""
-
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         embeddings: Any = None,
         k1: float = 1.5,
         b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
     ) -> None: ...
     @property
     def has_vectors(self) -> bool: ...
     def search(
-        self, query: str, query_embedding: Any = None, n: int = 5, rrf_k: int = 60
-    ) -> list[tuple[str, float]]: ...
+        self,
+        query: str,
+        query_embedding: Any = None,
+        n: int = 5,
+        rrf_k: int = 60,
+    ) -> list[_Result] | list[_MetaResult]: ...
 
 __all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "HybridSearch"]

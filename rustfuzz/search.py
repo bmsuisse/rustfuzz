@@ -12,6 +12,50 @@ from collections.abc import Iterable
 from typing import Any
 
 from . import _rustfuzz
+from .compat import _coerce_to_strings, _extract_column, _extract_metadata
+
+# Type aliases for result tuples
+_Result = tuple[str, float]
+_MetaResult = tuple[str, float, Any]
+
+
+def _enrich(
+    results: list[_Result],
+    corpus: list[str],
+    metadata: list[Any] | None,
+    corpus_index: dict[str, int] | None,
+) -> list[_Result] | list[_MetaResult]:
+    """Attach metadata to result tuples when metadata is available."""
+    if metadata is None or corpus_index is None:
+        return results
+    enriched: list[_MetaResult] = []
+    for text, score in results:
+        idx = corpus_index.get(text)
+        meta = metadata[idx] if idx is not None else None
+        enriched.append((text, score, meta))
+    return enriched
+
+
+def _build_corpus_index(corpus: list[str]) -> dict[str, int]:
+    """Build a reverse lookup from document text → index."""
+    index: dict[str, int] = {}
+    for i, doc in enumerate(corpus):
+        index[doc] = i
+    return index
+
+
+def _validate_metadata(
+    metadata: Iterable[Any] | None, corpus_len: int
+) -> list[Any] | None:
+    """Validate and convert metadata to a list, checking length."""
+    if metadata is None:
+        return None
+    meta_list = list(metadata)
+    if len(meta_list) != corpus_len:
+        raise ValueError(
+            f"metadata length ({len(meta_list)}) must match corpus length ({corpus_len})"
+        )
+    return meta_list
 
 
 class BM25:
@@ -29,17 +73,49 @@ class BM25:
         Term frequency saturation parameter.
     b : float, default 0.75
         Length normalisation factor.
+    metadata : Iterable[Any] | None, default None
+        Optional per-document metadata. When provided, search results become
+        ``(text, score, metadata)`` triples instead of ``(text, score)`` pairs.
     """
 
-    def __init__(self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75):
-        corpus_list = list(corpus)
-        # Type assertion for safety
-        if corpus_list and not isinstance(corpus_list[0], str):
-            raise TypeError("corpus must be an iterable of strings")
+    def __init__(
+        self,
+        corpus: Iterable[str] | Any,
+        k1: float = 1.5,
+        b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
+    ):
+        corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
+        self._metadata = _validate_metadata(metadata, len(corpus_list))
+        self._corpus_index: dict[str, int] | None = (
+            _build_corpus_index(corpus_list) if self._metadata is not None else None
+        )
         self._index = _rustfuzz.BM25Index(corpus_list, k1, b)
+
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25:
+        """Build a BM25 index from a DataFrame column (Spark, Polars, Pandas).
+
+        Parameters
+        ----------
+        df : DataFrame
+            Source DataFrame.
+        column : str
+            Name of the text column to index.
+        metadata_columns : list[str] | str | None, default None
+            Column(s) to extract as per-row metadata dicts.
+        """
+        meta = _extract_metadata(df, metadata_columns) if metadata_columns else None
+        return cls(_extract_column(df, column), metadata=meta, **kwargs)
 
     @property
     def num_docs(self) -> int:
@@ -53,12 +129,19 @@ class BM25:
         """
         return self._index.get_scores(query)
 
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]:
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
         """
         Return the top N matching documents and their BM25 scores.
         Only documents with score > 0.0 are returned (up to n).
         """
-        return self._index.get_top_n(query, n)
+        return _enrich(
+            self._index.get_top_n(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
 
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
         """
@@ -73,7 +156,7 @@ class BM25:
         n: int = 5,
         bm25_candidates: int = 50,
         fuzzy_weight: float = 0.3,
-    ) -> list[tuple[str, float]]:
+    ) -> list[_Result] | list[_MetaResult]:
         """
         Hybrid search combining BM25 Okapi with Levenshtein-based fuzzy matching.
 
@@ -91,24 +174,34 @@ class BM25:
         fuzzy_weight : float, default 0.3
             Weight applied to the Levenshtein fuzzy string similarity ratio [0.0 - 1.0].
         """
-        return self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight)
+        return _enrich(
+            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
 
     def get_top_n_rrf(
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
-    ) -> list[tuple[str, float]]:
+    ) -> list[_Result] | list[_MetaResult]:
         """
         Hybrid search combining BM25 and Levenshtein distance through Reciprocal Rank Fusion (RRF).
 
         This is generally more robust than `get_top_n_fuzzy` because it uses RRF,
         shielding the combined metric from score-scale variances.
         """
-        return self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
+        return _enrich(
+            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
 
     def fuzzy_only(
         self,
         query: str,
         n: int = 5,
-    ) -> list[tuple[str, float]]:
+    ) -> list[_Result] | list[_MetaResult]:
         """
         Pure fuzzy string ranking over the indexed corpus (no BM25 scores).
 
@@ -121,10 +214,17 @@ class BM25:
         n : int, default 5
             Number of documents to return.
         """
-        return self._index.fuzzy_only(query, n)
+        return _enrich(
+            self._index.fuzzy_only(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
 
-    def __reduce__(self) -> tuple[type, tuple[list[str], float, float]]:
-        return (BM25, (self._corpus, self._k1, self._b))
+    def __reduce__(
+        self,
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None]]:
+        return (BM25, (self._corpus, self._k1, self._b, self._metadata))
 
 
 class BM25L:
@@ -132,19 +232,34 @@ class BM25L:
 
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         k1: float = 1.5,
         b: float = 0.75,
         delta: float = 0.5,
+        metadata: Iterable[Any] | None = None,
     ):
-        corpus_list = list(corpus)
-        if corpus_list and not isinstance(corpus_list[0], str):
-            raise TypeError("corpus must be an iterable of strings")
+        corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._delta = delta
+        self._metadata = _validate_metadata(metadata, len(corpus_list))
+        self._corpus_index: dict[str, int] | None = (
+            _build_corpus_index(corpus_list) if self._metadata is not None else None
+        )
         self._index = _rustfuzz.BM25L(corpus_list, k1, b, delta)
+
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25L:
+        """Build a BM25L index from a DataFrame column (Spark, Polars, Pandas)."""
+        meta = _extract_metadata(df, metadata_columns) if metadata_columns else None
+        return cls(_extract_column(df, column), metadata=meta, **kwargs)
 
     @property
     def num_docs(self) -> int:
@@ -153,8 +268,60 @@ class BM25L:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]:
-        return self._index.get_top_n(query, n)
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
+        return self._index.get_batch_scores(list(queries))
+
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_top_n_rrf(
+        self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.fuzzy_only(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def __reduce__(
+        self,
+    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None]]:
+        return (
+            BM25L,
+            (self._corpus, self._k1, self._b, self._delta, self._metadata),
+        )
 
 
 class BM25Plus:
@@ -162,19 +329,34 @@ class BM25Plus:
 
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         k1: float = 1.5,
         b: float = 0.75,
         delta: float = 1.0,
+        metadata: Iterable[Any] | None = None,
     ):
-        corpus_list = list(corpus)
-        if corpus_list and not isinstance(corpus_list[0], str):
-            raise TypeError("corpus must be an iterable of strings")
+        corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._delta = delta
+        self._metadata = _validate_metadata(metadata, len(corpus_list))
+        self._corpus_index: dict[str, int] | None = (
+            _build_corpus_index(corpus_list) if self._metadata is not None else None
+        )
         self._index = _rustfuzz.BM25Plus(corpus_list, k1, b, delta)
+
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25Plus:
+        """Build a BM25Plus index from a DataFrame column (Spark, Polars, Pandas)."""
+        meta = _extract_metadata(df, metadata_columns) if metadata_columns else None
+        return cls(_extract_column(df, column), metadata=meta, **kwargs)
 
     @property
     def num_docs(self) -> int:
@@ -183,21 +365,93 @@ class BM25Plus:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]:
-        return self._index.get_top_n(query, n)
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
+        return self._index.get_batch_scores(list(queries))
+
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_top_n_rrf(
+        self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.fuzzy_only(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def __reduce__(
+        self,
+    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None]]:
+        return (
+            BM25Plus,
+            (self._corpus, self._k1, self._b, self._delta, self._metadata),
+        )
 
 
 class BM25T:
     """BM25T full-text search index."""
 
-    def __init__(self, corpus: Iterable[str], k1: float = 1.5, b: float = 0.75):
-        corpus_list = list(corpus)
-        if corpus_list and not isinstance(corpus_list[0], str):
-            raise TypeError("corpus must be an iterable of strings")
+    def __init__(
+        self,
+        corpus: Iterable[str] | Any,
+        k1: float = 1.5,
+        b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
+    ):
+        corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
+        self._metadata = _validate_metadata(metadata, len(corpus_list))
+        self._corpus_index: dict[str, int] | None = (
+            _build_corpus_index(corpus_list) if self._metadata is not None else None
+        )
         self._index = _rustfuzz.BM25T(corpus_list, k1, b)
+
+    @classmethod
+    def from_column(
+        cls,
+        df: Any,
+        column: str,
+        metadata_columns: list[str] | str | None = None,
+        **kwargs: Any,
+    ) -> BM25T:
+        """Build a BM25T index from a DataFrame column (Spark, Polars, Pandas)."""
+        meta = _extract_metadata(df, metadata_columns) if metadata_columns else None
+        return cls(_extract_column(df, column), metadata=meta, **kwargs)
 
     @property
     def num_docs(self) -> int:
@@ -206,8 +460,57 @@ class BM25T:
     def get_scores(self, query: str) -> list[float]:
         return self._index.get_scores(query)
 
-    def get_top_n(self, query: str, n: int = 5) -> list[tuple[str, float]]:
-        return self._index.get_top_n(query, n)
+    def get_top_n(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
+        return self._index.get_batch_scores(list(queries))
+
+    def get_top_n_fuzzy(
+        self,
+        query: str,
+        n: int = 5,
+        bm25_candidates: int = 50,
+        fuzzy_weight: float = 0.3,
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def get_top_n_rrf(
+        self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def fuzzy_only(
+        self, query: str, n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        return _enrich(
+            self._index.fuzzy_only(query, n),
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
+
+    def __reduce__(
+        self,
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None]]:
+        return (BM25T, (self._corpus, self._k1, self._b, self._metadata))
 
 
 class HybridSearch:
@@ -229,19 +532,28 @@ class HybridSearch:
         BM25 parameter
     b : float, default 0.75
         BM25 parameter
+    metadata : Iterable[Any] | None, default None
+        Optional per-document metadata returned alongside results.
     """
 
     def __init__(
         self,
-        corpus: Iterable[str],
+        corpus: Iterable[str] | Any,
         embeddings: Any = None,
         k1: float = 1.5,
         b: float = 0.75,
+        metadata: Iterable[Any] | None = None,
     ):
-        self._corpus = list(corpus)
+        self._corpus = _coerce_to_strings(corpus)
         self._bm25 = BM25(self._corpus, k1=k1, b=b)
         self._k1 = k1
         self._b = b
+        self._metadata = _validate_metadata(metadata, len(self._corpus))
+        self._corpus_index: dict[str, int] | None = (
+            _build_corpus_index(self._corpus)
+            if self._metadata is not None
+            else None
+        )
         self._embeddings: list[list[float]] | None = None
 
         if embeddings is not None:
@@ -270,7 +582,7 @@ class HybridSearch:
 
     def search(
         self, query: str, query_embedding: Any = None, n: int = 5, rrf_k: int = 60
-    ) -> list[tuple[str, float]]:
+    ) -> list[_Result] | list[_MetaResult]:
         """
         Run hybrid search fusing BM25 text relevance and cosine semantic similarity.
 
@@ -291,7 +603,13 @@ class HybridSearch:
         """
         if query_embedding is None or not self.has_vectors:
             # Fallback to BM25 + fuzzy string RRF
-            return self._bm25.get_top_n_rrf(query, n=n, rrf_k=rrf_k)
+            results = self._bm25.get_top_n_rrf(query, n=n, rrf_k=rrf_k)
+            return _enrich(
+                results,  # type: ignore[arg-type]
+                self._corpus,
+                self._metadata,
+                self._corpus_index,
+            )
 
         if hasattr(query_embedding, "tolist"):
             query_embedding = query_embedding.tolist()
@@ -322,12 +640,30 @@ class HybridSearch:
             rrf_scores[doc_idx] += 1.0 / (rrf_k + rank + 1)
 
         # Assemble and sort final
-        final_results = [(self._corpus[i], score) for i, score in enumerate(rrf_scores)]
+        final_results: list[_Result] = [
+            (self._corpus[i], score) for i, score in enumerate(rrf_scores)
+        ]
         final_results.sort(key=lambda x: x[1], reverse=True)
-        return final_results[:n]
+        return _enrich(
+            final_results[:n],
+            self._corpus,
+            self._metadata,
+            self._corpus_index,
+        )
 
-    def __reduce__(self) -> tuple[type, tuple[list[str], Any, float, float]]:
-        return (HybridSearch, (self._corpus, self._embeddings, self._k1, self._b))
+    def __reduce__(
+        self,
+    ) -> tuple[type, tuple[list[str], Any, float, float, list[Any] | None]]:
+        return (
+            HybridSearch,
+            (
+                self._corpus,
+                self._embeddings,
+                self._k1,
+                self._b,
+                self._metadata,
+            ),
+        )
 
 
 __all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "HybridSearch"]
