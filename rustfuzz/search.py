@@ -76,6 +76,8 @@ class BM25:
     metadata : Iterable[Any] | None, default None
         Optional per-document metadata. When provided, search results become
         ``(text, score, metadata)`` triples instead of ``(text, score)`` pairs.
+    normalize : bool, default False
+        Whether to normalize the BM25 scores.
     """
 
     def __init__(
@@ -84,16 +86,18 @@ class BM25:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
+        normalize: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
+        self._normalize = normalize
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
         )
-        self._index = _rustfuzz.BM25Index(corpus_list, k1, b)
+        self._index = _rustfuzz.BM25Index(corpus_list, k1, b, normalize)
 
     @classmethod
     def from_column(
@@ -221,8 +225,11 @@ class BM25:
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None]]:
-        return (BM25, (self._corpus, self._k1, self._b, self._metadata))
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
+        return (
+            BM25,
+            (self._corpus, self._k1, self._b, self._metadata, self._normalize),
+        )
 
 
 class BM25L:
@@ -235,17 +242,19 @@ class BM25L:
         b: float = 0.75,
         delta: float = 0.5,
         metadata: Iterable[Any] | None = None,
+        normalize: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._delta = delta
+        self._normalize = normalize
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
         )
-        self._index = _rustfuzz.BM25L(corpus_list, k1, b, delta)
+        self._index = _rustfuzz.BM25L(corpus_list, k1, b, delta, normalize)
 
     @classmethod
     def from_column(
@@ -311,10 +320,17 @@ class BM25L:
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None]]:
+    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
         return (
             BM25L,
-            (self._corpus, self._k1, self._b, self._delta, self._metadata),
+            (
+                self._corpus,
+                self._k1,
+                self._b,
+                self._delta,
+                self._metadata,
+                self._normalize,
+            ),
         )
 
 
@@ -328,17 +344,19 @@ class BM25Plus:
         b: float = 0.75,
         delta: float = 1.0,
         metadata: Iterable[Any] | None = None,
+        normalize: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._delta = delta
+        self._normalize = normalize
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
         )
-        self._index = _rustfuzz.BM25Plus(corpus_list, k1, b, delta)
+        self._index = _rustfuzz.BM25Plus(corpus_list, k1, b, delta, normalize)
 
     @classmethod
     def from_column(
@@ -404,10 +422,17 @@ class BM25Plus:
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None]]:
+    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
         return (
             BM25Plus,
-            (self._corpus, self._k1, self._b, self._delta, self._metadata),
+            (
+                self._corpus,
+                self._k1,
+                self._b,
+                self._delta,
+                self._metadata,
+                self._normalize,
+            ),
         )
 
 
@@ -420,16 +445,18 @@ class BM25T:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
+        normalize: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
+        self._normalize = normalize
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
         )
-        self._index = _rustfuzz.BM25T(corpus_list, k1, b)
+        self._index = _rustfuzz.BM25T(corpus_list, k1, b, normalize)
 
     @classmethod
     def from_column(
@@ -495,8 +522,11 @@ class BM25T:
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None]]:
-        return (BM25T, (self._corpus, self._k1, self._b, self._metadata))
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
+        return (
+            BM25T,
+            (self._corpus, self._k1, self._b, self._metadata, self._normalize),
+        )
 
 
 class HybridSearch:
