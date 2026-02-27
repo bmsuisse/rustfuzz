@@ -114,5 +114,9 @@ process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
 | [Introduction](cookbook/01_introduction.ipynb) | Get started — basic matching and terminology |
 | [Advanced Matching](cookbook/02_advanced_matching.ipynb) | Partial ratios, token sorts, score cutoffs |
 | [Benchmarks](cookbook/03_benchmarks.ipynb) | Head-to-head speed comparisons vs RapidFuzz |
+| [Vector DB Hybrid Search](cookbook/04_hybrid_search.md) | BM25 + dense embeddings with Qdrant, LanceDB, FAISS & more |
+| [LangChain Integration](cookbook/05_langchain.md) | Use rustfuzz as a LangChain Retriever |
+| [Real-World Examples](cookbook/06_real_world.md) | Entity resolution, deduplication & production patterns |
+| [Fuzzy Full Join](cookbook/07_fuzzy_join.md) | Multi-array fuzzy joins with MultiJoiner & RRF fusion |
 
 Start exploring from the navigation menu on the left!
