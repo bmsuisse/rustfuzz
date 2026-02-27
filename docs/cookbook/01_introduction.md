@@ -1,0 +1,160 @@
+# Introduction to rustfuzz
+
+`rustfuzz` is a blazing-fast fuzzy string matching library for Python — implemented entirely in **Rust** via PyO3.
+
+This notebook covers the core building blocks:
+
+- `fuzz.ratio` — character-level similarity
+- `fuzz.partial_ratio` — substring matching
+- `fuzz.token_*` — word-order insensitive matching
+- `utils.default_process` — string normalisation
+- `process.extract` / `process.extractOne` — batch matching
+
+
+```python
+import rustfuzz.fuzz as fuzz
+import rustfuzz.utils as utils
+from rustfuzz import process
+
+print("rustfuzz ready ✅")
+```
+
+## 1. `fuzz.ratio` — Character-level similarity
+
+Returns a score from `0.0` to `100.0` based on the **Indel** (insert/delete) distance between two strings.
+Identical strings → 100.0. Completely different → 0.0.
+
+
+```python
+pairs = [
+    ("hello world", "hello world"),  # identical
+    ("hello world", "hello wrold"),  # one transposition
+    ("hello world", "hello"),  # truncated
+    ("New York", "New York City"),  # prefix
+    ("kitten", "sitting"),  # classic Levenshtein example
+    ("apple", "mango"),  # unrelated
+]
+
+for a, b in pairs:
+    print(f"{a!r:25} vs {b!r:25}  → ratio = {fuzz.ratio(a, b):.1f}")
+```
+
+## 2. `fuzz.partial_ratio` — Substring matching
+
+Finds the **best matching window** of the shorter string inside the longer one.
+Ideal when the needle is fully contained in the haystack.
+
+
+```python
+needle = "New York"
+haystacks = [
+    "I live in New York City",
+    "New York is great",
+    "nyc",
+    "Los Angeles",
+]
+
+for h in haystacks:
+    r = fuzz.ratio(needle, h)
+    pr = fuzz.partial_ratio(needle, h)
+    print(f"{h!r:30}  ratio={r:5.1f}  partial_ratio={pr:5.1f}")
+```
+
+## 3. Token ratios — Word-order insensitive matching
+
+| Function | What it does |
+|---|---|
+| `token_sort_ratio` | Sorts tokens alphabetically, then computes `ratio` |
+| `token_set_ratio` | Compares the intersection and remainder sets of tokens |
+| `token_ratio` | `max(token_sort_ratio, token_set_ratio)` |
+
+Use these when word order shouldn't matter (e.g. address matching, name deduplication).
+
+
+```python
+a = "fuzzy wuzzy was a bear"
+b = "wuzzy fuzzy was a bear"
+
+print(f"ratio              = {fuzz.ratio(a, b):.1f}")
+print(f"token_sort_ratio   = {fuzz.token_sort_ratio(a, b):.1f}")
+print(f"token_set_ratio    = {fuzz.token_set_ratio(a, b):.1f}")
+print(f"token_ratio        = {fuzz.token_ratio(a, b):.1f}")
+
+print()
+
+# Subset: token_set_ratio handles extra tokens gracefully
+c = "fuzzy fuzzy was a bear"
+print(f"token_set_ratio (with duplicate token): {fuzz.token_set_ratio(a, c):.1f}")
+```
+
+## 4. `utils.default_process` — Normalisation
+
+Lowercases the string and replaces non-alphanumeric characters with spaces.
+Pass it as the `processor` argument to any scorer for more robust matching.
+
+
+```python
+raw_strings = [
+    "  Hello, World!  ",
+    "RustFuzz — BLAZING FAST!",
+    "New York, NY 10001",
+    None,
+]
+
+for s in raw_strings:
+    print(f"{str(s)!r:35} → {utils.default_process(s)!r}")
+
+print()
+# Using processor in ratio call
+score_raw = fuzz.ratio("New York, NY", "new york ny")
+score_proc = fuzz.ratio(
+    utils.default_process("New York, NY"), utils.default_process("new york ny")
+)
+print(f"Without processing: {score_raw:.1f}")
+print(f"With processing:    {score_proc:.1f}")
+```
+
+## 5. `process.extract` / `process.extractOne` — Batch matching
+
+Match a query against a list of choices and get the top results.
+Each result is a `(choice, score, index)` tuple.
+
+
+```python
+cities = [
+    "New York",
+    "New Orleans",
+    "Newark",
+    "Los Angeles",
+    "San Francisco",
+    "Nashville",
+    "Boston",
+    "Denver",
+    "Miami",
+]
+
+query = "new york"
+
+print("Top 3 matches:")
+for choice, score, idx in process.extract(query, cities, limit=3):
+    print(f"  {choice:20} score={score:5.1f}  (index {idx})")
+
+print()
+best = process.extractOne(query, cities)
+print(f"Best match: {best}")
+```
+
+## 6. Score cutoffs
+
+All scorers accept a `score_cutoff` parameter. Results below the threshold are returned as `0.0` (or excluded from `process.extract`).
+
+
+```python
+# Only keep matches with score >= 80
+results = process.extract("berlin", cities, score_cutoff=80.0)
+print(f"Matches >= 80 for 'berlin': {results}")
+
+# Cutoff in raw scorer
+s = fuzz.ratio("hello", "world", score_cutoff=90.0)
+print(f"ratio('hello','world', cutoff=90) = {s}  (below cutoff → 0.0)")
+```

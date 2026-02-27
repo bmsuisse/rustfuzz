@@ -220,7 +220,7 @@ jobs:
         run: uv sync --group docs
 
       - name: Build docs
-        run: uv run mkdocs build --clean
+        run: uv run zensical build --clean
 
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -56,8 +56,7 @@ dev = [
   "pyarrow",
 ]
 docs = [
-  "mkdocs",
-  "mkdocs-jupyter",
+  "zensical",
   "jupyter",
   "plotly",
   "pandas",

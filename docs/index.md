@@ -23,10 +23,21 @@ The answer the AI kept coming back to: **Rust + PyO3 + tight Python-boundary des
 
 Every feature and optimisation went through the same cycle:
 
-```
-🔍 Research  →  🦀 Build  →  ✅ Test  →  📊 Benchmark  →  🔁 Repeat
-      ↑                                                        │
-      └────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
+    B["🦀 Build<br>Rust core<br>via PyO3"]
+    T["✅ Test<br>All tests must pass<br>before proceeding"]
+    BM["📊 Benchmark<br>vs RapidFuzz<br>& record results"]
+    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
+
+    R --> B --> T --> BM --> RP --> R
+
+    style R fill:#6366f1,color:#fff,stroke:none
+    style B fill:#a855f7,color:#fff,stroke:none
+    style T fill:#ef4444,color:#fff,stroke:none
+    style BM fill:#22c55e,color:#fff,stroke:none
+    style RP fill:#f59e0b,color:#fff,stroke:none
 ```
 
 Each iteration asked:
@@ -100,9 +111,9 @@ process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
 
 | Recipe | Description |
 |--------|-------------|
-| [Introduction](cookbook/01_introduction.ipynb) | Get started — basic matching and terminology |
-| [Advanced Matching](cookbook/02_advanced_matching.ipynb) | Partial ratios, token sorts, score cutoffs |
-| [Benchmarks](cookbook/03_benchmarks.ipynb) | Head-to-head speed comparisons vs RapidFuzz |
+| [Introduction](cookbook/01_introduction.md) | Get started — basic matching and terminology |
+| [Advanced Matching](cookbook/02_advanced_matching.md) | Partial ratios, token sorts, score cutoffs |
+| [Benchmarks](cookbook/03_benchmarks.md) | Head-to-head speed comparisons vs RapidFuzz |
 | [Vector DB Hybrid Search](cookbook/04_hybrid_search.md) | BM25 + dense embeddings with Qdrant, LanceDB, FAISS & more |
 | [LangChain Integration](cookbook/05_langchain.md) | Use rustfuzz as a LangChain Retriever |
 | [Real-World Examples](cookbook/06_real_world.md) | Entity resolution, deduplication & production patterns |

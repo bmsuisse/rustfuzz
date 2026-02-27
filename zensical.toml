@@ -4,24 +4,29 @@ site_url = "https://bmsuisse.github.io/rustfuzz/"
 repo_url = "https://github.com/bmsuisse/rustfuzz"
 repo_name = "bmsuisse/rustfuzz"
 
+docs_dir = "docs"
+site_dir = "site"
+
 [project.theme]
 name = "material"
 logo = "logo.svg"
 favicon = "logo.svg"
+features = [
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "navigation.tabs",
+    "navigation.indexes",
+    "navigation.top",
+    "search.suggest",
+    "search.highlight",
+    "toc.integrate",
+    "content.code.copy",
+]
 
 [project.theme.palette]
 scheme = "slate"
 primary = "deep purple"
 accent = "green"
-
-[project.theme.features]
-navigation.tabs = true
-navigation.indexes = true
-navigation.top = true
-search.suggest = true
-search.highlight = true
-toc.integrate = true
-content.code.copy = true
 
 [project.extra_css]
 urls = ["stylesheets/extra.css"]
@@ -40,12 +45,8 @@ anchor_linenums = true
 
 [project.markdown_extensions.pymdownx.inlinehilite]
 
-[project.extra_javascript]
-urls = ["https://unpkg.com/mermaid@10/dist/mermaid.min.js"]
-
 [project.plugins]
 search = {}
-mkdocs-jupyter = {}
 
 [project.nav]
 Home = "index.md"
@@ -55,9 +56,9 @@ Home = "index.md"
 "Developer & Contributor Guide" = "developer_guide.md"
 
 [project.nav.Cookbook]
-Introduction = "cookbook/01_introduction.ipynb"
-"Advanced Matching" = "cookbook/02_advanced_matching.ipynb"
-Benchmarks = "cookbook/03_benchmarks.ipynb"
+Introduction = "cookbook/01_introduction.md"
+"Advanced Matching" = "cookbook/02_advanced_matching.md"
+Benchmarks = "cookbook/03_benchmarks.md"
 "Vector DB Hybrid Search" = "cookbook/04_hybrid_search.md"
 "LangChain Integration" = "cookbook/05_langchain.md"
 "Real-World Examples" = "cookbook/06_real_world.md"
