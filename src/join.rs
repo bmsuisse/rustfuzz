@@ -568,18 +568,17 @@ impl MultiJoiner {
                                         }
                                     }
                                 }).unwrap_or(0.0);
+                                ws.text_raw[j] = sim;
                                 fuzzy_ranked.push((j, sim));
                             }
                             fuzzy_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
                             
                             for (rank, &(j, _)) in bm25_ranked.iter().enumerate() {
                                 ws.text_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
-                                ws.text_raw[j] = ws.text_rrf[j];
                                 ws.mark_seen(j);
                             }
                             for (rank, &(j, _)) in fuzzy_ranked.iter().enumerate() {
                                 ws.text_rrf[j] += 1.0 / (rrf_k + rank + 1) as f64;
-                                ws.text_raw[j] = ws.text_rrf[j];
                             }
                         }
                     }
@@ -652,15 +651,28 @@ impl MultiJoiner {
                     if dense_active { total_weight += self.dense_weight; }
                     total_weight = total_weight.max(1e-10);
 
+                    // When only a single channel is active, use the raw
+                    // similarity score directly instead of RRF rank scores.
+                    // RRF is only meaningful when fusing ≥ 2 independent
+                    // rankings; for a single ranking it collapses to a
+                    // monotonic 1/(k+rank) mapping that obscures quality.
+                    let n_active = text_active as u8 + sparse_active as u8 + dense_active as u8;
+                    let use_raw = n_active == 1;
+
                     let mut candidates = Vec::with_capacity(ws.touched.len());
                     for &j32 in &ws.touched {
                         let j = j32 as usize;
-                        let mut sum_rrf = 0.0;
-                        if text_active { sum_rrf += ws.text_rrf[j] * self.text_weight; }
-                        if sparse_active { sum_rrf += ws.sparse_rrf[j] * self.sparse_weight; }
-                        if dense_active { sum_rrf += ws.dense_rrf[j] * self.dense_weight; }
-                        
-                        let s = sum_rrf / total_weight;
+                        let s = if use_raw {
+                            if text_active { ws.text_raw[j] }
+                            else if sparse_active { ws.sparse_raw[j] }
+                            else { ws.dense_raw[j] }
+                        } else {
+                            let mut sum_rrf = 0.0;
+                            if text_active { sum_rrf += ws.text_rrf[j] * self.text_weight; }
+                            if sparse_active { sum_rrf += ws.sparse_rrf[j] * self.sparse_weight; }
+                            if dense_active { sum_rrf += ws.dense_rrf[j] * self.dense_weight; }
+                            sum_rrf / total_weight
+                        };
                         ws.combined[j] = s;
                         
                         if let Some(cutoff) = score_cutoff {
