@@ -23,21 +23,10 @@ The answer the AI kept coming back to: **Rust + PyO3 + tight Python-boundary des
 
 Every feature and optimisation went through the same cycle:
 
-```mermaid
-flowchart LR
-    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
-    B["🦀 Build<br>Rust core<br>via PyO3"]
-    T["✅ Test<br>All tests must pass<br>before proceeding"]
-    BM["📊 Benchmark<br>vs RapidFuzz<br>& record results"]
-    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
-
-    R --> B --> T --> BM --> RP --> R
-
-    style R fill:#6366f1,color:#fff,stroke:none
-    style B fill:#a855f7,color:#fff,stroke:none
-    style T fill:#ef4444,color:#fff,stroke:none
-    style BM fill:#22c55e,color:#fff,stroke:none
-    style RP fill:#f59e0b,color:#fff,stroke:none
+```
+🔍 Research  →  🦀 Build  →  ✅ Test  →  📊 Benchmark  →  🔁 Repeat
+      ↑                                                        │
+      └────────────────────────────────────────────────────────┘
 ```
 
 Each iteration asked:

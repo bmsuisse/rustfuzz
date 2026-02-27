@@ -4,39 +4,25 @@ repo_url: https://github.com/bmsuisse/rustfuzz
 repo_name: bmsuisse/rustfuzz
 
 theme:
-  name: material
+  name: readthedocs
   logo: logo.svg
   favicon: logo.svg
-  palette:
-    - scheme: slate
-      primary: deep purple
-      accent: green
-  features:
-    - navigation.tabs
-    - navigation.indexes
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - toc.integrate
-    - content.code.copy
+  hljs_languages:
+    - python
+    - rust
+    - bash
+    - toml
 
 extra_css:
   - stylesheets/extra.css
 
 markdown_extensions:
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
   - admonition
   - tables
-
-extra_javascript:
-  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+  - codehilite:
+      guess_lang: true
+  - toc:
+      permalink: true
 
 plugins:
   - search

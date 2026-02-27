@@ -57,9 +57,7 @@ dev = [
 ]
 docs = [
   "mkdocs",
-  "mkdocs-material",
   "mkdocs-jupyter",
-  "pymdown-extensions",
   "jupyter",
   "plotly",
   "pandas",
