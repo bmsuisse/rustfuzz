@@ -14,7 +14,7 @@ from ._rustfuzz import (  # noqa: F401
     ScoreAlignment,
 )
 
-__version__: str = "0.1.10"
+__version__: str = "0.1.11"
 __author__: str = "BM Suisse"
 
 __all__ = [
