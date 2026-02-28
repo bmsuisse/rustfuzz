@@ -590,7 +590,7 @@ class TestApplyFilter:
 
     def test_filter_with_faker_data(self) -> None:
         """Filter through Faker-generated products."""
-        results = [(name, 1.0, meta) for name, meta in zip(CORPUS[:50], METADATA[:50])]
+        results = [(name, 1.0, meta) for name, meta in zip(CORPUS[:50], METADATA[:50], strict=True)]
         filtered = apply_filter(results, "price > 1000")
         for _, _, meta in filtered:
             assert meta["price"] > 1000

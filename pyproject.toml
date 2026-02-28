@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rustfuzz"
-version = "0.1.15"
+version = "0.1.16"
 requires-python = ">= 3.10"
 authors = [
   {name = "BM Suisse", email = "info@bmsuisse.com"},
@@ -21,11 +21,7 @@ classifiers=[
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Rust",
 ]
-dependencies = [
-    "matplotlib>=3.10.8",
-    "requests>=2.32.5",
-    "tqdm>=4.67.3",
-]
+dependencies = []
 
 [project.optional-dependencies]
 polars = ["polars"]
@@ -56,6 +52,9 @@ dev = [
   "pandas",
   "pyarrow",
   "faker>=40.5.1",
+  "matplotlib>=3.10.8",
+  "requests>=2.32.5",
+  "tqdm>=4.67.3",
 ]
 docs = [
   "zensical",

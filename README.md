@@ -178,6 +178,49 @@ print(f"{text} — {meta['brand']}")
 # Sony WH-1000XM5 Headphones — Sony
 ```
 
+### With Rust-Native Embeddings (EmbedAnything)
+
+Use [EmbedAnything](https://github.com/StarlightSearch/EmbedAnything) for Rust-native embeddings via Candle — no PyTorch, no ONNX:
+
+```python
+import embed_anything
+from embed_anything import EmbeddingModel
+from rustfuzz.search import Document, HybridSearch
+
+model = EmbeddingModel.from_pretrained_hf(
+    model_id="sentence-transformers/all-MiniLM-L6-v2",
+)
+
+docs = [
+    Document("Apple iPhone 15 Pro Max 256GB", {"brand": "Apple"}),
+    Document("Samsung Galaxy S24 Ultra",      {"brand": "Samsung"}),
+    Document("Sony WH-1000XM5 Headphones",    {"brand": "Sony"}),
+]
+
+# Embed corpus with EmbedAnything
+embed_data = embed_anything.embed_query([d.content for d in docs], embedder=model)
+embeddings = [item.embedding for item in embed_data]
+
+hs = HybridSearch(docs, embeddings=embeddings)
+
+query = "wireless noise cancelling headset"
+query_emb = embed_anything.embed_query([query], embedder=model)[0].embedding
+
+text, score, meta = hs.search(query, query_embedding=query_emb, n=1)[0]
+print(f"{text} — {meta['brand']}")
+# Sony WH-1000XM5 Headphones — Sony
+```
+
+Or use the **callback pattern** for fully automatic query embedding:
+
+```python
+def embed_fn(texts: list[str]) -> list[list[float]]:
+    return [r.embedding for r in embed_anything.embed_query(texts, embedder=model)]
+
+hs = HybridSearch(docs, embeddings=embed_fn)
+results = hs.search("wireless headset", n=1)  # query auto-embedded!
+```
+
 ### Filtering & Sorting (Meilisearch-style)
 
 ```python

@@ -6,6 +6,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyTuple, PyType};
 use rayon::prelude::*;
 use rustc_hash::FxHashMap;
+use serde_json::Value as JsonValue;
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 
@@ -1727,6 +1728,8 @@ pub struct HybridSearchIndex {
     /// BM25 parameters (for pickle)
     k1: f64,
     b: f64,
+    /// Optional per-document metadata stored as serde_json::Value for fast filter evaluation
+    metadata: Option<Vec<JsonValue>>,
 }
 
 #[pymethods]
@@ -1791,6 +1794,7 @@ impl HybridSearchIndex {
             dim,
             k1,
             b,
+            metadata: None,
         })
     }
 
@@ -1965,6 +1969,137 @@ impl HybridSearchIndex {
         Ok(results)
     }
 
+    /// Set per-document metadata as JSON strings for fast Rust-side filter evaluation.
+    ///
+    /// Parameters
+    /// ----------
+    /// json_strings : list[str]
+    ///     JSON-serialized metadata dicts, one per document.
+    pub fn set_metadata_json(&mut self, json_strings: Vec<String>) -> PyResult<()> {
+        if json_strings.len() != self.corpus.len() {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                format!("metadata length ({}) must match corpus length ({})", json_strings.len(), self.corpus.len())
+            ));
+        }
+        let parsed: Result<Vec<JsonValue>, _> = json_strings.iter()
+            .map(|s| serde_json::from_str(s))
+            .collect();
+        match parsed {
+            Ok(vals) => {
+                self.metadata = Some(vals);
+                Ok(())
+            }
+            Err(e) => Err(pyo3::exceptions::PyValueError::new_err(
+                format!("Failed to parse metadata JSON: {}", e)
+            )),
+        }
+    }
+
+    /// Whether the index has Rust-side metadata for fast filtering.
+    #[getter]
+    pub fn has_metadata(&self) -> bool {
+        self.metadata.is_some()
+    }
+
+    /// Evaluate a JSON filter expression against stored metadata and return a boolean mask.
+    ///
+    /// Parameters
+    /// ----------
+    /// filter_json : str
+    ///     JSON-serialized filter expression (see Python-side serialization).
+    ///
+    /// Returns
+    /// -------
+    /// list[bool]
+    ///     Boolean mask, True for documents that pass the filter.
+    pub fn evaluate_filter_mask(&self, filter_json: &str) -> PyResult<Vec<bool>> {
+        let meta = self.metadata.as_ref().ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err("No metadata set. Call set_metadata_json first.")
+        })?;
+
+        let filter_node: FilterAst = serde_json::from_str(filter_json)
+            .map_err(|e| pyo3::exceptions::PyValueError::new_err(
+                format!("Failed to parse filter JSON: {}", e)
+            ))?;
+
+        let mask: Vec<bool> = if meta.len() >= 5000 {
+            meta.par_iter().map(|m| evaluate_filter_ast(&filter_node, m)).collect()
+        } else {
+            meta.iter().map(|m| evaluate_filter_ast(&filter_node, m)).collect()
+        };
+
+        Ok(mask)
+    }
+
+    /// Combined filter + search + sort in a single Rust call.
+    ///
+    /// Parameters
+    /// ----------
+    /// query : str
+    /// query_embedding : list[float] | None
+    /// n : int
+    /// rrf_k : int
+    /// bm25_candidates : int
+    /// filter_json : str | None
+    ///     JSON-serialized filter expression.
+    /// sort_keys : list[(str, bool)] | None
+    ///     List of (attribute_path, reverse) pairs for sorting.
+    #[pyo3(signature = (query, query_embedding=None, n=5, rrf_k=60, bm25_candidates=100, filter_json=None, sort_keys=None))]
+    pub fn search_filtered_sorted(
+        &self,
+        query: &str,
+        query_embedding: Option<Vec<f32>>,
+        n: usize,
+        rrf_k: usize,
+        bm25_candidates: usize,
+        filter_json: Option<String>,
+        sort_keys: Option<Vec<(String, bool)>>,
+    ) -> PyResult<Vec<(String, f64)>> {
+        // Build filter mask if filter provided and metadata available
+        let allowed = match (&filter_json, &self.metadata) {
+            (Some(fj), Some(meta)) => {
+                let filter_node: FilterAst = serde_json::from_str(fj)
+                    .map_err(|e| pyo3::exceptions::PyValueError::new_err(
+                        format!("Failed to parse filter JSON: {}", e)
+                    ))?;
+                let mask: Vec<bool> = if meta.len() >= 5000 {
+                    meta.par_iter().map(|m| evaluate_filter_ast(&filter_node, m)).collect()
+                } else {
+                    meta.iter().map(|m| evaluate_filter_ast(&filter_node, m)).collect()
+                };
+                Some(mask)
+            }
+            _ => None,
+        };
+
+        // Run search_filtered
+        let mut results = self.search_filtered(query, query_embedding, n * 10, rrf_k, bm25_candidates, allowed)?;
+
+        // Apply sort if sort_keys and metadata are available
+        if let (Some(keys), Some(meta)) = (&sort_keys, &self.metadata) {
+            if !keys.is_empty() {
+                results.sort_by(|a, b| {
+                    let idx_a = self.corpus_index.get(&a.0).copied();
+                    let idx_b = self.corpus_index.get(&b.0).copied();
+                    let meta_a = idx_a.and_then(|i| meta.get(i));
+                    let meta_b = idx_b.and_then(|i| meta.get(i));
+                    for (attr, reverse) in keys {
+                        let va = meta_a.map(|m| resolve_json_attr(m, attr)).unwrap_or(None);
+                        let vb = meta_b.map(|m| resolve_json_attr(m, attr)).unwrap_or(None);
+                        let cmp = compare_json_values(&va, &vb, *reverse);
+                        if cmp != std::cmp::Ordering::Equal {
+                            return cmp;
+                        }
+                    }
+                    std::cmp::Ordering::Equal
+                });
+            }
+        }
+
+        results.truncate(n);
+        Ok(results)
+    }
+
     /// Pickle support.
     fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
         let cls = PyType::new::<HybridSearchIndex>(py);
@@ -2056,4 +2191,203 @@ pub fn cosine_similarity_matrix(
     }).collect();
 
     (flat, nq, nc)
+}
+
+// ===========================================================================
+// Meilisearch-compatible filter AST — Rust-side evaluation
+// ===========================================================================
+
+/// JSON-serializable filter AST matching the Python filter.py output.
+#[derive(serde::Deserialize, Debug, Clone)]
+#[serde(tag = "type")]
+enum FilterAst {
+    #[serde(rename = "comparison")]
+    Comparison { attribute: String, op: String, value: JsonValue },
+    #[serde(rename = "range")]
+    Range { attribute: String, low: f64, high: f64 },
+    #[serde(rename = "exists")]
+    Exists { attribute: String },
+    #[serde(rename = "is_null")]
+    IsNull { attribute: String },
+    #[serde(rename = "is_empty")]
+    IsEmpty { attribute: String },
+    #[serde(rename = "in")]
+    In { attribute: String, values: Vec<JsonValue> },
+    #[serde(rename = "contains")]
+    Contains { attribute: String, value: String },
+    #[serde(rename = "starts_with")]
+    StartsWith { attribute: String, value: String },
+    #[serde(rename = "not")]
+    Not { child: Box<FilterAst> },
+    #[serde(rename = "and")]
+    And { left: Box<FilterAst>, right: Box<FilterAst> },
+    #[serde(rename = "or")]
+    Or { left: Box<FilterAst>, right: Box<FilterAst> },
+}
+
+/// Resolve a dot-separated attribute path in a JSON value.
+fn resolve_json_attr<'a>(val: &'a JsonValue, attr: &str) -> Option<&'a JsonValue> {
+    let mut current = val;
+    for part in attr.split('.') {
+        match current {
+            JsonValue::Object(map) => {
+                current = map.get(part)?;
+            }
+            _ => return None,
+        }
+    }
+    Some(current)
+}
+
+/// Compare a JSON value against a filter value using the given operator.
+fn json_compare(a: &JsonValue, b: &JsonValue, op: &str) -> bool {
+    match op {
+        "=" => json_eq(a, b),
+        "!=" => !json_eq(a, b),
+        ">" | ">=" | "<" | "<=" => {
+            if let (Some(fa), Some(fb)) = (json_as_f64(a), json_as_f64(b)) {
+                match op {
+                    ">" => fa > fb,
+                    ">=" => fa >= fb,
+                    "<" => fa < fb,
+                    "<=" => fa <= fb,
+                    _ => false,
+                }
+            } else {
+                false
+            }
+        }
+        _ => false,
+    }
+}
+
+/// Numeric extraction from JSON values.
+#[inline]
+fn json_as_f64(v: &JsonValue) -> Option<f64> {
+    match v {
+        JsonValue::Number(n) => n.as_f64(),
+        _ => None,
+    }
+}
+
+/// Equality check handling booleans, numbers, strings, and null.
+fn json_eq(a: &JsonValue, b: &JsonValue) -> bool {
+    match (a, b) {
+        (JsonValue::Null, JsonValue::Null) => true,
+        (JsonValue::Bool(x), JsonValue::Bool(y)) => x == y,
+        (JsonValue::Number(_), JsonValue::Number(_)) => {
+            json_as_f64(a) == json_as_f64(b)
+        }
+        (JsonValue::String(x), JsonValue::String(y)) => x == y,
+        _ => false,
+    }
+}
+
+/// Evaluate filter AST against a single JSON metadata document.
+fn evaluate_filter_ast(node: &FilterAst, meta: &JsonValue) -> bool {
+    match node {
+        FilterAst::Comparison { attribute, op, value } => {
+            if let Some(actual) = resolve_json_attr(meta, attribute) {
+                // Handle list membership for = and !=
+                if let JsonValue::Array(arr) = actual {
+                    if op == "=" {
+                        return arr.iter().any(|v| json_eq(v, value));
+                    }
+                    if op == "!=" {
+                        return !arr.iter().any(|v| json_eq(v, value));
+                    }
+                }
+                json_compare(actual, value, op)
+            } else {
+                false
+            }
+        }
+        FilterAst::Range { attribute, low, high } => {
+            if let Some(actual) = resolve_json_attr(meta, attribute) {
+                if let Some(v) = json_as_f64(actual) {
+                    *low <= v && v <= *high
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }
+        FilterAst::Exists { attribute } => {
+            resolve_json_attr(meta, attribute).is_some()
+        }
+        FilterAst::IsNull { attribute } => {
+            matches!(resolve_json_attr(meta, attribute), Some(JsonValue::Null))
+        }
+        FilterAst::IsEmpty { attribute } => {
+            match resolve_json_attr(meta, attribute) {
+                Some(JsonValue::String(s)) => s.is_empty(),
+                Some(JsonValue::Array(a)) => a.is_empty(),
+                Some(JsonValue::Object(o)) => o.is_empty(),
+                _ => false,
+            }
+        }
+        FilterAst::In { attribute, values } => {
+            if let Some(actual) = resolve_json_attr(meta, attribute) {
+                // If metadata value is an array, check intersection
+                if let JsonValue::Array(arr) = actual {
+                    return arr.iter().any(|v| values.iter().any(|fv| json_eq(v, fv)));
+                }
+                values.iter().any(|v| json_eq(actual, v))
+            } else {
+                false
+            }
+        }
+        FilterAst::Contains { attribute, value } => {
+            if let Some(JsonValue::String(s)) = resolve_json_attr(meta, attribute) {
+                s.contains(value.as_str())
+            } else {
+                false
+            }
+        }
+        FilterAst::StartsWith { attribute, value } => {
+            if let Some(JsonValue::String(s)) = resolve_json_attr(meta, attribute) {
+                s.starts_with(value.as_str())
+            } else {
+                false
+            }
+        }
+        FilterAst::Not { child } => {
+            !evaluate_filter_ast(child, meta)
+        }
+        FilterAst::And { left, right } => {
+            evaluate_filter_ast(left, meta) && evaluate_filter_ast(right, meta)
+        }
+        FilterAst::Or { left, right } => {
+            evaluate_filter_ast(left, meta) || evaluate_filter_ast(right, meta)
+        }
+    }
+}
+
+/// Compare two optional JSON values for sort ordering.
+/// Missing/null values sort to the end regardless of direction.
+fn compare_json_values(a: &Option<&JsonValue>, b: &Option<&JsonValue>, reverse: bool) -> std::cmp::Ordering {
+    match (a, b) {
+        (None, None) | (Some(JsonValue::Null), Some(JsonValue::Null)) => std::cmp::Ordering::Equal,
+        (None, _) | (Some(JsonValue::Null), _) => std::cmp::Ordering::Greater, // nulls last
+        (_, None) | (_, Some(JsonValue::Null)) => std::cmp::Ordering::Less,
+        (Some(va), Some(vb)) => {
+            // Try numeric comparison first
+            if let (Some(fa), Some(fb)) = (json_as_f64(va), json_as_f64(vb)) {
+                let cmp = fa.partial_cmp(&fb).unwrap_or(std::cmp::Ordering::Equal);
+                return if reverse { cmp.reverse() } else { cmp };
+            }
+            // String comparison
+            if let (JsonValue::String(sa), JsonValue::String(sb)) = (va, vb) {
+                let cmp = sa.to_lowercase().cmp(&sb.to_lowercase());
+                return if reverse { cmp.reverse() } else { cmp };
+            }
+            // Bool comparison
+            if let (JsonValue::Bool(ba), JsonValue::Bool(bb)) = (va, vb) {
+                let cmp = ba.cmp(bb);
+                return if reverse { cmp.reverse() } else { cmp };
+            }
+            std::cmp::Ordering::Equal
+        }
+    }
 }

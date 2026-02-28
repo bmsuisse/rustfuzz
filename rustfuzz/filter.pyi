@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 # AST Node types
 class ComparisonNode:
@@ -43,19 +43,19 @@ class OrNode:
     left: FilterNode
     right: FilterNode
 
-FilterNode = Union[
-    ComparisonNode,
-    RangeNode,
-    ExistsNode,
-    IsNullNode,
-    IsEmptyNode,
-    InNode,
-    ContainsNode,
-    StartsWithNode,
-    NotNode,
-    AndNode,
-    OrNode,
-]
+FilterNode = (
+    ComparisonNode
+    | RangeNode
+    | ExistsNode
+    | IsNullNode
+    | IsEmptyNode
+    | InNode
+    | ContainsNode
+    | StartsWithNode
+    | NotNode
+    | AndNode
+    | OrNode
+)
 
 def parse_filter(expression: str) -> FilterNode: ...
 def evaluate_filter(node: FilterNode, metadata: dict[str, Any]) -> bool: ...

@@ -608,6 +608,117 @@ def apply_filter(
     return filtered
 
 
+# ---------------------------------------------------------------------------
+# JSON serialization — bridge to Rust-side filter evaluator
+# ---------------------------------------------------------------------------
+
+
+def _filter_node_to_dict(node: FilterNode) -> dict[str, Any]:
+    """Convert a filter AST node to a JSON-serializable dict."""
+    if isinstance(node, ComparisonNode):
+        return {
+            "type": "comparison",
+            "attribute": node.attribute,
+            "op": node.op,
+            "value": node.value,
+        }
+    if isinstance(node, RangeNode):
+        return {
+            "type": "range",
+            "attribute": node.attribute,
+            "low": float(node.low),
+            "high": float(node.high),
+        }
+    if isinstance(node, ExistsNode):
+        return {"type": "exists", "attribute": node.attribute}
+    if isinstance(node, IsNullNode):
+        return {"type": "is_null", "attribute": node.attribute}
+    if isinstance(node, IsEmptyNode):
+        return {"type": "is_empty", "attribute": node.attribute}
+    if isinstance(node, InNode):
+        return {
+            "type": "in",
+            "attribute": node.attribute,
+            "values": node.values,
+        }
+    if isinstance(node, ContainsNode):
+        return {
+            "type": "contains",
+            "attribute": node.attribute,
+            "value": node.value,
+        }
+    if isinstance(node, StartsWithNode):
+        return {
+            "type": "starts_with",
+            "attribute": node.attribute,
+            "value": node.value,
+        }
+    if isinstance(node, NotNode):
+        return {"type": "not", "child": _filter_node_to_dict(node.child)}
+    if isinstance(node, AndNode):
+        return {
+            "type": "and",
+            "left": _filter_node_to_dict(node.left),
+            "right": _filter_node_to_dict(node.right),
+        }
+    if isinstance(node, OrNode):
+        return {
+            "type": "or",
+            "left": _filter_node_to_dict(node.left),
+            "right": _filter_node_to_dict(node.right),
+        }
+    raise TypeError(f"Unknown filter node type: {type(node).__name__}")
+
+
+def filter_to_json(node: FilterNode) -> str:
+    """
+    Serialize a parsed filter AST to a JSON string.
+
+    Used to pass filter expressions to the Rust-side evaluator for
+    blazing-fast filter mask computation.
+
+    Parameters
+    ----------
+    node : FilterNode
+        Parsed filter AST (from :func:`parse_filter`).
+
+    Returns
+    -------
+    str
+        JSON string representing the filter AST.
+    """
+    import json
+
+    return json.dumps(_filter_node_to_dict(node))
+
+
+def filters_to_json(nodes: list[FilterNode]) -> str:
+    """
+    Serialize multiple filter ASTs combined with AND to a single JSON string.
+
+    Parameters
+    ----------
+    nodes : list[FilterNode]
+        Parsed filter ASTs to combine.
+
+    Returns
+    -------
+    str
+        JSON string representing the combined filter AST.
+    """
+    import json
+
+    if not nodes:
+        raise ValueError("No filter nodes provided")
+    if len(nodes) == 1:
+        return json.dumps(_filter_node_to_dict(nodes[0]))
+    # Combine with AND
+    combined = nodes[0]
+    for n in nodes[1:]:
+        combined = AndNode(combined, n)
+    return json.dumps(_filter_node_to_dict(combined))
+
+
 __all__ = [
     "FilterNode",
     "ComparisonNode",
@@ -624,4 +735,7 @@ __all__ = [
     "parse_filter",
     "evaluate_filter",
     "apply_filter",
+    "filter_to_json",
+    "filters_to_json",
 ]
+

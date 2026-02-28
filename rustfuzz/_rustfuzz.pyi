@@ -766,6 +766,53 @@ class BM25T:
         phrase_boost: float = 2.0,
     ) -> list[tuple[str, float]]: ...
 
+class HybridSearchIndex:
+    """Internal 3-way hybrid search index. Use ``rustfuzz.search.HybridSearch`` instead."""
+    def __init__(
+        self,
+        corpus: list[str],
+        embeddings: list[list[float]] | None = None,
+        k1: float = 1.5,
+        b: float = 0.75,
+    ) -> None: ...
+    @property
+    def num_docs(self) -> int: ...
+    @property
+    def has_vectors(self) -> bool: ...
+    @property
+    def dim(self) -> int: ...
+    @property
+    def has_metadata(self) -> bool: ...
+    def search(
+        self,
+        query: str,
+        query_embedding: list[float] | None = None,
+        n: int = 5,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+    ) -> list[tuple[str, float]]: ...
+    def search_filtered(
+        self,
+        query: str,
+        query_embedding: list[float] | None = None,
+        n: int = 5,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        allowed: list[bool] | None = None,
+    ) -> list[tuple[str, float]]: ...
+    def set_metadata_json(self, json_strings: list[str]) -> None: ...
+    def evaluate_filter_mask(self, filter_json: str) -> list[bool]: ...
+    def search_filtered_sorted(
+        self,
+        query: str,
+        query_embedding: list[float] | None = None,
+        n: int = 5,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        filter_json: str | None = None,
+        sort_keys: list[tuple[str, bool]] | None = None,
+    ) -> list[tuple[str, float]]: ...
+
 def cosine_similarity_matrix(
     a: list[list[float]], b: list[list[float]]
 ) -> tuple[list[float], int, int]: ...

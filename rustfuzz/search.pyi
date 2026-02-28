@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 _Result = tuple[str, float]
@@ -187,7 +187,7 @@ class HybridSearch:
     def __init__(
         self,
         corpus: Iterable[str] | Iterable[Any] | Any,
-        embeddings: Any = None,
+        embeddings: Any | Callable[[list[str]], list[list[float]]] | None = None,
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,

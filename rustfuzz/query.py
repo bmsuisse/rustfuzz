@@ -263,6 +263,25 @@ class SearchQuery:
             mask.append(passes)
         return mask
 
+    def _parse_sort_keys(self) -> list[tuple[str, bool]] | None:
+        """Parse sort expression(s) into (attribute, reverse) tuples for Rust."""
+        if self._sort_expr is None:
+            return None
+        exprs = (
+            self._sort_expr
+            if isinstance(self._sort_expr, list)
+            else [self._sort_expr]
+        )
+        keys: list[tuple[str, bool]] = []
+        for expr in exprs:
+            expr = expr.strip()
+            if ":" in expr:
+                attr, direction = expr.rsplit(":", 1)
+                keys.append((attr.strip(), direction.strip().lower() == "desc"))
+            else:
+                keys.append((expr, False))
+        return keys if keys else None
+
     def _execute(
         self, method: str, query: str, **kwargs: Any
     ) -> list[_Result] | list[_MetaResult]:
@@ -270,9 +289,40 @@ class SearchQuery:
         from .search import _enrich
 
         owner = self._owner
+
+        # ── Fast-path: HybridSearch with Rust-side metadata ──
+        if hasattr(owner._index, "search_filtered_sorted") and owner._index.has_metadata:
+            filter_json: str | None = None
+            if self._filters:
+                from .filter import filters_to_json
+
+                filter_json = filters_to_json(self._filters)
+
+            sort_keys = self._parse_sort_keys()
+
+            # Handle embedding callback for query embedding
+            query_embedding = kwargs.get("query_embedding")
+            if query_embedding is None and hasattr(owner, "_embed_fn") and owner._embed_fn is not None:
+                embs = owner._embed_fn([query])
+                if embs and len(embs) > 0:
+                    query_embedding = embs[0]
+
+            raw = owner._index.search_filtered_sorted(
+                query,
+                query_embedding,
+                kwargs.get("n", 5),
+                kwargs.get("rrf_k", 60),
+                kwargs.get("bm25_candidates", 100),
+                filter_json,
+                sort_keys,
+            )
+
+            return _enrich(raw, owner._corpus, owner._metadata, owner._corpus_index)
+
+        # ── Standard path: BM25 variants ──
         allowed = self._build_allowed_mask()
 
-        # HybridSearch uses search_filtered for all operations
+        # HybridSearch without Rust metadata falls back
         if hasattr(owner._index, "search_filtered"):
             raw = owner._index.search_filtered(
                 query,
@@ -317,3 +367,4 @@ class SearchQuery:
             parts.append(f", query={self._search_query!r}")
         parts.append(")")
         return "".join(parts)
+

@@ -237,3 +237,106 @@ class TestMetadata:
         assert len(results) == 2
         for r in results:
             assert len(r) == 2  # (text, score) — no metadata
+
+
+class TestEmbeddingCallback:
+    """Test embedding callback support in HybridSearch."""
+
+    @staticmethod
+    def _dummy_embed(texts: list[str]) -> list[list[float]]:
+        """Simple callback: hash-based deterministic embeddings."""
+        return [[float(hash(t) % 100) / 100, 1.0 - float(hash(t) % 100) / 100] for t in texts]
+
+    @staticmethod
+    def _fox_embed(texts: list[str]) -> list[list[float]]:
+        """Callback that biases 'fox' texts toward [1, 0]."""
+        result: list[list[float]] = []
+        for t in texts:
+            if "fox" in t.lower():
+                result.append([1.0, 0.0])
+            else:
+                result.append([0.0, 1.0])
+        return result
+
+    def test_callback_basic(self) -> None:
+        """Callable embeddings should produce has_vectors=True."""
+        hs = HybridSearch(CORPUS, embeddings=self._dummy_embed)
+        assert hs.has_vectors
+        assert hs.num_docs == 5
+
+    def test_callback_auto_query_embedding(self) -> None:
+        """When query_embedding is omitted, callback generates it automatically."""
+        hs = HybridSearch(CORPUS, embeddings=self._fox_embed)
+        # Search without explicit query_embedding — callback should fire
+        results = hs.search("fox", n=3)
+        assert len(results) == 3
+        # "fox" query → [1,0] embedding → should boost fox documents
+        assert "fox" in results[0][0]
+
+    def test_callback_explicit_override(self) -> None:
+        """Explicit query_embedding takes precedence over callback."""
+        hs = HybridSearch(CORPUS, embeddings=self._fox_embed)
+        # Pass a "dog-like" embedding explicitly → should boost dog docs
+        results = hs.search("fox", query_embedding=[0.0, 1.0], n=3)
+        assert len(results) == 3
+        # We still get results (BM25 + fuzzy still match fox), just different ranking
+
+    def test_callback_wrong_length_raises(self) -> None:
+        """Callback returning wrong number of vectors should raise ValueError."""
+        def bad_embed(texts: list[str]) -> list[list[float]]:
+            return [[1.0, 0.0]]  # always 1 vector regardless of corpus size
+
+        import pytest
+
+        try:
+            HybridSearch(CORPUS, embeddings=bad_embed)
+            pytest.fail("Should have raised ValueError")
+        except ValueError as e:
+            assert "5 documents" in str(e) or "1 vectors" in str(e)
+
+    def test_callback_with_documents(self) -> None:
+        """Callback should work with Document objects."""
+        docs = [
+            Document("Apple iPhone", {"brand": "Apple"}),
+            Document("Samsung Galaxy", {"brand": "Samsung"}),
+        ]
+
+        def embed_fn(texts: list[str]) -> list[list[float]]:
+            return [[1.0, 0.0] if "Apple" in t else [0.0, 1.0] for t in texts]
+
+        hs = HybridSearch(docs, embeddings=embed_fn)
+        assert hs.has_vectors
+        # Auto-generated query embedding for "Apple" → [1, 0]
+        results = hs.search("apple iphone", n=1)
+        assert len(results) == 1
+        assert results[0][2]["brand"] == "Apple"  # type: ignore[index]
+
+    def test_callback_empty_corpus(self) -> None:
+        """Callback with empty corpus should work (callback not called)."""
+        call_count = 0
+
+        def counting_embed(texts: list[str]) -> list[list[float]]:
+            nonlocal call_count
+            call_count += 1
+            return [[1.0] for _ in texts]
+
+        hs = HybridSearch([], embeddings=counting_embed)
+        assert hs.num_docs == 0
+        assert call_count == 0  # Not called for empty corpus
+
+    def test_callback_not_pickled(self) -> None:
+        """Pickle round-trip uses the computed matrix, not the callback."""
+        import pickle
+
+        hs = HybridSearch(CORPUS, embeddings=self._fox_embed)
+        assert hs.has_vectors
+
+        data = pickle.dumps(hs)
+        hs2 = pickle.loads(data)
+        assert hs2.has_vectors
+        assert hs2.num_docs == 5
+        # Callback is NOT preserved — search still works via stored embeddings
+        # but auto-query-embedding won't work (no callback)
+        results = hs2.search("fox", query_embedding=[1.0, 0.0], n=3)
+        assert len(results) == 3
+

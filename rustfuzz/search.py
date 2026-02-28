@@ -8,7 +8,7 @@ using Reciprocal Rank Fusion (RRF).
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 from . import _rustfuzz
@@ -1106,8 +1106,14 @@ class HybridSearch:
         - list[Document] (rustfuzz Document with content + metadata)
         - list[LangChain Document] (duck-typed via page_content)
         - Polars/Pandas Series, PyArrow arrays
-    embeddings : Optional matrix-like (list of lists, numpy array)
-        Vectors associated with the corpus. Shape (num_docs, dim).
+    embeddings : matrix-like | Callable[[list[str]], list[list[float]]] | None
+        Dense vectors for the corpus. Accepts:
+        - A pre-computed matrix (list of lists, numpy array) with shape
+          ``(num_docs, dim)``.
+        - A **callback** ``(texts: list[str]) -> list[list[float]]`` that
+          generates embeddings on-the-fly. The callback is called once at
+          init with the corpus texts and again at each ``.search()`` call
+          when ``query_embedding`` is omitted.
     k1 : float, default 1.5
         BM25 parameter
     b : float, default 0.75
@@ -1120,6 +1126,14 @@ class HybridSearch:
     >>> docs = [Document("Apple iPhone", {"brand": "Apple"}), Document("Samsung Galaxy")]
     >>> hs = HybridSearch(docs, embeddings=[[1, 0], [0, 1]])
     >>> results = hs.search("iphone", query_embedding=[1, 0], n=1)
+
+    Using a callback::
+
+        def my_embed(texts: list[str]) -> list[list[float]]:
+            return [[1.0, 0.0] for _ in texts]  # your model here
+
+        hs = HybridSearch(corpus, embeddings=my_embed)
+        results = hs.search("query")  # query_embedding auto-generated
     """
 
     def __init__(
@@ -1148,9 +1162,22 @@ class HybridSearch:
             _build_corpus_index(self._corpus) if self._metadata is not None else None
         )
 
-        # ── Convert embeddings to list[list[float]] ──
+        # ── Handle embeddings: callback or static matrix ──
+        self._embed_fn: Callable[[list[str]], list[list[float]]] | None = None
         emb_list: list[list[float]] | None = None
-        if embeddings is not None:
+
+        if callable(embeddings):
+            # Callback path — invoke with corpus, store for later queries
+            self._embed_fn = embeddings
+            if self._corpus:
+                emb_list = embeddings(self._corpus)
+                if len(emb_list) != len(self._corpus):
+                    raise ValueError(
+                        f"Embedding callback returned {len(emb_list)} vectors "
+                        f"for {len(self._corpus)} documents"
+                    )
+        elif embeddings is not None:
+            # Static matrix path (unchanged)
             try:
                 if hasattr(embeddings, "shape") and hasattr(embeddings, "tolist"):
                     emb_list = embeddings.tolist()
@@ -1176,6 +1203,15 @@ class HybridSearch:
             b,
         )
 
+        # ── Push metadata to Rust for blazing-fast filter evaluation ──
+        if self._metadata is not None:
+            import json
+
+            json_strings = [
+                json.dumps(m if m is not None else {}) for m in self._metadata
+            ]
+            self._index.set_metadata_json(json_strings)
+
     @property
     def has_vectors(self) -> bool:
         """Whether dense embeddings are available."""
@@ -1197,15 +1233,17 @@ class HybridSearch:
         """
         Run 3-way hybrid search: BM25 + Fuzzy + Dense via RRF.
 
-        When `query_embedding` is omitted or embeddings were not provided,
-        falls back to 2-way RRF (BM25 + fuzzy).
+        When ``query_embedding`` is omitted and an embedding callback was
+        provided at construction, the callback is invoked automatically
+        with ``[query]``.  Otherwise, falls back to 2-way RRF (BM25 + fuzzy).
 
         Parameters
         ----------
         query : str
             The text query.
         query_embedding : Optional list or 1D array
-            The semantic embedding for the query.
+            The semantic embedding for the query. If omitted and an
+            embedding callback was provided, it is called automatically.
         n : int, default 5
             Top N results to return.
         rrf_k : int, default 60
@@ -1220,6 +1258,9 @@ class HybridSearch:
                 q_emb = query_embedding.tolist()
             else:
                 q_emb = list(query_embedding)
+        elif self._embed_fn is not None:
+            # Auto-generate query embedding via the callback
+            q_emb = list(self._embed_fn([query])[0])
 
         results = self._index.search(query, q_emb, n, rrf_k, bm25_candidates)
         return _enrich(
