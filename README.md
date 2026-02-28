@@ -13,6 +13,15 @@
 
 ---
 
+> [!WARNING]
+> **🚧 Under Heavy Construction**
+>
+> This library is actively being developed and APIs may change between releases.
+> We're shipping fast — expect frequent updates, new features, and occasional breaking changes.
+> Pin your version if stability matters to you: `pip install rustfuzz==0.1.12`
+
+---
+
 > **🤖 This project was built entirely by AI.**
 >
 > The idea was simple: could an AI agent beat [RapidFuzz](https://github.com/maxbachmann/RapidFuzz) — one of the fastest fuzzy matching libraries in the world — by writing a Rust-backed Python library from scratch, guided only by benchmarks?
@@ -67,6 +76,8 @@ We benchmarked `process.extract` on a **1,000,000 row** corpus. Thanks to zero-o
 | 🐍 **Pythonic API** | Clean, typed Python interface. Import and go |
 | 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.14 on all major platforms |
 | 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
+| 🔍 **3-Way Hybrid Search** | BM25 + Fuzzy + Dense embeddings via RRF — 25ms at 1M docs, all in Rust |
+| 📄 **Document Objects** | First-class `Document(content, metadata)` + LangChain compatibility |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
 
 ## Installation
@@ -112,6 +123,32 @@ print(process.extract("new", choices, limit=3))
 # [('Newark', ...), ('New York', ...), ('New Orleans', ...)]
 ```
 
+### 3-Way Hybrid Search (BM25 + Fuzzy + Dense)
+
+```python
+from rustfuzz.search import Document, HybridSearch
+
+# Create documents with metadata
+docs = [
+    Document("Apple iPhone 15 Pro Max 256GB", {"brand": "Apple", "price": 1199}),
+    Document("Samsung Galaxy S24 Ultra", {"brand": "Samsung", "price": 1299}),
+    Document("Google Pixel 8 Pro", {"brand": "Google", "price": 699}),
+]
+
+# Optional: add dense embeddings for semantic search
+embeddings = [[1.0, 0.0, 0.0], [0.9, 0.1, 0.0], [0.1, 0.9, 0.0]]
+
+hs = HybridSearch(docs, embeddings=embeddings)
+
+# Handles typos via fuzzy, keywords via BM25, meaning via dense — all in Rust
+results = hs.search("appel iphon", query_embedding=[1.0, 0.0, 0.0], n=1)
+text, score, meta = results[0]
+print(f"{text} — ${meta['price']}")
+# Apple iPhone 15 Pro Max 256GB — $1199
+```
+
+> Also works with **LangChain** `Document` objects — no dependency required, auto-detected via duck-typing!
+
 ## Supported Algorithms
 
 | Module | Algorithms |
@@ -119,7 +156,7 @@ print(process.extract("new", choices, limit=3))
 | `rustfuzz.fuzz` | `ratio`, `partial_ratio`, `token_sort_ratio`, `token_set_ratio`, `token_ratio`, `WRatio`, `QRatio`, `partial_token_*` |
 | `rustfuzz.distance` | `Levenshtein`, `Hamming`, `Indel`, `Jaro`, `JaroWinkler`, `LCSseq`, `OSA`, `DamerauLevenshtein`, `Prefix`, `Postfix` |
 | `rustfuzz.process` | `extract`, `extractOne`, `extract_iter`, `cdist` |
-| `rustfuzz.search` | **`BM25` (Okapi)**, **`BM25L`**, **`BM25Plus`**, **`BM25T`** |
+| `rustfuzz.search` | **`BM25`**, **`BM25L`**, **`BM25Plus`**, **`BM25T`**, **`HybridSearch`**, **`Document`** |
 | `rustfuzz.utils` | `default_process` |
 
 ### The BM25 Search Engines

@@ -68,8 +68,10 @@ RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optim
 | 🧠 **Smart Matching** | ratio, partial_ratio, token sort/set, Levenshtein, Jaro-Winkler, and more |
 | 🔒 **Memory Safe** | Rust's borrow checker — no segfaults, no buffer overflows |
 | 🐍 **Pythonic API** | Typed Python interface — `import rustfuzz.fuzz as fuzz` and go |
-| 📦 **No Build Step** | Pre-compiled wheels for Python 3.10–3.13 on Linux, macOS, and Windows |
+| 📦 **No Build Step** | Pre-compiled wheels for Python 3.10–3.14 on Linux, macOS, and Windows |
 | 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
+| 🔍 **3-Way Hybrid Search** | BM25 + Fuzzy + Dense embeddings via RRF — 25ms at 1M docs, all in Rust |
+| 📄 **Document Objects** | First-class `Document(content, metadata)` + LangChain compatibility |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs |
 
 ---
@@ -105,6 +107,26 @@ process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
 # ('New York', 100.0, 0)
 ```
 
+### 3-Way Hybrid Search
+
+```python
+from rustfuzz.search import Document, HybridSearch
+
+docs = [
+    Document("Apple iPhone 15 Pro Max", {"brand": "Apple", "price": 1199}),
+    Document("Samsung Galaxy S24 Ultra", {"brand": "Samsung", "price": 1299}),
+    Document("Google Pixel 8 Pro", {"brand": "Google", "price": 699}),
+]
+
+hs = HybridSearch(docs, embeddings=[[1, 0, 0], [0.9, 0.1, 0], [0.1, 0.9, 0]])
+
+# Typo-tolerant + semantic search — all in Rust
+results = hs.search("appel iphon", query_embedding=[1, 0, 0], n=1)
+text, score, meta = results[0]
+print(f"{text} — ${meta['price']}")
+# Apple iPhone 15 Pro Max — $1199
+```
+
 ---
 
 ## Cookbook Recipes 🧑‍🍳
@@ -118,5 +140,6 @@ process.extractOne("new york", ["New York", "Newark", "Los Angeles"])
 | [LangChain Integration](cookbook/05_langchain.md) | Use rustfuzz as a LangChain Retriever |
 | [Real-World Examples](cookbook/06_real_world.md) | Entity resolution, deduplication & production patterns |
 | [Fuzzy Full Join](cookbook/07_fuzzy_join.md) | Multi-array fuzzy joins with MultiJoiner & RRF fusion |
+| [**3-Way Hybrid Search**](cookbook/08_3way_hybrid_search.md) | **BM25 + Fuzzy + Dense via RRF — Document & LangChain support** |
 
 Start exploring from the navigation menu on the left!

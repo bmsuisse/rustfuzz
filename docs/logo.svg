@@ -29,7 +29,6 @@
       .node-bg { fill: #0F172A; }
     }
     
-    /* Subtle hover and load animations */
     @keyframes pulse-glow {
       0%, 100% { filter: drop-shadow(0 0 4px rgba(20, 184, 166, 0.4)); }
       50% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.7)); }
@@ -44,6 +43,23 @@
       50% { transform: translateY(-3px) rotate(1deg); }
     }
     
+    @keyframes color-shift {
+      0%, 100% { stop-color: #8B5CF6; }
+      33% { stop-color: #14B8A6; }
+      66% { stop-color: #EC4899; }
+    }
+    
+    @keyframes ripple {
+      0% { r: 5.5; opacity: 1; }
+      50% { r: 8; opacity: 0.6; }
+      100% { r: 5.5; opacity: 1; }
+    }
+    
+    @keyframes orbit {
+      0% { transform: rotate(0deg) translateX(3px) rotate(0deg); }
+      100% { transform: rotate(360deg) translateX(3px) rotate(-360deg); }
+    }
+    
     .icon-path {
       stroke-dasharray: 200;
       stroke-dashoffset: 200;
@@ -56,8 +72,16 @@
     }
     
     .central-node {
-      animation: pulse-glow 3s infinite ease-in-out;
+      animation: pulse-glow 3s infinite ease-in-out, ripple 3s ease-in-out infinite;
     }
+    
+    #primary stop:first-child {
+      animation: color-shift 8s ease-in-out infinite;
+    }
+    
+    .node-pulse-1 { animation: ripple 4s ease-in-out infinite 0.5s; }
+    .node-pulse-2 { animation: ripple 4s ease-in-out infinite 1.0s; }
+    .node-pulse-3 { animation: ripple 4s ease-in-out infinite 1.5s; }
   </style>
 
   <g transform="translate(15, 15)">
@@ -69,13 +93,13 @@
       <path d="M 35 5 L 35 35 L 60 50" fill="none" stroke="url(#secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="icon-path" style="animation-delay: 0.5s;" />
       <path d="M 10 20 L 35 35" fill="none" stroke="url(#secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="icon-path" style="animation-delay: 0.5s;" />
       
-      <!-- Peripheral Nodes -->
-      <circle cx="35" cy="5" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
-      <circle cx="60" cy="20" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
-      <circle cx="60" cy="50" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
-      <circle cx="35" cy="65" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
-      <circle cx="10" cy="50" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
-      <circle cx="10" cy="20" r="4.5" class="node-bg" stroke="url(#primary)" stroke-width="2" />
+      <!-- Peripheral Nodes with staggered pulse -->
+      <circle cx="35" cy="5" r="4.5" class="node-bg node-pulse-1" stroke="url(#primary)" stroke-width="2" />
+      <circle cx="60" cy="20" r="4.5" class="node-bg node-pulse-2" stroke="url(#primary)" stroke-width="2" />
+      <circle cx="60" cy="50" r="4.5" class="node-bg node-pulse-3" stroke="url(#primary)" stroke-width="2" />
+      <circle cx="35" cy="65" r="4.5" class="node-bg node-pulse-1" stroke="url(#primary)" stroke-width="2" />
+      <circle cx="10" cy="50" r="4.5" class="node-bg node-pulse-2" stroke="url(#primary)" stroke-width="2" />
+      <circle cx="10" cy="20" r="4.5" class="node-bg node-pulse-3" stroke="url(#primary)" stroke-width="2" />
       
       <!-- Central Active Node -->
       <circle cx="35" cy="35" r="5.5" fill="#14B8A6" class="central-node" />

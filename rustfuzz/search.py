@@ -1008,80 +1008,190 @@ class BM25T:
         )
 
 
-class HybridSearch:
+class Document:
     """
-    Tier-3 Semantic Hybrid Search framework.
-    Combines text retrieval (BM25) with vector search via Reciprocal Rank Fusion (RRF).
+    A lightweight document with content and metadata.
 
-    This class is agnostic to the embedding model. You provide the text corpus and
-    a matrix of embeddings. The search() method fuses scores.
+    Compatible with LangChain Document objects — HybridSearch accepts both.
 
     Parameters
     ----------
-    corpus : Iterable[str]
-        Text documents.
+    content : str
+        The document text content.
+    metadata : dict[str, Any] | None, default None
+        Optional metadata dict attached to this document.
+
+    Examples
+    --------
+    >>> doc = Document("Apple iPhone 15 Pro", metadata={"category": "phones", "price": 999})
+    >>> doc.content
+    'Apple iPhone 15 Pro'
+    >>> doc.metadata
+    {'category': 'phones', 'price': 999}
+    """
+
+    __slots__ = ("content", "metadata")
+
+    def __init__(self, content: str, metadata: dict[str, Any] | None = None) -> None:
+        self.content = content
+        self.metadata = metadata or {}
+
+    def __repr__(self) -> str:
+        meta_preview = (
+            f", metadata={self.metadata!r}" if self.metadata else ""
+        )
+        text = self.content[:60] + "..." if len(self.content) > 60 else self.content
+        return f'Document("{text}"{meta_preview})'
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Document):
+            return NotImplemented
+        return self.content == other.content and self.metadata == other.metadata
+
+
+def _coerce_corpus(
+    corpus: Iterable[str] | Iterable[Any] | Any,
+) -> tuple[list[str], list[Any] | None]:
+    """
+    Accept multiple input formats and return (texts, metadata_or_None).
+
+    Supported inputs:
+    - list[str]                      → texts, None
+    - list[Document]                 → texts, metadata list
+    - list[LangChainDocument]        → texts (from page_content), metadata list
+    - Polars/Pandas Series, PyArrow  → texts (via _coerce_to_strings), None
+    """
+    items = list(corpus)
+    if not items:
+        return [], None
+
+    first = items[0]
+
+    # Our own Document
+    if isinstance(first, Document):
+        texts = [d.content for d in items]
+        meta = [d.metadata for d in items]
+        return texts, meta
+
+    # LangChain Document (duck-type: has page_content attribute)
+    if hasattr(first, "page_content"):
+        texts = [d.page_content for d in items]  # type: ignore[union-attr]
+        meta = [getattr(d, "metadata", {}) for d in items]
+        return texts, meta
+
+    # Plain strings or Series/arrays → delegate to existing coercion
+    return _coerce_to_strings(items), None
+
+
+class HybridSearch:
+    """
+    Tier-3 Semantic Hybrid Search framework — 3-way RRF in Rust.
+
+    Fuses BM25 text retrieval, fuzzy string matching, and dense vector
+    cosine similarity via Reciprocal Rank Fusion. All heavy computation
+    runs in Rust outside the Python GIL — designed for million-scale corpora.
+
+    Parameters
+    ----------
+    corpus : Iterable[str] | Iterable[Document] | Any
+        Text documents. Accepts:
+        - list[str]
+        - list[Document] (rustfuzz Document with content + metadata)
+        - list[LangChain Document] (duck-typed via page_content)
+        - Polars/Pandas Series, PyArrow arrays
     embeddings : Optional matrix-like (list of lists, numpy array)
         Vectors associated with the corpus. Shape (num_docs, dim).
-        If evaluating without numpy, pass a python list of lists.
     k1 : float, default 1.5
         BM25 parameter
     b : float, default 0.75
         BM25 parameter
     metadata : Iterable[Any] | None, default None
-        Optional per-document metadata returned alongside results.
+        Optional per-document metadata. Overrides metadata from Document objects.
+
+    Examples
+    --------
+    >>> docs = [Document("Apple iPhone", {"brand": "Apple"}), Document("Samsung Galaxy")]
+    >>> hs = HybridSearch(docs, embeddings=[[1, 0], [0, 1]])
+    >>> results = hs.search("iphone", query_embedding=[1, 0], n=1)
     """
 
     def __init__(
         self,
-        corpus: Iterable[str] | Any,
+        corpus: Iterable[str] | Iterable[Any] | Any,
         embeddings: Any = None,
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
     ):
-        self._corpus = _coerce_to_strings(corpus)
-        self._bm25 = BM25(self._corpus, k1=k1, b=b)
+        # ── Coerce corpus (handles str, Document, LangChain) ──
+        texts, auto_metadata = _coerce_corpus(corpus)
+        self._corpus = texts
         self._k1 = k1
         self._b = b
-        self._metadata = _validate_metadata(metadata, len(self._corpus))
+
+        # Explicit metadata overrides auto-extracted metadata
+        if metadata is not None:
+            self._metadata = _validate_metadata(metadata, len(self._corpus))
+        elif auto_metadata is not None:
+            self._metadata = auto_metadata
+        else:
+            self._metadata = None
+
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(self._corpus) if self._metadata is not None else None
         )
-        self._embeddings: list[list[float]] | None = None
 
+        # ── Convert embeddings to list[list[float]] ──
+        emb_list: list[list[float]] | None = None
         if embeddings is not None:
-            # We try to convert embeddings to a standard list of lists of floats
-            # so the Rust boundary can parse it directly as Vec<Vec<f32>>.
             try:
-                # If it's a numpy array, tolist() is the fastest conversion to native types
                 if hasattr(embeddings, "shape") and hasattr(embeddings, "tolist"):
-                    self._embeddings = embeddings.tolist()
+                    emb_list = embeddings.tolist()
                 else:
-                    self._embeddings = list(embeddings)
+                    emb_list = [list(row) for row in embeddings]
             except Exception as e:
                 raise ValueError(
                     "embeddings must be convertible to a list of lists of floats"
                 ) from e
-
-            emb = self._embeddings
-            if emb is not None and len(emb) > 0 and len(self._corpus) != len(emb):
+            if len(emb_list) != len(self._corpus):
                 raise ValueError(
-                    f"Length mismatch: {len(self._corpus)} documents, {len(emb)} embeddings"
+                    f"Length mismatch: {len(self._corpus)} documents, {len(emb_list)} embeddings"
                 )
+
+        # Keep a Python-side reference for pickle support
+        self._embeddings = emb_list
+
+        # ── Build Rust index ──
+        self._index = _rustfuzz.HybridSearchIndex(
+            self._corpus,
+            emb_list,
+            k1,
+            b,
+        )
 
     @property
     def has_vectors(self) -> bool:
-        return self._embeddings is not None
+        """Whether dense embeddings are available."""
+        return self._index.has_vectors
+
+    @property
+    def num_docs(self) -> int:
+        """Number of documents in the index."""
+        return self._index.num_docs
 
     def search(
-        self, query: str, query_embedding: Any = None, n: int = 5, rrf_k: int = 60
+        self,
+        query: str,
+        query_embedding: Any = None,
+        n: int = 5,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
     ) -> list[_Result] | list[_MetaResult]:
         """
-        Run hybrid search fusing BM25 text relevance and cosine semantic similarity.
+        Run 3-way hybrid search: BM25 + Fuzzy + Dense via RRF.
 
-        If `query_embedding` is omitted, falls back to BM25 fuzzy RRF.
-        Uses Reciprocal Rank Fusion (RRF) where the final score is the sum of `1 / (k + rank)`
-        for each retrieval pipeline.
+        When `query_embedding` is omitted or embeddings were not provided,
+        falls back to 2-way RRF (BM25 + fuzzy).
 
         Parameters
         ----------
@@ -1093,52 +1203,20 @@ class HybridSearch:
             Top N results to return.
         rrf_k : int, default 60
             RRF smoothing parameter.
+        bm25_candidates : int, default 100
+            Number of BM25 candidates to pre-filter. Higher = better recall
+            but slower. For million-scale, 100-500 is recommended.
         """
-        if query_embedding is None or not self.has_vectors:
-            # Fallback to BM25 + fuzzy string RRF
-            results = self._bm25.get_top_n_rrf(query, n=n, rrf_k=rrf_k)
-            return _enrich(
-                results,  # type: ignore[arg-type]
-                self._corpus,
-                self._metadata,
-                self._corpus_index,
-            )
+        q_emb: list[float] | None = None
+        if query_embedding is not None:
+            if hasattr(query_embedding, "tolist"):
+                q_emb = query_embedding.tolist()
+            else:
+                q_emb = list(query_embedding)
 
-        if hasattr(query_embedding, "tolist"):
-            query_embedding = query_embedding.tolist()
-
-        # Step 1: BM25 ranks
-        # Get ranks for all documents that match at all.
-        bm25_scores = self._bm25.get_scores(query)
-        bm25_indexed = [(i, score) for i, score in enumerate(bm25_scores) if score > 0]
-        bm25_indexed.sort(key=lambda x: x[1], reverse=True)
-
-        # Step 2: Semantic ranks (cosine sim) via Rust fast dot product
-        # Vectorise the single query by wrapping in a list
-        assert self._embeddings is not None  # guarded by has_vectors above
-        q_wrapped = [query_embedding]
-        flat_matrix, _, _ = _rustfuzz.cosine_similarity_matrix(
-            q_wrapped, self._embeddings
-        )
-        semantic_indexed = [(i, score) for i, score in enumerate(flat_matrix)]
-        semantic_indexed.sort(key=lambda x: x[1], reverse=True)
-
-        # Step 3: Reciprocal Rank Fusion
-        rrf_scores = [0.0] * len(self._corpus)
-
-        for rank, (doc_idx, _) in enumerate(bm25_indexed):
-            rrf_scores[doc_idx] += 1.0 / (rrf_k + rank + 1)
-
-        for rank, (doc_idx, _) in enumerate(semantic_indexed):
-            rrf_scores[doc_idx] += 1.0 / (rrf_k + rank + 1)
-
-        # Assemble and sort final
-        final_results: list[_Result] = [
-            (self._corpus[i], score) for i, score in enumerate(rrf_scores)
-        ]
-        final_results.sort(key=lambda x: x[1], reverse=True)
+        results = self._index.search(query, q_emb, n, rrf_k, bm25_candidates)
         return _enrich(
-            final_results[:n],
+            results,
             self._corpus,
             self._metadata,
             self._corpus_index,
@@ -1159,4 +1237,5 @@ class HybridSearch:
         )
 
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "HybridSearch"]
+__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch"]
+

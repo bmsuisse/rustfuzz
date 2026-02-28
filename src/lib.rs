@@ -33,6 +33,7 @@ fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<search::BM25L>()?;
     m.add_class::<search::BM25Plus>()?;
     m.add_class::<search::BM25T>()?;
+    m.add_class::<search::HybridSearchIndex>()?;
     m.add_function(wrap_pyfunction!(search::cosine_similarity_matrix, m)?)?;
 
     // Multi-array join

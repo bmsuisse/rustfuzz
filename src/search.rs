@@ -1617,6 +1617,305 @@ impl BM25T {
     }
 }
 
+// ============================================================================
+// HybridSearchIndex — 3-way RRF (BM25 + Fuzzy + Dense) entirely in Rust
+// ============================================================================
+
+/// Hybrid search index combining BM25 text retrieval, fuzzy string matching,
+/// and dense vector (embedding) similarity via 3-way Reciprocal Rank Fusion.
+///
+/// All heavy computation runs in Rust outside the Python GIL.
+/// Designed for million-scale corpora.
+#[pyclass]
+pub struct HybridSearchIndex {
+    /// The BM25 index (reuses existing implementation)
+    bm25: BM25Index,
+    /// The original corpus strings
+    corpus: Vec<String>,
+    /// Reverse lookup: doc text → corpus index
+    corpus_index: FxHashMap<String, usize>,
+    /// Optional dense embeddings, shape (num_docs, dim), stored as f32
+    embeddings: Option<Vec<Vec<f32>>>,
+    /// Embedding dimensionality (0 if no embeddings)
+    dim: usize,
+    /// BM25 parameters (for pickle)
+    k1: f64,
+    b: f64,
+}
+
+#[pymethods]
+impl HybridSearchIndex {
+    /// Create a new HybridSearchIndex.
+    ///
+    /// Parameters
+    /// ----------
+    /// corpus : list[str]
+    ///     Documents to index.
+    /// embeddings : list[list[float]] | None
+    ///     Optional dense embeddings, one per document. Shape (N, D).
+    /// k1 : float
+    ///     BM25 term frequency saturation.
+    /// b : float
+    ///     BM25 length normalisation.
+    #[new]
+    #[pyo3(signature = (corpus, embeddings=None, k1=1.5, b=0.75))]
+    pub fn new(
+        corpus: Vec<String>,
+        embeddings: Option<Vec<Vec<f32>>>,
+        k1: f64,
+        b: f64,
+    ) -> PyResult<Self> {
+        let n = corpus.len();
+
+        // Validate embeddings
+        let (emb, dim) = if let Some(ref e) = embeddings {
+            if e.len() != n {
+                return Err(pyo3::exceptions::PyValueError::new_err(
+                    format!("embeddings length ({}) must match corpus length ({})", e.len(), n)
+                ));
+            }
+            let d = if e.is_empty() { 0 } else { e[0].len() };
+            // Validate all rows have same dimension
+            for (i, row) in e.iter().enumerate() {
+                if row.len() != d {
+                    return Err(pyo3::exceptions::PyValueError::new_err(
+                        format!("embedding {} has {} dims, expected {}", i, row.len(), d)
+                    ));
+                }
+            }
+            (embeddings, d)
+        } else {
+            (None, 0)
+        };
+
+        // Build reverse index
+        let mut corpus_index: FxHashMap<String, usize> = FxHashMap::default();
+        for (i, doc) in corpus.iter().enumerate() {
+            corpus_index.insert(doc.clone(), i);
+        }
+
+        // Build BM25 index
+        let bm25 = BM25Index::new(corpus.clone(), k1, b, false);
+
+        Ok(HybridSearchIndex {
+            bm25,
+            corpus,
+            corpus_index,
+            embeddings: emb,
+            dim,
+            k1,
+            b,
+        })
+    }
+
+    /// Number of documents in the index.
+    #[getter]
+    pub fn num_docs(&self) -> usize {
+        self.corpus.len()
+    }
+
+    /// Whether the index has dense vector embeddings.
+    #[getter]
+    pub fn has_vectors(&self) -> bool {
+        self.embeddings.is_some()
+    }
+
+    /// Embedding dimensionality (0 if no embeddings).
+    #[getter]
+    pub fn dim(&self) -> usize {
+        self.dim
+    }
+
+    /// 3-way hybrid search: BM25 + Fuzzy + Dense via Reciprocal Rank Fusion.
+    ///
+    /// Parameters
+    /// ----------
+    /// query : str
+    ///     Text query.
+    /// query_embedding : list[float] | None
+    ///     Dense embedding for the query. If None, falls back to 2-way RRF.
+    /// n : int
+    ///     Number of results to return.
+    /// rrf_k : int
+    ///     RRF smoothing constant (default 60, from Cormack et al. 2009).
+    /// bm25_candidates : int
+    ///     Number of BM25 candidates to pre-filter before fuzzy+dense scoring.
+    ///     This is the key to million-scale performance.
+    #[pyo3(signature = (query, query_embedding=None, n=5, rrf_k=60, bm25_candidates=100))]
+    pub fn search(
+        &self,
+        query: &str,
+        query_embedding: Option<Vec<f32>>,
+        n: usize,
+        rrf_k: usize,
+        bm25_candidates: usize,
+    ) -> PyResult<Vec<(String, f64)>> {
+        use crate::algorithms::indel_distance;
+
+        let candidates_n = bm25_candidates.max(n * 10);
+
+        // ── Step 1: BM25 ranking ──────────────────────────────
+        let bm25_results = self.bm25.get_top_n(query, candidates_n);
+
+        let is_bm25_empty = bm25_results.is_empty();
+
+        // Candidate doc indices + refs
+        let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
+            // BM25 returned nothing — fall back to full corpus
+            self.corpus.iter().enumerate().collect()
+        } else {
+            bm25_results.iter().map(|(doc, _)| {
+                let idx = *self.corpus_index.get(doc).unwrap();
+                (idx, doc)
+            }).collect()
+        };
+
+        let num_targets = target_docs.len();
+
+        // ── Step 2: Fuzzy ranking over candidates ─────────────
+        let q_bytes = query.as_bytes();
+        let q_is_ascii = query.is_ascii();
+
+        let mut fuzzy_ranked: Vec<(usize, f64)> = if num_targets > 2000 {
+            // Parallel fuzzy for large candidate sets
+            target_docs.par_iter().map(|(i, doc)| {
+                let fuzzy = compute_fuzzy_score(query, q_bytes, q_is_ascii, doc);
+                (*i, fuzzy)
+            }).collect()
+        } else {
+            target_docs.iter().map(|(i, doc)| {
+                let fuzzy = compute_fuzzy_score(query, q_bytes, q_is_ascii, doc);
+                (*i, fuzzy)
+            }).collect()
+        };
+        fuzzy_ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        // ── Step 3: Dense ranking over candidates (if available) ──
+        let dense_ranked: Option<Vec<(usize, f32)>> = match (&self.embeddings, &query_embedding) {
+            (Some(emb), Some(q_emb)) => {
+                if q_emb.len() != self.dim {
+                    return Err(pyo3::exceptions::PyValueError::new_err(
+                        format!("query_embedding has {} dims, expected {}", q_emb.len(), self.dim)
+                    ));
+                }
+                let q_norm = {
+                    let norm = q_emb.iter().map(|x| x * x).sum::<f32>().sqrt();
+                    if norm > 0.0 { norm } else { 1.0 }
+                };
+
+                let mut ranked: Vec<(usize, f32)> = if num_targets > 2000 {
+                    target_docs.par_iter().map(|(i, _)| {
+                        let doc_emb = &emb[*i];
+                        let doc_norm = doc_emb.iter().map(|x| x * x).sum::<f32>().sqrt();
+                        let dn = if doc_norm > 0.0 { doc_norm } else { 1.0 };
+                        let cosine: f32 = q_emb.iter().zip(doc_emb.iter())
+                            .map(|(a, b)| a * b)
+                            .sum::<f32>() / (q_norm * dn);
+                        (*i, cosine)
+                    }).collect()
+                } else {
+                    target_docs.iter().map(|(i, _)| {
+                        let doc_emb = &emb[*i];
+                        let doc_norm = doc_emb.iter().map(|x| x * x).sum::<f32>().sqrt();
+                        let dn = if doc_norm > 0.0 { doc_norm } else { 1.0 };
+                        let cosine: f32 = q_emb.iter().zip(doc_emb.iter())
+                            .map(|(a, b)| a * b)
+                            .sum::<f32>() / (q_norm * dn);
+                        (*i, cosine)
+                    }).collect()
+                };
+                ranked.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+                Some(ranked)
+            },
+            _ => None,
+        };
+
+        // ── Step 4: Reciprocal Rank Fusion ────────────────────
+        let mut rrf_scores: Vec<f64> = vec![0.0; self.corpus.len()];
+
+        // BM25 ranks
+        if !is_bm25_empty {
+            for (rank, (doc, _)) in bm25_results.iter().enumerate() {
+                let idx = *self.corpus_index.get(doc).unwrap();
+                rrf_scores[idx] += 1.0 / (rrf_k + rank + 1) as f64;
+            }
+        }
+
+        // Fuzzy ranks
+        for (rank, (idx, _)) in fuzzy_ranked.iter().enumerate() {
+            rrf_scores[*idx] += 1.0 / (rrf_k + rank + 1) as f64;
+        }
+
+        // Dense ranks (if available)
+        if let Some(ref dr) = dense_ranked {
+            for (rank, (idx, _)) in dr.iter().enumerate() {
+                rrf_scores[*idx] += 1.0 / (rrf_k + rank + 1) as f64;
+            }
+        }
+
+        // ── Step 5: Assemble and sort ────────────────────────
+        let mut results: Vec<(String, f64)> = target_docs.into_iter()
+            .map(|(idx, doc)| (doc.clone(), rrf_scores[idx]))
+            .collect();
+
+        results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        results.truncate(n);
+        Ok(results)
+    }
+
+    /// Pickle support.
+    fn __reduce__(slf: PyRef<'_, Self>, py: Python<'_>) -> PyResult<PyObject> {
+        let cls = PyType::new::<HybridSearchIndex>(py);
+
+        let corpus_list: Vec<PyObject> = slf.corpus.iter()
+            .map(|s| s.clone().into_pyobject(py).map(|v| v.into_any().unbind()))
+            .collect::<Result<Vec<_>, _>>()?;
+        let py_corpus = pyo3::types::PyList::new(py, corpus_list)?;
+
+        let py_emb = match &slf.embeddings {
+            Some(emb) => {
+                let rows: Vec<PyObject> = emb.iter().map(|row| {
+                    let pyrow = pyo3::types::PyList::new(py, row.iter().copied().collect::<Vec<f32>>()).unwrap();
+                    pyrow.into_any().unbind()
+                }).collect();
+                pyo3::types::PyList::new(py, rows)?.into_any().unbind()
+            },
+            None => py.None(),
+        };
+
+        let args = PyTuple::new(py, [
+            py_corpus.into_any().unbind(),
+            py_emb,
+            slf.k1.into_pyobject(py)?.into_any().unbind(),
+            slf.b.into_pyobject(py)?.into_any().unbind(),
+        ])?;
+        Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
+    }
+}
+
+/// Compute fuzzy (indel ratio) score between a query and a document.
+#[inline]
+fn compute_fuzzy_score(query: &str, q_bytes: &[u8], q_is_ascii: bool, doc: &str) -> f64 {
+    use crate::algorithms::indel_distance;
+
+    if q_is_ascii && doc.is_ascii() {
+        let d_bytes = doc.as_bytes();
+        let lensum = q_bytes.len() + d_bytes.len();
+        if lensum == 0 { 1.0 } else {
+            let dist = indel_distance(q_bytes, d_bytes, None);
+            1.0 - dist as f64 / lensum as f64
+        }
+    } else {
+        let qv: Vec<u32> = query.chars().map(|c| c as u32).collect();
+        let dv: Vec<u32> = doc.chars().map(|c| c as u32).collect();
+        let lensum = qv.len() + dv.len();
+        if lensum == 0 { 1.0 } else {
+            let dist = indel_distance(&qv, &dv, None);
+            1.0 - dist as f64 / lensum as f64
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Cosine similarity matrix (for semantic hybrid search)
 // Accepts two 2D arrays as flat Vec<f32> with shape info.

@@ -170,10 +170,23 @@ class BM25T:
         self, query: str, n: int = 5
     ) -> list[_Result] | list[_MetaResult]: ...
 
+class Document:
+    """A lightweight document with content and metadata."""
+
+    content: str
+    metadata: dict[str, Any]
+    def __init__(
+        self, content: str, metadata: dict[str, Any] | None = None
+    ) -> None: ...
+    def __repr__(self) -> str: ...
+    def __eq__(self, other: object) -> bool: ...
+
 class HybridSearch:
+    """3-way hybrid search: BM25 + Fuzzy + Dense via RRF, all in Rust."""
+
     def __init__(
         self,
-        corpus: Iterable[str] | Any,
+        corpus: Iterable[str] | Iterable[Any] | Any,
         embeddings: Any = None,
         k1: float = 1.5,
         b: float = 0.75,
@@ -181,12 +194,15 @@ class HybridSearch:
     ) -> None: ...
     @property
     def has_vectors(self) -> bool: ...
+    @property
+    def num_docs(self) -> int: ...
     def search(
         self,
         query: str,
         query_embedding: Any = None,
         n: int = 5,
         rrf_k: int = 60,
+        bm25_candidates: int = 100,
     ) -> list[_Result] | list[_MetaResult]: ...
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "HybridSearch"]
+__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch"]

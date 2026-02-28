@@ -9,12 +9,12 @@ site_dir = "site"
 
 [project.theme]
 name = "material"
-logo = "logo.svg"
-favicon = "logo.svg"
+logo = "logo_icon.svg"
+favicon = "logo_icon.svg"
 features = [
     "navigation.instant",
     "navigation.instant.prefetch",
-    "navigation.tabs",
+    "navigation.sections",
     "navigation.indexes",
     "navigation.top",
     "search.suggest",
@@ -63,3 +63,4 @@ Benchmarks = "cookbook/03_benchmarks.md"
 "LangChain Integration" = "cookbook/05_langchain.md"
 "Real-World Examples" = "cookbook/06_real_world.md"
 "Fuzzy Full Join" = "cookbook/07_fuzzy_join.md"
+"3-Way Hybrid Search" = "cookbook/08_3way_hybrid_search.md"
