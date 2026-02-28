@@ -198,12 +198,12 @@ metadata = [
 
 bm25 = BM25(corpus, metadata=metadata)
 
-# Fluent builder: filter → sort → search
+# Fluent builder: filter → sort → match (executes immediately)
 results = (
     bm25
     .filter('brand = "Apple" AND price > 500')
     .sort("price:asc")
-    .get_top_n("pro", n=10)
+    .match("pro", n=10)
 )
 
 for text, score, meta in results:
@@ -211,6 +211,29 @@ for text, score, meta in results:
 
 # Supports: =, !=, >, <, >=, <=, TO (range), IN, EXISTS, IS NULL, AND, OR, NOT
 # Works with BM25, BM25L, BM25Plus, BM25T, and HybridSearch
+```
+
+Filter and sort also work with **HybridSearch** (BM25 + Fuzzy + Dense):
+
+```python
+from rustfuzz import Document
+from rustfuzz.search import HybridSearch
+
+docs = [
+    Document("Apple iPhone 15 Pro Max", {"brand": "Apple", "price": 1199}),
+    Document("Samsung Galaxy S24 Ultra", {"brand": "Samsung", "price": 1299}),
+    Document("Google Pixel 8 Pro",       {"brand": "Google", "price": 699}),
+]
+
+hs = HybridSearch(docs, embeddings=embeddings)
+
+# Filter + sort + semantic search
+results = (
+    hs
+    .filter('brand = "Apple"')
+    .sort("price:asc")
+    .match("iphone pro", n=5, query_embedding=query_emb)
+)
 ```
 
 ## Supported Algorithms

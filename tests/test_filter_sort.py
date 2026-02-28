@@ -627,7 +627,7 @@ class TestSearchQueryBuilder:
             bm25.filter('brand = "Apple"').collect()
 
     def test_match_alias(self, bm25: BM25) -> None:
-        results = bm25.filter("in_stock = true").match("phone", n=5).collect()
+        results = bm25.filter("in_stock = true").match("phone", n=5)
         assert len(results) > 0
 
     def test_repr(self, bm25: BM25) -> None:

@@ -155,12 +155,29 @@ The `.filter()` and `.sort()` methods return a **`SearchQuery`** builder that ac
 
 | Method | Description |
 |---|---|
-| `.get_top_n(query, n)` | BM25 top-N search |
+| `.match(query, n)` | Search with filter/sort (BM25 + HybridSearch) |
+| `.get_top_n(query, n)` | BM25 / Hybrid top-N search |
 | `.get_top_n_rrf(query, n)` | BM25 + fuzzy RRF search |
 | `.get_top_n_fuzzy(query, n)` | BM25 + fuzzy hybrid |
 | `.collect()` | Execute a deferred `.search()` call |
 
+### Using `.match()` (recommended)
+
+`.match()` is the simplest terminal method — it executes immediately:
+
+```python
+# Filter → sort → match (executes immediately)
+results = (
+    bm25
+    .filter('brand = "Apple" AND price > 500')
+    .sort("price:asc")
+    .match("pro max", n=10)
+)
+```
+
 ### Lazy Execution with `.search()` + `.collect()`
+
+For advanced use cases, `.search()` is lazy and requires `.collect()`:
 
 ```python
 # Build the query lazily, execute with .collect()
@@ -174,12 +191,6 @@ results = (
 )
 ```
 
-`.match()` is an alias for `.search()`:
-
-```python
-results = bm25.filter("price > 500").match("iphone", n=5).collect()
-```
-
 ---
 
 ## HybridSearch Integration
@@ -187,17 +198,23 @@ results = bm25.filter("price > 500").match("iphone", n=5).collect()
 Filter and sort work seamlessly with `HybridSearch` (BM25 + Fuzzy + Dense embeddings):
 
 ```python
+from rustfuzz import Document
 from rustfuzz.search import HybridSearch
 
-hs = HybridSearch(corpus, metadata=metadata, embeddings=embeddings)
+docs = [
+    Document("Apple iPhone 15 Pro Max", {"brand": "Apple", "price": 1199}),
+    Document("Samsung Galaxy S24 Ultra", {"brand": "Samsung", "price": 1299}),
+    Document("Google Pixel 8 Pro",       {"brand": "Google", "price": 699}),
+]
 
-# Filter + sort + hybrid search
+hs = HybridSearch(docs, embeddings=embeddings)
+
+# Filter + sort + semantic search (executes immediately)
 results = (
     hs
     .filter('brand = "Apple"')
     .sort("price:asc")
-    .search("iphone pro", n=5, query_embedding=query_emb)
-    .collect()
+    .match("iphone pro", n=5, query_embedding=query_emb)
 )
 ```
 

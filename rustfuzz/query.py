@@ -45,17 +45,17 @@ class SearchQuery:
     Execution is deferred until a terminal method is called.
 
     **Terminal methods** (execute immediately):
-    - ``.collect()`` — execute the accumulated query
-    - ``.get_top_n(query, n)`` — BM25 top-N with filter/sort
+    - ``.match(query, n)`` — search with filter/sort (works on BM25 + HybridSearch)
+    - ``.get_top_n(query, n)`` — BM25 / Hybrid top-N with filter/sort
     - ``.get_top_n_fuzzy(query, ...)`` — BM25+fuzzy with filter/sort
     - ``.get_top_n_rrf(query, ...)`` — BM25+fuzzy RRF with filter/sort
     - ``.get_top_n_phrase(query, ...)`` — BM25 phrase with filter/sort
+    - ``.collect()`` — execute a deferred ``.search()`` call
 
     **Builder methods** (lazy, return self):
     - ``.filter(expr)`` — add a Meilisearch-style filter expression
     - ``.sort(expr)`` — add sort criteria
     - ``.search(query, ...)`` — set the text search query (deferred)
-    - ``.match(query, ...)`` — alias for ``.search()``
     """
 
     __slots__ = (
@@ -137,11 +137,28 @@ class SearchQuery:
         query: str,
         *,
         n: int = 5,
-        method: str = "get_top_n",
+        query_embedding: list[float] | None = None,
         **kwargs: Any,
-    ) -> SearchQuery:
-        """Alias for ``.search()``."""
-        return self.search(query, n=n, method=method, **kwargs)
+    ) -> list[_Result] | list[_MetaResult]:
+        """
+        Execute a search with accumulated filter/sort and return results immediately.
+
+        Works with both BM25 variants and HybridSearch.
+
+        Parameters
+        ----------
+        query : str
+            Text query.
+        n : int, default 5
+            Number of results.
+        query_embedding : list[float] | None
+            Optional dense embedding for HybridSearch.
+        **kwargs
+            Additional keyword arguments for the search method.
+        """
+        return self._execute(
+            "get_top_n", query, n=n, query_embedding=query_embedding, **kwargs
+        )
 
     # ── Terminal methods ────────────────────────────────────
 
@@ -162,9 +179,15 @@ class SearchQuery:
             self._search_method, self._search_query, **self._search_kwargs
         )
 
-    def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        """BM25 top-N with accumulated filter/sort."""
-        return self._execute("get_top_n", query, n=n)
+    def get_top_n(
+        self,
+        query: str,
+        n: int = 5,
+        *,
+        query_embedding: list[float] | None = None,
+    ) -> list[_Result] | list[_MetaResult]:
+        """BM25 / HybridSearch top-N with accumulated filter/sort."""
+        return self._execute("get_top_n", query, n=n, query_embedding=query_embedding)
 
     def get_top_n_fuzzy(
         self,
