@@ -164,9 +164,7 @@ def bench_complex_filter_search(hs: object, label: str, n: int = 10) -> None:
     print(f"  [{label}] Complex filter+sort search:  {avg_ms:>8.3f} ms/query")
 
 
-def bench_filter_mask_only(
-    metadata: list[dict[str, object]], label: str
-) -> None:
+def bench_filter_mask_only(metadata: list[dict[str, object]], label: str) -> None:
     """Benchmark just the filter mask evaluation (Python path)."""
     from rustfuzz.filter import evaluate_filter, parse_filter
 

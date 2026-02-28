@@ -268,9 +268,7 @@ class SearchQuery:
         if self._sort_expr is None:
             return None
         exprs = (
-            self._sort_expr
-            if isinstance(self._sort_expr, list)
-            else [self._sort_expr]
+            self._sort_expr if isinstance(self._sort_expr, list) else [self._sort_expr]
         )
         keys: list[tuple[str, bool]] = []
         for expr in exprs:
@@ -291,7 +289,10 @@ class SearchQuery:
         owner = self._owner
 
         # ── Fast-path: HybridSearch with Rust-side metadata ──
-        if hasattr(owner._index, "search_filtered_sorted") and owner._index.has_metadata:
+        if (
+            hasattr(owner._index, "search_filtered_sorted")
+            and owner._index.has_metadata
+        ):
             filter_json: str | None = None
             if self._filters:
                 from .filter import filters_to_json
@@ -302,7 +303,11 @@ class SearchQuery:
 
             # Handle embedding callback for query embedding
             query_embedding = kwargs.get("query_embedding")
-            if query_embedding is None and hasattr(owner, "_embed_fn") and owner._embed_fn is not None:
+            if (
+                query_embedding is None
+                and hasattr(owner, "_embed_fn")
+                and owner._embed_fn is not None
+            ):
                 embs = owner._embed_fn([query])
                 if embs and len(embs) > 0:
                     query_embedding = embs[0]
@@ -367,4 +372,3 @@ class SearchQuery:
             parts.append(f", query={self._search_query!r}")
         parts.append(")")
         return "".join(parts)
-

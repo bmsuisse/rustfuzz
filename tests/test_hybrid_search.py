@@ -245,7 +245,10 @@ class TestEmbeddingCallback:
     @staticmethod
     def _dummy_embed(texts: list[str]) -> list[list[float]]:
         """Simple callback: hash-based deterministic embeddings."""
-        return [[float(hash(t) % 100) / 100, 1.0 - float(hash(t) % 100) / 100] for t in texts]
+        return [
+            [float(hash(t) % 100) / 100, 1.0 - float(hash(t) % 100) / 100]
+            for t in texts
+        ]
 
     @staticmethod
     def _fox_embed(texts: list[str]) -> list[list[float]]:
@@ -283,6 +286,7 @@ class TestEmbeddingCallback:
 
     def test_callback_wrong_length_raises(self) -> None:
         """Callback returning wrong number of vectors should raise ValueError."""
+
         def bad_embed(texts: list[str]) -> list[list[float]]:
             return [[1.0, 0.0]]  # always 1 vector regardless of corpus size
 
@@ -339,4 +343,3 @@ class TestEmbeddingCallback:
         # but auto-query-embedding won't work (no callback)
         results = hs2.search("fox", query_embedding=[1.0, 0.0], n=3)
         assert len(results) == 3
-

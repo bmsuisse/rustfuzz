@@ -9,7 +9,7 @@ using Reciprocal Rank Fusion (RRF).
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import Any
+from typing import Any, cast
 
 from . import _rustfuzz
 from .compat import _coerce_to_strings, _extract_column, _extract_metadata
@@ -1168,9 +1168,10 @@ class HybridSearch:
 
         if callable(embeddings):
             # Callback path — invoke with corpus, store for later queries
-            self._embed_fn = embeddings
+            embed_fn = cast(Callable[[list[str]], list[list[float]]], embeddings)
+            self._embed_fn = embed_fn
             if self._corpus:
-                emb_list = embeddings(self._corpus)
+                emb_list = embed_fn(self._corpus)
                 if len(emb_list) != len(self._corpus):
                     raise ValueError(
                         f"Embedding callback returned {len(emb_list)} vectors "
