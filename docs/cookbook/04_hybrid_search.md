@@ -141,3 +141,21 @@ search_engine = HybridSearch(
 
 results = search_engine.search("alibaba cloud optimization", query_embedding=query_vector)
 ```
+
+---
+
+## 6. Real-time Filtering & Sorting
+
+`HybridSearch` fully supports the high-performance filter and sort builder API. You can filter hybrid results by metadata before the RRF fusion happens!
+
+```python
+# Filter + sort + 3-way semantic search
+results = (
+    search_engine
+    .filter('category = "electronics" AND in_stock = true')
+    .sort("price:asc")
+    .match("laptop", n=10, query_embedding=query_vector)
+)
+```
+
+> **See also:** [Filtering & Sorting Guide](10_filter_sort.md) for the full syntax reference (>, <, IN, EXISTS, etc.) and advanced usage.

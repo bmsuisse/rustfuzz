@@ -7,6 +7,26 @@ repo_name = "bmsuisse/rustfuzz"
 docs_dir = "docs"
 site_dir = "site"
 
+nav = [
+    { Home = "index.md" },
+    { Internals = [
+        { "Architecture & Design" = "architecture.md" },
+        { "Developer & Contributor Guide" = "developer_guide.md" }
+    ]},
+    { Cookbook = [
+        { Introduction = "cookbook/01_introduction.md" },
+        { "Advanced Matching" = "cookbook/02_advanced_matching.md" },
+        { Benchmarks = "cookbook/03_benchmarks.md" },
+        { "Vector DB Hybrid Search" = "cookbook/04_hybrid_search.md" },
+        { "LangChain Integration" = "cookbook/05_langchain.md" },
+        { "Real-World Examples" = "cookbook/06_real_world.md" },
+        { "Fuzzy Full Join" = "cookbook/07_fuzzy_join.md" },
+        { "3-Way Hybrid Search" = "cookbook/08_3way_hybrid_search.md" },
+        { "FastEmbed Integration" = "cookbook/09_fastembed.md" },
+        { "Filter & Sort" = "cookbook/10_filter_sort.md" },
+        { "EmbedAnything Integration" = "cookbook/11_embed_anything.md" }
+    ]}
+]
 [project.theme]
 name = "material"
 logo = "logo_icon.svg"
@@ -48,22 +68,4 @@ anchor_linenums = true
 [project.plugins]
 search = {}
 
-[project.nav]
-Home = "index.md"
 
-[project.nav.Internals]
-"Architecture & Design" = "architecture.md"
-"Developer & Contributor Guide" = "developer_guide.md"
-
-[project.nav.Cookbook]
-Introduction = "cookbook/01_introduction.md"
-"Advanced Matching" = "cookbook/02_advanced_matching.md"
-Benchmarks = "cookbook/03_benchmarks.md"
-"Vector DB Hybrid Search" = "cookbook/04_hybrid_search.md"
-"LangChain Integration" = "cookbook/05_langchain.md"
-"Real-World Examples" = "cookbook/06_real_world.md"
-"Fuzzy Full Join" = "cookbook/07_fuzzy_join.md"
-"3-Way Hybrid Search" = "cookbook/08_3way_hybrid_search.md"
-"FastEmbed Integration" = "cookbook/09_fastembed.md"
-"Filter & Sort" = "cookbook/10_filter_sort.md"
-"EmbedAnything Integration" = "cookbook/11_embed_anything.md"

@@ -200,7 +200,17 @@ docs = [
     Document("Google Pixel 8 Pro",       {"brand": "Google", "price": 699}),
 ]
 
+# Provide dense embeddings for your corpus (e.g. from FastEmbed or OpenAI)
+embeddings = [
+    [0.9, 0.1, 0.0], # Apple
+    [0.1, 0.8, 0.1], # Samsung
+    [0.0, 0.2, 0.8], # Google
+]
+
 hs = HybridSearch(docs, embeddings=embeddings)
+
+# Provide the embedding for your search query 
+query_emb = [0.85, 0.15, 0.0]  # Embedding for "iphone pro"
 
 # Filter + sort + semantic search (executes immediately)
 results = (
