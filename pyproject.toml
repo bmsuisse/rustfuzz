@@ -54,6 +54,7 @@ dev = [
   "polars",
   "pandas",
   "pyarrow",
+  "fastembed>=0.7.4",
 ]
 docs = [
   "zensical",

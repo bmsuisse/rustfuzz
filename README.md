@@ -149,6 +149,34 @@ print(f"{text} — ${meta['price']}")
 
 > Also works with **LangChain** `Document` objects — no dependency required, auto-detected via duck-typing!
 
+### With Real Embeddings (FastEmbed)
+
+Use [FastEmbed](https://github.com/qdrant/fastembed) for lightweight, local, ONNX-based embeddings — no GPU needed:
+
+```python
+from fastembed import TextEmbedding
+from rustfuzz.search import Document, HybridSearch
+
+model = TextEmbedding("BAAI/bge-small-en-v1.5")  # ~33 MB, CPU-only
+
+docs = [
+    Document("Apple iPhone 15 Pro Max 256GB", {"brand": "Apple"}),
+    Document("Samsung Galaxy S24 Ultra",      {"brand": "Samsung"}),
+    Document("Sony WH-1000XM5 Headphones",    {"brand": "Sony"}),
+]
+
+embeddings = [e.tolist() for e in model.embed([d.content for d in docs])]
+hs = HybridSearch(docs, embeddings=embeddings)
+
+query = "wireless noise cancelling headset"
+query_emb = list(model.embed([query]))[0].tolist()
+
+results = hs.search(query, query_embedding=query_emb, n=1)
+text, score, meta = results[0]
+print(f"{text} — {meta['brand']}")
+# Sony WH-1000XM5 Headphones — Sony
+```
+
 ## Supported Algorithms
 
 | Module | Algorithms |

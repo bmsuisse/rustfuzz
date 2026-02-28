@@ -141,5 +141,6 @@ print(f"{text} — ${meta['price']}")
 | [Real-World Examples](cookbook/06_real_world.md) | Entity resolution, deduplication & production patterns |
 | [Fuzzy Full Join](cookbook/07_fuzzy_join.md) | Multi-array fuzzy joins with MultiJoiner & RRF fusion |
 | [**3-Way Hybrid Search**](cookbook/08_3way_hybrid_search.md) | **BM25 + Fuzzy + Dense via RRF — Document & LangChain support** |
+| [**FastEmbed**](cookbook/09_fastembed.md) | **Lightweight local embeddings — dense + sparse, no GPU needed** |
 
 Start exploring from the navigation menu on the left!
