@@ -181,22 +181,17 @@ print(f"{text} — {meta['brand']}")
 ### Filtering & Sorting (Meilisearch-style)
 
 ```python
+from rustfuzz import Document
 from rustfuzz.search import BM25
 
-corpus = [
-    "Apple iPhone 15 Pro Max",
-    "Samsung Galaxy S24 Ultra",
-    "Google Pixel 8 Pro",
-    "Apple MacBook Pro M3",
-]
-metadata = [
-    {"brand": "Apple",   "category": "phone",  "price": 1199, "in_stock": True},
-    {"brand": "Samsung", "category": "phone",  "price": 1299, "in_stock": True},
-    {"brand": "Google",  "category": "phone",  "price": 699,  "in_stock": False},
-    {"brand": "Apple",   "category": "laptop", "price": 2499, "in_stock": True},
+docs = [
+    Document("Apple iPhone 15 Pro Max",  {"brand": "Apple",   "category": "phone",  "price": 1199, "in_stock": True}),
+    Document("Samsung Galaxy S24 Ultra", {"brand": "Samsung", "category": "phone",  "price": 1299, "in_stock": True}),
+    Document("Google Pixel 8 Pro",       {"brand": "Google",  "category": "phone",  "price": 699,  "in_stock": False}),
+    Document("Apple MacBook Pro M3",     {"brand": "Apple",   "category": "laptop", "price": 2499, "in_stock": True}),
 ]
 
-bm25 = BM25(corpus, metadata=metadata)
+bm25 = BM25(docs)
 
 # Fluent builder: filter → sort → match (executes immediately)
 results = (

@@ -17,28 +17,21 @@ results = (
 
 ## Setup
 
-Filtering and sorting require **metadata** to be attached to your documents:
+Filtering and sorting require **metadata** to be attached to your documents. The easiest way is using `rustfuzz.Document`:
 
 ```python
+from rustfuzz import Document
 from rustfuzz.search import BM25
 
-corpus = [
-    "Apple iPhone 15 Pro Max 256GB",
-    "Samsung Galaxy S24 Ultra",
-    "Google Pixel 8 Pro",
-    "Apple MacBook Pro M3 Max",
-    "Samsung Galaxy Tab S9",
+docs = [
+    Document("Apple iPhone 15 Pro Max 256GB", {"brand": "Apple",   "category": "phone",  "price": 1199, "in_stock": True,  "year": 2024}),
+    Document("Samsung Galaxy S24 Ultra",      {"brand": "Samsung", "category": "phone",  "price": 1299, "in_stock": True,  "year": 2024}),
+    Document("Google Pixel 8 Pro",            {"brand": "Google",  "category": "phone",  "price": 699,  "in_stock": False, "year": 2023}),
+    Document("Apple MacBook Pro M3 Max",      {"brand": "Apple",   "category": "laptop", "price": 2499, "in_stock": True,  "year": 2024}),
+    Document("Samsung Galaxy Tab S9",         {"brand": "Samsung", "category": "tablet", "price": 799,  "in_stock": True,  "year": 2023}),
 ]
 
-metadata = [
-    {"brand": "Apple",   "category": "phone",  "price": 1199, "in_stock": True,  "year": 2024},
-    {"brand": "Samsung", "category": "phone",  "price": 1299, "in_stock": True,  "year": 2024},
-    {"brand": "Google",  "category": "phone",  "price": 699,  "in_stock": False, "year": 2023},
-    {"brand": "Apple",   "category": "laptop", "price": 2499, "in_stock": True,  "year": 2024},
-    {"brand": "Samsung", "category": "tablet", "price": 799,  "in_stock": True,  "year": 2023},
-]
-
-bm25 = BM25(corpus, metadata=metadata)
+bm25 = BM25(docs)
 ```
 
 Works with all search engines: **`BM25`**, **`BM25L`**, **`BM25Plus`**, **`BM25T`**, and **`HybridSearch`**.
