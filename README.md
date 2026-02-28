@@ -34,37 +34,6 @@
 
 Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 
-## The Challenge: Beat RapidFuzz
-
-```mermaid
-flowchart LR
-    R["🔍 Research<br>Profiler output<br>& algorithm gaps"]
-    B["🦀 Build<br>Rust implementation<br>via PyO3"]
-    T["✅ Test<br>All tests must pass<br>before proceeding"]
-    BM["📊 Benchmark<br>vs RapidFuzz<br>Numbers don't lie"]
-    RP["🔁 Repeat<br>Find the next<br>bottleneck"]
-
-    R --> B --> T --> BM --> RP --> R
-
-    style R fill:#6366f1,color:#fff,stroke:none
-    style B fill:#a855f7,color:#fff,stroke:none
-    style T fill:#ef4444,color:#fff,stroke:none
-    style BM fill:#22c55e,color:#fff,stroke:none
-    style RP fill:#f59e0b,color:#fff,stroke:none
-```
-
-The goal: match or exceed RapidFuzz's throughput on `ratio`, `partial_ratio`, `token_sort_ratio`, and `process.extract` — all from Python. Each iteration starts with profiling, identifies the hottest path, and rewrites it deeper into Rust.
-
-### The Results: RustFuzz is Faster 🏆
-
-We benchmarked `process.extract` on a **1,000,000 row** corpus. Thanks to zero-overhead Rayon parallelization, lock-free global threshold shrinking (`AtomicU64`), and native query token caching, `rustfuzz` officially outperforms `rapidfuzz`.
-
-| Benchmark (1M rows) | RapidFuzz | RustFuzz (Parallel) |
-| --- | --- | --- |
-| Raw Characters (`ratio`) | `5506 ms` | **`5253 ms`** |
-| Complex Tokens (`WRatio`) | `3032 ms` | **`2716 ms`** |
-
-*But that's not all*. By utilizing the built-in **BM25 Hybrid Pipeline**, `rustfuzz` can complete the identical extraction task in a revolutionary **`97 ms`** (a ~30x speedup over state-of-the-art fuzzy matching!).
 
 ## Features
 
