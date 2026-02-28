@@ -32,6 +32,7 @@ polars = ["polars"]
 pandas = ["pandas"]
 arrow = ["pyarrow"]
 spark = ["pyspark"]
+embed = ["fastembed>=0.7.4"]
 all = [
   "numpy",
   "polars",
@@ -54,7 +55,7 @@ dev = [
   "polars",
   "pandas",
   "pyarrow",
-  "fastembed>=0.7.4",
+
 ]
 docs = [
   "zensical",
