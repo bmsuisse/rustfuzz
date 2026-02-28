@@ -19,6 +19,13 @@ _Result = tuple[str, float]
 _MetaResult = tuple[str, float, Any]
 
 
+# Lazy import to avoid circular dependency
+def _search_query(owner: Any) -> Any:
+    from .query import SearchQuery
+
+    return SearchQuery(owner)
+
+
 def _enrich(
     results: list[_Result],
     corpus: list[str],
@@ -400,6 +407,16 @@ class BM25:
 
         return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
 
+    # ── Fluent query builder ──────────────────────────────
+
+    def filter(self, expression: str) -> Any:
+        """Start a filtered query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).filter(expression)
+
+    def sort(self, expression: list[str] | str) -> Any:
+        """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).sort(expression)
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
@@ -600,6 +617,16 @@ class BM25L:
         import asyncio
 
         return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
+
+    # ── Fluent query builder ──────────────────────────────
+
+    def filter(self, expression: str) -> Any:
+        """Start a filtered query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).filter(expression)
+
+    def sort(self, expression: list[str] | str) -> Any:
+        """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).sort(expression)
 
     def __reduce__(
         self,
@@ -803,6 +830,16 @@ class BM25Plus:
 
         return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
 
+    # ── Fluent query builder ──────────────────────────────
+
+    def filter(self, expression: str) -> Any:
+        """Start a filtered query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).filter(expression)
+
+    def sort(self, expression: list[str] | str) -> Any:
+        """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).sort(expression)
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
@@ -998,6 +1035,16 @@ class BM25T:
         import asyncio
 
         return await asyncio.to_thread(self.get_top_n_rrf, query, n, **kwargs)
+
+    # ── Fluent query builder ──────────────────────────────
+
+    def filter(self, expression: str) -> Any:
+        """Start a filtered query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).filter(expression)
+
+    def sort(self, expression: list[str] | str) -> Any:
+        """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).sort(expression)
 
     def __reduce__(
         self,
@@ -1219,6 +1266,16 @@ class HybridSearch:
             self._metadata,
             self._corpus_index,
         )
+
+    # ── Fluent query builder ──────────────────────────────
+
+    def filter(self, expression: str) -> Any:
+        """Start a filtered query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).filter(expression)
+
+    def sort(self, expression: list[str] | str) -> Any:
+        """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
+        return _search_query(self).sort(expression)
 
     def __reduce__(
         self,

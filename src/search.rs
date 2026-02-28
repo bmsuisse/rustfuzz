@@ -197,10 +197,31 @@ impl BM25Index {
         }
     }
 
+    /// Return BM25 scores with an optional boolean mask.
+    /// Documents where `allowed[i]` is false get a score of 0.0.
+    #[pyo3(signature = (query, allowed=None))]
+    pub fn get_scores_filtered(&self, query: &str, allowed: Option<Vec<bool>>) -> Vec<f64> {
+        let mut scores = self.get_scores(query);
+        if let Some(ref mask) = allowed {
+            for (i, s) in scores.iter_mut().enumerate() {
+                if i < mask.len() && !mask[i] {
+                    *s = 0.0;
+                }
+            }
+        }
+        scores
+    }
+
     /// Return top-N `(document, score)` pairs for `query`.
     #[pyo3(signature = (query, n=5))]
     pub fn get_top_n(&self, query: &str, n: usize) -> Vec<(String, f64)> {
-        let scores = self.get_scores(query);
+        self.get_top_n_filtered(query, n, None)
+    }
+
+    /// Return top-N with an optional allowed mask.
+    #[pyo3(signature = (query, n=5, allowed=None))]
+    pub fn get_top_n_filtered(&self, query: &str, n: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
+        let scores = self.get_scores_filtered(query, allowed);
         
         let valid_count = scores.len();
         if valid_count <= 256 || n >= valid_count {
@@ -301,16 +322,32 @@ impl BM25Index {
         bm25_candidates: usize,
         rrf_k: usize,
     ) -> Vec<(String, f64)> {
+        self.get_top_n_rrf_filtered(query, n, bm25_candidates, rrf_k, None)
+    }
+
+    /// RRF with optional allowed mask.
+    #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60, allowed=None))]
+    pub fn get_top_n_rrf_filtered(
+        &self,
+        query: &str,
+        n: usize,
+        bm25_candidates: usize,
+        rrf_k: usize,
+        allowed: Option<Vec<bool>>,
+    ) -> Vec<(String, f64)> {
         use crate::algorithms::indel_distance;
 
         let candidates_n = bm25_candidates.max(n * 10);
 
-        // BM25 ranking
-        let bm25_results = self.get_top_n(query, candidates_n);
+        // BM25 ranking (with filter)
+        let bm25_results = self.get_top_n_filtered(query, candidates_n, allowed.clone());
         
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
-            self.corpus.iter().enumerate().collect()
+            // Fall back to all allowed docs
+            self.corpus.iter().enumerate()
+                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
@@ -621,9 +658,25 @@ impl BM25L {
         }
     }
 
+    #[pyo3(signature = (query, allowed=None))]
+    pub fn get_scores_filtered(&self, query: &str, allowed: Option<Vec<bool>>) -> Vec<f64> {
+        let mut scores = self.get_scores(query);
+        if let Some(ref mask) = allowed {
+            for (i, s) in scores.iter_mut().enumerate() {
+                if i < mask.len() && !mask[i] { *s = 0.0; }
+            }
+        }
+        scores
+    }
+
     #[pyo3(signature = (query, n=5))]
     pub fn get_top_n(&self, query: &str, n: usize) -> Vec<(String, f64)> {
-        let scores = self.get_scores(query);
+        self.get_top_n_filtered(query, n, None)
+    }
+
+    #[pyo3(signature = (query, n=5, allowed=None))]
+    pub fn get_top_n_filtered(&self, query: &str, n: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
+        let scores = self.get_scores_filtered(query, allowed);
         
         let valid_count = scores.len();
         if valid_count <= 256 || n >= valid_count {
@@ -711,21 +764,22 @@ impl BM25L {
 
     /// Reciprocal Rank Fusion of BM25 + fuzzy ranks.
     #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60))]
-    pub fn get_top_n_rrf(
-        &self,
-        query: &str,
-        n: usize,
-        bm25_candidates: usize,
-        rrf_k: usize,
-    ) -> Vec<(String, f64)> {
+    pub fn get_top_n_rrf(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize) -> Vec<(String, f64)> {
+        self.get_top_n_rrf_filtered(query, n, bm25_candidates, rrf_k, None)
+    }
+
+    #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60, allowed=None))]
+    pub fn get_top_n_rrf_filtered(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
         use crate::algorithms::indel_distance;
 
         let candidates_n = bm25_candidates.max(n * 10);
-        let bm25_results = self.get_top_n(query, candidates_n);
+        let bm25_results = self.get_top_n_filtered(query, candidates_n, allowed.clone());
         
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
-            self.corpus.iter().enumerate().collect()
+            self.corpus.iter().enumerate()
+                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
@@ -981,9 +1035,25 @@ impl BM25Plus {
         }
     }
 
+    #[pyo3(signature = (query, allowed=None))]
+    pub fn get_scores_filtered(&self, query: &str, allowed: Option<Vec<bool>>) -> Vec<f64> {
+        let mut scores = self.get_scores(query);
+        if let Some(ref mask) = allowed {
+            for (i, s) in scores.iter_mut().enumerate() {
+                if i < mask.len() && !mask[i] { *s = 0.0; }
+            }
+        }
+        scores
+    }
+
     #[pyo3(signature = (query, n=5))]
     pub fn get_top_n(&self, query: &str, n: usize) -> Vec<(String, f64)> {
-        let scores = self.get_scores(query);
+        self.get_top_n_filtered(query, n, None)
+    }
+
+    #[pyo3(signature = (query, n=5, allowed=None))]
+    pub fn get_top_n_filtered(&self, query: &str, n: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
+        let scores = self.get_scores_filtered(query, allowed);
         let valid_count = scores.len();
         if valid_count <= 256 || n >= valid_count {
             let mut items: Vec<(usize, f64)> = scores.into_iter().enumerate().filter(|(_, s)| *s > 0.0).collect();
@@ -1067,23 +1137,23 @@ impl BM25Plus {
         Ok(scored)
     }
 
-    /// Reciprocal Rank Fusion of BM25 + fuzzy ranks.
     #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60))]
-    pub fn get_top_n_rrf(
-        &self,
-        query: &str,
-        n: usize,
-        bm25_candidates: usize,
-        rrf_k: usize,
-    ) -> Vec<(String, f64)> {
+    pub fn get_top_n_rrf(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize) -> Vec<(String, f64)> {
+        self.get_top_n_rrf_filtered(query, n, bm25_candidates, rrf_k, None)
+    }
+
+    #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60, allowed=None))]
+    pub fn get_top_n_rrf_filtered(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
         use crate::algorithms::indel_distance;
 
         let candidates_n = bm25_candidates.max(n * 10);
-        let bm25_results = self.get_top_n(query, candidates_n);
+        let bm25_results = self.get_top_n_filtered(query, candidates_n, allowed.clone());
         
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
-            self.corpus.iter().enumerate().collect()
+            self.corpus.iter().enumerate()
+                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
@@ -1369,9 +1439,25 @@ impl BM25T {
         }
     }
 
+    #[pyo3(signature = (query, allowed=None))]
+    pub fn get_scores_filtered(&self, query: &str, allowed: Option<Vec<bool>>) -> Vec<f64> {
+        let mut scores = self.get_scores(query);
+        if let Some(ref mask) = allowed {
+            for (i, s) in scores.iter_mut().enumerate() {
+                if i < mask.len() && !mask[i] { *s = 0.0; }
+            }
+        }
+        scores
+    }
+
     #[pyo3(signature = (query, n=5))]
     pub fn get_top_n(&self, query: &str, n: usize) -> Vec<(String, f64)> {
-        let scores = self.get_scores(query);
+        self.get_top_n_filtered(query, n, None)
+    }
+
+    #[pyo3(signature = (query, n=5, allowed=None))]
+    pub fn get_top_n_filtered(&self, query: &str, n: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
+        let scores = self.get_scores_filtered(query, allowed);
         let valid_count = scores.len();
         if valid_count <= 256 || n >= valid_count {
             let mut items: Vec<(usize, f64)> = scores.into_iter().enumerate().filter(|(_, s)| *s > 0.0).collect();
@@ -1455,23 +1541,23 @@ impl BM25T {
         Ok(scored)
     }
 
-    /// Reciprocal Rank Fusion of BM25 + fuzzy ranks.
     #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60))]
-    pub fn get_top_n_rrf(
-        &self,
-        query: &str,
-        n: usize,
-        bm25_candidates: usize,
-        rrf_k: usize,
-    ) -> Vec<(String, f64)> {
+    pub fn get_top_n_rrf(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize) -> Vec<(String, f64)> {
+        self.get_top_n_rrf_filtered(query, n, bm25_candidates, rrf_k, None)
+    }
+
+    #[pyo3(signature = (query, n=5, bm25_candidates=100, rrf_k=60, allowed=None))]
+    pub fn get_top_n_rrf_filtered(&self, query: &str, n: usize, bm25_candidates: usize, rrf_k: usize, allowed: Option<Vec<bool>>) -> Vec<(String, f64)> {
         use crate::algorithms::indel_distance;
 
         let candidates_n = bm25_candidates.max(n * 10);
-        let bm25_results = self.get_top_n(query, candidates_n);
+        let bm25_results = self.get_top_n_filtered(query, candidates_n, allowed.clone());
         
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
-            self.corpus.iter().enumerate().collect()
+            self.corpus.iter().enumerate()
+                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
@@ -1750,19 +1836,35 @@ impl HybridSearchIndex {
         rrf_k: usize,
         bm25_candidates: usize,
     ) -> PyResult<Vec<(String, f64)>> {
+        self.search_filtered(query, query_embedding, n, rrf_k, bm25_candidates, None)
+    }
+
+    /// 3-way hybrid search with an optional allowed mask.
+    #[pyo3(signature = (query, query_embedding=None, n=5, rrf_k=60, bm25_candidates=100, allowed=None))]
+    pub fn search_filtered(
+        &self,
+        query: &str,
+        query_embedding: Option<Vec<f32>>,
+        n: usize,
+        rrf_k: usize,
+        bm25_candidates: usize,
+        allowed: Option<Vec<bool>>,
+    ) -> PyResult<Vec<(String, f64)>> {
         use crate::algorithms::indel_distance;
 
         let candidates_n = bm25_candidates.max(n * 10);
 
-        // ── Step 1: BM25 ranking ──────────────────────────────
-        let bm25_results = self.bm25.get_top_n(query, candidates_n);
+        // ── Step 1: BM25 ranking (with filter) ──────────────────
+        let bm25_results = self.bm25.get_top_n_filtered(query, candidates_n, allowed.clone());
 
         let is_bm25_empty = bm25_results.is_empty();
 
         // Candidate doc indices + refs
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
-            // BM25 returned nothing — fall back to full corpus
-            self.corpus.iter().enumerate().collect()
+            // BM25 returned nothing — fall back to all allowed docs
+            self.corpus.iter().enumerate()
+                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();

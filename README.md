@@ -77,6 +77,7 @@ We benchmarked `process.extract` on a **1,000,000 row** corpus. Thanks to zero-o
 | 📦 **Zero Build Step** | Pre-compiled wheels on PyPI for Python 3.10–3.14 on all major platforms |
 | 🏔️ **Big Data Ready** | Excels in 1 Billion Row Challenge benchmarks, crushing high-throughput tasks |
 | 🔍 **3-Way Hybrid Search** | BM25 + Fuzzy + Dense embeddings via RRF — 25ms at 1M docs, all in Rust |
+| 🔎 **Filter & Sort** | Meilisearch-style filtering and sorting with Rust-level performance |
 | 📄 **Document Objects** | First-class `Document(content, metadata)` + LangChain compatibility |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
 
@@ -177,6 +178,41 @@ print(f"{text} — {meta['brand']}")
 # Sony WH-1000XM5 Headphones — Sony
 ```
 
+### Filtering & Sorting (Meilisearch-style)
+
+```python
+from rustfuzz.search import BM25
+
+corpus = [
+    "Apple iPhone 15 Pro Max",
+    "Samsung Galaxy S24 Ultra",
+    "Google Pixel 8 Pro",
+    "Apple MacBook Pro M3",
+]
+metadata = [
+    {"brand": "Apple",   "category": "phone",  "price": 1199, "in_stock": True},
+    {"brand": "Samsung", "category": "phone",  "price": 1299, "in_stock": True},
+    {"brand": "Google",  "category": "phone",  "price": 699,  "in_stock": False},
+    {"brand": "Apple",   "category": "laptop", "price": 2499, "in_stock": True},
+]
+
+bm25 = BM25(corpus, metadata=metadata)
+
+# Fluent builder: filter → sort → search
+results = (
+    bm25
+    .filter('brand = "Apple" AND price > 500')
+    .sort("price:asc")
+    .get_top_n("pro", n=10)
+)
+
+for text, score, meta in results:
+    print(f"  {text} — ${meta['price']}")
+
+# Supports: =, !=, >, <, >=, <=, TO (range), IN, EXISTS, IS NULL, AND, OR, NOT
+# Works with BM25, BM25L, BM25Plus, BM25T, and HybridSearch
+```
+
 ## Supported Algorithms
 
 | Module | Algorithms |
@@ -185,6 +221,9 @@ print(f"{text} — {meta['brand']}")
 | `rustfuzz.distance` | `Levenshtein`, `Hamming`, `Indel`, `Jaro`, `JaroWinkler`, `LCSseq`, `OSA`, `DamerauLevenshtein`, `Prefix`, `Postfix` |
 | `rustfuzz.process` | `extract`, `extractOne`, `extract_iter`, `cdist` |
 | `rustfuzz.search` | **`BM25`**, **`BM25L`**, **`BM25Plus`**, **`BM25T`**, **`HybridSearch`**, **`Document`** |
+| `rustfuzz.filter` | Meilisearch-style filter parser & evaluator |
+| `rustfuzz.sort` | Multi-key sort with dot notation |
+| `rustfuzz.query` | Fluent `SearchQuery` builder (`.filter().sort().search().collect()`) |
 | `rustfuzz.utils` | `default_process` |
 
 ### The BM25 Search Engines

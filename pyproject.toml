@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rustfuzz"
-version = "0.1.13"
+version = "0.1.14"
 requires-python = ">= 3.10"
 authors = [
   {name = "BM Suisse", email = "info@bmsuisse.com"},
@@ -55,7 +55,7 @@ dev = [
   "polars",
   "pandas",
   "pyarrow",
-
+  "faker>=40.5.1",
 ]
 docs = [
   "zensical",
