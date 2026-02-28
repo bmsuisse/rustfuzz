@@ -1037,9 +1037,7 @@ class Document:
         self.metadata = metadata or {}
 
     def __repr__(self) -> str:
-        meta_preview = (
-            f", metadata={self.metadata!r}" if self.metadata else ""
-        )
+        meta_preview = f", metadata={self.metadata!r}" if self.metadata else ""
         text = self.content[:60] + "..." if len(self.content) > 60 else self.content
         return f'Document("{text}"{meta_preview})'
 
@@ -1238,4 +1236,3 @@ class HybridSearch:
 
 
 __all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch"]
-

@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
-
-from rustfuzz.search import BM25, Document, HybridSearch
+from rustfuzz.search import Document, HybridSearch
 
 CORPUS = [
     "the quick brown fox jumps over the lazy dog",
@@ -179,7 +177,9 @@ class TestLangChainCompat:
         """Simulate LangChain Document objects without importing langchain."""
 
         class FakeLCDoc:
-            def __init__(self, page_content: str, metadata: dict[str, Any] | None = None):
+            def __init__(
+                self, page_content: str, metadata: dict[str, Any] | None = None
+            ):
                 self.page_content = page_content
                 self.metadata = metadata or {}
 
@@ -199,7 +199,9 @@ class TestLangChainCompat:
 
     def test_langchain_with_embeddings(self) -> None:
         class FakeLCDoc:
-            def __init__(self, page_content: str, metadata: dict[str, Any] | None = None):
+            def __init__(
+                self, page_content: str, metadata: dict[str, Any] | None = None
+            ):
                 self.page_content = page_content
                 self.metadata = metadata or {}
 
@@ -225,7 +227,7 @@ class TestMetadata:
         )
         results = hs.search("fox", n=2)
         assert len(results) == 2
-        for text, score, meta in results:
+        for _text, _score, meta in results:
             assert isinstance(meta, dict)
             assert "i" in meta
 

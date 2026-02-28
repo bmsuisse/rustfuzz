@@ -3547,7 +3547,7 @@ wheels = [
 
 [[package]]
 name = "rustfuzz"
-version = "0.1.12"
+version = "0.1.13"
 source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
@@ -3567,6 +3567,9 @@ all = [
 arrow = [
     { name = "pyarrow" },
 ]
+embed = [
+    { name = "fastembed" },
+]
 pandas = [
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "pandas", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -3581,7 +3584,6 @@ spark = [
 [package.dev-dependencies]
 dev = [
     { name = "basedpyright" },
-    { name = "fastembed" },
     { name = "hypothesis" },
     { name = "langchain-core" },
     { name = "maturin" },
@@ -3608,6 +3610,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
+    { name = "fastembed", marker = "extra == 'embed'", specifier = ">=0.7.4" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "numpy", marker = "extra == 'all'" },
     { name = "pandas", marker = "extra == 'all'" },
@@ -3620,12 +3623,11 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.5" },
     { name = "tqdm", specifier = ">=4.67.3" },
 ]
-provides-extras = ["polars", "pandas", "arrow", "spark", "all"]
+provides-extras = ["polars", "pandas", "arrow", "spark", "embed", "all"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "basedpyright", specifier = ">=1.27.1" },
-    { name = "fastembed", specifier = ">=0.7.4" },
     { name = "hypothesis", specifier = ">=6.0" },
     { name = "langchain-core", specifier = ">=0.1.0" },
     { name = "maturin", specifier = ">=1.9,<2" },
