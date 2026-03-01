@@ -49,6 +49,7 @@ Zero Python overhead. Memory safe. Pre-compiled wheels for every major platform.
 | 🔎 **Filter & Sort** | Meilisearch-style filtering and sorting with Rust-level performance |
 | 📄 **Document Objects** | First-class `Document(content, metadata)` + LangChain compatibility |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs (Qdrant, LanceDB, FAISS, etc.) |
+| 🎯 **Retriever** | Batteries-included SOTA search — auto-selects BM25, embeddings (OpenAI/Cohere/HF), and reranker |
 
 ## Installation
 
@@ -177,6 +178,32 @@ hs = HybridSearch(docs, embeddings=embed_fn)
 results = hs.search("wireless headset", n=1)  # query auto-embedded!
 ```
 
+### Retriever — Easy API
+
+The `Retriever` class auto-selects the best pipeline — no manual wiring needed:
+
+```python
+from rustfuzz import Retriever
+
+# Simplest — BM25+ with fuzzy matching
+r = Retriever(docs)
+results = r.search("wireless headphones", n=5)
+
+# Auto-embed with OpenAI (or "cohere", "azure-openai", True for local HF)
+r = Retriever(docs, embeddings="openai", api_key="sk-...")
+
+# Full SOTA: BM25 + Fuzzy + Embeddings + Reranker
+r = Retriever(docs, embeddings="openai", reranker=cross_encoder_model)
+results = r.search("wireless headphones", n=10)
+
+# Config dataclass for reusable settings
+from rustfuzz import RetrieverConfig
+cfg = RetrieverConfig(algorithm="bm25l", k1=1.2, b=0.8)
+r = Retriever(docs, config=cfg, embeddings="cohere")
+```
+
+Supported embedding providers: `openai`, `openai-large`, `cohere`, `cohere-multilingual`, `azure-openai`, `azure-cohere`, any `"org/model"` HuggingFace name, or `True` for the default local model.
+
 ### Filtering & Sorting (Meilisearch-style)
 
 ```python
@@ -238,6 +265,7 @@ results = (
 | `rustfuzz.distance` | `Levenshtein`, `Hamming`, `Indel`, `Jaro`, `JaroWinkler`, `LCSseq`, `OSA`, `DamerauLevenshtein`, `Prefix`, `Postfix` |
 | `rustfuzz.process` | `extract`, `extractOne`, `extract_iter`, `cdist` |
 | `rustfuzz.search` | **`BM25`**, **`BM25L`**, **`BM25Plus`**, **`BM25T`**, **`HybridSearch`**, **`Document`** |
+| `rustfuzz.engine` | **`Retriever`**, **`RetrieverConfig`** — batteries-included easy API |
 | `rustfuzz.filter` | Meilisearch-style filter parser & evaluator |
 | `rustfuzz.sort` | Multi-key sort with dot notation |
 | `rustfuzz.query` | Fluent `SearchQuery` builder (`.filter().sort().search().collect()`) |

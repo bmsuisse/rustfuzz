@@ -211,4 +211,13 @@ class HybridSearch:
         bm25_candidates: int = 100,
     ) -> list[_Result] | list[_MetaResult]: ...
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch"]
+class Reranker:
+    def __init__(self, model_or_callable: Any) -> None: ...
+    def rerank(
+        self,
+        query: str,
+        results: list[_Result] | list[_MetaResult],
+        top_k: int = 10,
+    ) -> list[_Result] | list[_MetaResult]: ...
+
+__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]

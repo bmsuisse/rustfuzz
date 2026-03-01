@@ -7,6 +7,7 @@ from __future__ import annotations
 from . import (
     distance,
     document,
+    engine,
     filter,
     fuzz,
     join,
@@ -25,6 +26,7 @@ from ._rustfuzz import (  # noqa: F401
     ScoreAlignment,
 )
 from .document import Document
+from .engine import Retriever, RetrieverConfig
 
 __version__: str = "0.1.21"
 __author__: str = "BM Suisse"
@@ -32,6 +34,7 @@ __author__: str = "BM Suisse"
 __all__ = [
     "distance",
     "document",
+    "engine",
     "filter",
     "fuzz",
     "join",
@@ -41,6 +44,8 @@ __all__ = [
     "sort",
     "utils",
     "Document",
+    "Retriever",
+    "RetrieverConfig",
     "Editop",
     "Editops",
     "MatchingBlock",

@@ -418,8 +418,19 @@ class BM25:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def match(self, query: str, **kwargs: Any) -> Any:
+        """Execute a text search with the query builder."""
+        return _search_query(self).match(query, **kwargs)
+
+    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+        """Add a Reranker and start a query builder chain."""
+        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
-        """Convert this BM25 index into a HybridSearch index with dense embeddings."""
+        """
+        Convert this BM25 index into a full HybridSearch index by attaching
+        dense embeddings. Retains the corpus, k1, b, and metadata configurations.
+        """
         return HybridSearch(
             self._corpus,
             embeddings=embeddings,
@@ -864,6 +875,14 @@ class BM25Plus:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def match(self, query: str, **kwargs: Any) -> Any:
+        """Execute a text search with the query builder."""
+        return _search_query(self).match(query, **kwargs)
+
+    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+        """Add a Reranker and start a query builder chain."""
+        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25Plus index into a HybridSearch index with dense embeddings."""
         return HybridSearch(
@@ -1081,6 +1100,14 @@ class BM25T:
     def sort(self, expression: list[str] | str) -> Any:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
+
+    def match(self, query: str, **kwargs: Any) -> Any:
+        """Execute a text search with the query builder."""
+        return _search_query(self).match(query, **kwargs)
+
+    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+        """Add a Reranker and start a query builder chain."""
+        return _search_query(self).rerank(model_or_callable, top_k=top_k)
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25T index into a HybridSearch index with dense embeddings."""
@@ -1333,9 +1360,19 @@ class HybridSearch:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def match(self, query: str, **kwargs: Any) -> Any:
+        """Execute a text search with the query builder."""
+        return _search_query(self).match(query, **kwargs)
+
+    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+        """Add a Reranker and start a query builder chain."""
+        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], Any, float, float, list[Any] | None, str, float | None]]:
+    ) -> tuple[
+        type, tuple[list[str], Any, float, float, list[Any] | None, str, float | None]
+    ]:
         return (
             HybridSearch,
             (
@@ -1350,4 +1387,110 @@ class HybridSearch:
         )
 
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch"]
+class Reranker:
+    """
+    A 2nd-stage Reranker that uses a Cross-Encoder or custom scoring function
+    to re-evaluate and re-sort documents retrieved by a 1st-stage search engine.
+
+    Ideal for achieving State-of-the-Art (SOTA) retrieval pipelines. This class
+    wraps models from `EmbedAnything`, HuggingFace `sentence-transformers`, or
+    any callable that accepts a (query, list_of_texts) and returns float scores.
+
+    Parameters
+    ----------
+    model_or_callable : Any
+        A cross-encoder model object (must have `.predict()` or similar) or
+        a callable function `fn(query, texts) -> list[float]`.
+    """
+
+    def __init__(self, model_or_callable: Any) -> None:
+        self._model = model_or_callable
+        # Auto-detect common model interfaces
+        if hasattr(model_or_callable, "predict"):
+            # Typical sentence-transformers interface: .predict([(q, ctx), (q, ctx)])
+            self._score_fn = self._st_predict_wrapper
+        elif hasattr(model_or_callable, "compute_scores"):
+            # EmbedAnything Reranker ONNX: compute_scores returns nested [[score]] per pair
+            def _compute_scores(q: str, texts: list[str]) -> list[float]:
+                scores: list[float] = []
+                for t in texts:
+                    result = model_or_callable.compute_scores([q], [t], 1)
+                    # Flatten nested lists: [[0.96]] -> 0.96
+                    val = result[0] if isinstance(result[0], (int, float)) else result[0][0]
+                    scores.append(float(val))
+                return scores
+            self._score_fn = _compute_scores
+        elif hasattr(model_or_callable, "score"):
+            def _score(q: str, texts: list[str]) -> list[float]:
+                return model_or_callable.score(q, texts)
+            self._score_fn = _score
+        elif callable(model_or_callable):
+            self._score_fn = model_or_callable
+        else:
+            raise ValueError(
+                "Reranker model must be callable or provide a `.predict()`/`.score()` method."
+            )
+
+    def _st_predict_wrapper(self, query: str, texts: list[str]) -> list[float]:
+        pairs = [(query, t) for t in texts]
+        scores = self._model.predict(pairs)
+        if hasattr(scores, "tolist"):
+            return scores.tolist()
+        return list(scores)
+
+    def rerank(
+        self,
+        query: str,
+        results: list[_Result] | list[_MetaResult],
+        top_k: int = 10,
+    ) -> list[_Result] | list[_MetaResult]:
+        """
+        Re-score and re-order the given results from a search engine.
+
+        Parameters
+        ----------
+        query : str
+            The original search query.
+        results : list of tuples
+            The (text, score) or (text, score, meta) results to rerank.
+        top_k : int, default 10
+            The number of top re-ranked documents to return.
+
+        Returns
+        -------
+        list of tuples
+            The re-ranked results in descending order of the new score.
+        """
+        if not results:
+            return []
+
+        # Extract texts
+        texts = [res[0] for res in results]
+
+        # Get actual scores from the cross-encoder
+        try:
+            new_scores = self._score_fn(query, texts)
+        except Exception as e:
+            raise RuntimeError(f"Reranker model failed to score texts: {e}") from e
+
+        if len(new_scores) != len(results):
+            raise ValueError(
+                f"Reranker returned {len(new_scores)} scores for {len(results)} documents."
+            )
+
+        # Re-pack and sort
+        reranked = []
+        is_meta = len(results[0]) == 3
+        for i, new_score in enumerate(new_scores):
+            raw = results[i]
+            if is_meta:
+                # raw: (text, old_score, meta)
+                reranked.append((raw[0], float(new_score), raw[2]))
+            else:
+                reranked.append((raw[0], float(new_score)))
+
+        reranked.sort(key=lambda x: x[1], reverse=True)
+        return reranked[:top_k]
+
+
+__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]

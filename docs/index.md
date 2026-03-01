@@ -73,6 +73,7 @@ RapidFuzz is exceptional — its C++ core, SIMD intrinsics, and decades of optim
 | 🔍 **3-Way Hybrid Search** | BM25 + Fuzzy + Dense embeddings via RRF — 25ms at 1M docs, all in Rust |
 | 📄 **Document Objects** | First-class `Document(content, metadata)` + LangChain compatibility |
 | 🧩 **Ecosystem Integrations** | BM25, Hybrid Search, and LangChain Retrievers for Vector DBs |
+| 🎯 **Retriever** | Batteries-included SOTA search — auto-selects BM25, embeddings (OpenAI/Cohere/HF), and reranker |
 
 ---
 
@@ -157,5 +158,6 @@ results = (
 | [Fuzzy Full Join](cookbook/07_fuzzy_join.md) | Multi-array fuzzy joins with MultiJoiner & RRF fusion |
 | [**3-Way Hybrid Search**](cookbook/08_3way_hybrid_search.md) | **BM25 + Fuzzy + Dense via RRF — Document & LangChain support** |
 | [**EmbedAnything**](cookbook/11_embed_anything.md) | **Rust-native embeddings — dense + sparse, no PyTorch needed** |
+| [**Retriever**](cookbook/12_retriever.md) | **Batteries-included SOTA search — auto-selects BM25, embeddings & reranker** |
 
 Start exploring from the navigation menu on the left!

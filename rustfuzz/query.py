@@ -55,6 +55,7 @@ class SearchQuery:
     **Builder methods** (lazy, return self):
     - ``.filter(expr)`` — add a Meilisearch-style filter expression
     - ``.sort(expr)`` — add sort criteria
+    - ``.rerank(model, top_k)`` — add an optional cross-encoder reranker
     - ``.search(query, ...)`` — set the text search query (deferred)
     """
 
@@ -65,6 +66,8 @@ class SearchQuery:
         "_search_query",
         "_search_kwargs",
         "_search_method",
+        "_reranker",
+        "_rerank_top_k",
     )
 
     def __init__(self, owner: Any) -> None:
@@ -74,6 +77,8 @@ class SearchQuery:
         self._search_query: str | None = None
         self._search_kwargs: dict[str, Any] = {}
         self._search_method: str = "get_top_n"
+        self._reranker: Any = None
+        self._rerank_top_k: int = 10
 
     # ── Builder methods (return self) ───────────────────────
 
@@ -102,6 +107,30 @@ class SearchQuery:
             or ``"price:asc"``.
         """
         self._sort_expr = expression
+        return self
+
+    def rerank(self, model_or_callable: Any, top_k: int = 10) -> SearchQuery:
+        """
+        Add a reranker (e.g., EmbedAnything CrossEncoder) to re-score and re-order
+        the final results. This forces the base search engine to fetch more candidates
+        automatically to supply the reranker with enough documents.
+
+        Parameters
+        ----------
+        model_or_callable : Any
+            A cross-encoder model (must have `.predict()` or similar) or a callable
+            that accepts ``(query, [texts])`` and returns a list of float scores.
+        top_k : int, default 10
+            The final number of documents to return after reranking.
+        """
+        from .search import Reranker
+
+        if isinstance(model_or_callable, Reranker):
+            self._reranker = model_or_callable
+        else:
+            self._reranker = Reranker(model_or_callable)
+
+        self._rerank_top_k = top_k
         return self
 
     def search(
@@ -156,8 +185,9 @@ class SearchQuery:
         **kwargs
             Additional keyword arguments for the search method.
         """
+        method = kwargs.pop("method", "get_top_n")
         return self._execute(
-            "get_top_n", query, n=n, query_embedding=query_embedding, **kwargs
+            method, query, n=n, query_embedding=query_embedding, **kwargs
         )
 
     # ── Terminal methods ────────────────────────────────────
@@ -347,9 +377,14 @@ class SearchQuery:
                 kwargs.get("rrf_k", 60),
                 allowed,
             )
-        elif method in ("get_top_n_fuzzy", "get_top_n_phrase"):
-            # These don't have filtered variants — use get_top_n_filtered
-            raw = owner._index.get_top_n_filtered(query, kwargs.get("n", 5), allowed)
+        elif method == "get_top_n_fuzzy":
+            # These don't have filtered variants natively yet, but we will call the non-filtered
+            # version and let the Python side resolve it if needed, or if metadata is minimal.
+            # Currently `search.py` base classes do not take an `allowed` mask for fuzzy methods.
+            # We call it without the mask and let standard Python filtering apply if necessary.
+            raw = owner.get_top_n_fuzzy(query, kwargs.get("n", 5))
+        elif method == "get_top_n_phrase":
+            raw = owner.get_top_n_phrase(query, kwargs.get("n", 5))
         else:
             raise ValueError(f"Unknown search method: {method!r}")
 
@@ -359,6 +394,10 @@ class SearchQuery:
         # Apply sort (post-hoc on enriched results)
         if self._sort_expr is not None:
             results = apply_sort(results, self._sort_expr)
+
+        # Apply reranker
+        if self._reranker is not None:
+            results = self._reranker.rerank(query, results, top_k=self._rerank_top_k)
 
         return results
 
