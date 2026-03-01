@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-from hypothesis import given, strategies as st
+from hypothesis import given
+from hypothesis import strategies as st
 
 import rustfuzz.fuzz as fuzz
 import rustfuzz.utils as utils
@@ -20,7 +20,6 @@ from rustfuzz.distance import (
     Prefix,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fuzz / String Matching Properties
 # ---------------------------------------------------------------------------
@@ -30,7 +29,7 @@ def test_fuzz_ratio_identity(s: str) -> None:
     """The ratio of a string with itself should be 100.0. Token metrics may be 0 for empty strings."""
     assert fuzz.ratio(s, s) == 100.0
     assert fuzz.partial_ratio(s, s) == 100.0
-    
+
     if s and utils.default_process(s):
         assert fuzz.token_sort_ratio(s, s) == 100.0
         assert fuzz.token_set_ratio(s, s) == 100.0
@@ -111,11 +110,11 @@ def test_distance_bounds(s1: str, s2: str) -> None:
     for metric in DISTANCE_METRICS:
         dist = metric.distance(s1, s2)
         assert dist >= 0
-        
+
         if hasattr(metric, "normalized_distance"):
             nd = metric.normalized_distance(s1, s2)
             assert 0.0 <= nd <= 1.0
-            
+
         if hasattr(metric, "normalized_similarity"):
             ns = metric.normalized_similarity(s1, s2)
             assert 0.0 <= ns <= 1.0
@@ -164,7 +163,7 @@ def test_jaro_identity_non_empty(s: str) -> None:
     """Jaro metrics for identical strings (non-empty) should be 1.0."""
     assert Jaro.similarity(s, s) == 1.0
     assert JaroWinkler.similarity(s, s) == 1.0
-    
+
     if hasattr(Jaro, "normalized_similarity"):
         assert Jaro.normalized_similarity(s, s) == 1.0
         assert JaroWinkler.normalized_similarity(s, s) == 1.0

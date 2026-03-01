@@ -1,5 +1,5 @@
-import tomllib
 import tomli_w
+import tomllib
 
 with open("zensical.toml", "rb") as f:
     config = tomllib.load(f)
@@ -20,7 +20,6 @@ config["project"]["nav"] = [
         {"Real-World Examples": "cookbook/06_real_world.md"},
         {"Fuzzy Full Join": "cookbook/07_fuzzy_join.md"},
         {"3-Way Hybrid Search": "cookbook/08_3way_hybrid_search.md"},
-        {"FastEmbed Integration": "cookbook/09_fastembed.md"},
         {"Filter & Sort": "cookbook/10_filter_sort.md"},
         {"EmbedAnything Integration": "cookbook/11_embed_anything.md"}
     ]}
