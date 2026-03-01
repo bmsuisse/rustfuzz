@@ -6,7 +6,7 @@ for Ultra-Low Latency Information Retrieval" report.
 
 It implements a cascading, hardware-symbiotic pipeline that leverages:
 1. Eager BM25 Sparse Matrix Scoring
-2. Dense Vector Semantic Search (via FastEmbed)
+2. Dense Vector Semantic Search (via EmbedAnything)
 3. Non-parametric Reciprocal Rank Fusion (RRF)
 4. Hardware-accelerated Exact & Fuzzy fallbacks
 
@@ -18,10 +18,11 @@ import sys
 import time
 
 try:
-    from fastembed import TextEmbedding
+    import embed_anything
+    from embed_anything import EmbeddingModel
 except ImportError:
-    print("❌ fastembed is required to run the pipeline example.")
-    print("Please install via: uv add fastembed")
+    print("❌ embed-anything is required to run the pipeline example.")
+    print("Please install via: uv add embed-anything")
     sys.exit(1)
 
 from rustfuzz.search import Document, HybridSearch
@@ -31,7 +32,7 @@ def _divider(title: str) -> None:
     print("=" * max(len(title), 50))
 
 
-def build_pipeline_index(docs: list[Document], model: TextEmbedding) -> HybridSearch:
+def build_pipeline_index(docs: list[Document], model: EmbeddingModel) -> HybridSearch:
     """Builds the eager-scoring BM25 and Dense vector hybrid index."""
     t0 = time.perf_counter()
     
@@ -40,7 +41,8 @@ def build_pipeline_index(docs: list[Document], model: TextEmbedding) -> HybridSe
     
     # 1. Dense Semantic Generation
     # Generates standard float32 vectors mapped to local CPU memory
-    embeddings = [e.tolist() for e in model.embed(texts)]
+    embed_data = embed_anything.embed_query(texts, embedder=model)
+    embeddings = [item.embedding for item in embed_data]
     
     # 2. Build the Hybrid Index
     # This automatically computes eager BM25 scores and builds the internal RRF logic
@@ -51,14 +53,14 @@ def build_pipeline_index(docs: list[Document], model: TextEmbedding) -> HybridSe
     return pipeline
 
 
-def run_cascading_query(pipeline: HybridSearch, model: TextEmbedding, query: str, limit: int = 3):
+def run_cascading_query(pipeline: HybridSearch, model: EmbeddingModel, query: str, limit: int = 3):
     """Executes a 3-way asynchronous query fused by RRF."""
     print(f'\n🔎 QUERY: "{query}"')
     
     t0 = time.perf_counter()
     
     # Generate dense query payload
-    query_emb = list(model.embed([query]))[0].tolist()
+    query_emb = embed_anything.embed_query([query], embedder=model)[0].embedding
     t_embed = time.perf_counter()
     
     # Fetch results using the 3-way RRF internal engine
@@ -80,8 +82,8 @@ def run_cascading_query(pipeline: HybridSearch, model: TextEmbedding, query: str
 def main():
     _divider("🚀 3-Way Hybrid Search / Agentic RAG Pipeline Initialization")
     
-    print("[*] Loading quantization-optimized FastEmbed model [BAAI/bge-small-en-v1.5]")
-    model = TextEmbedding("BAAI/bge-small-en-v1.5")
+    print("[*] Loading Rust-native EmbedAnything model [sentence-transformers/all-MiniLM-L6-v2]")
+    model = EmbeddingModel.from_pretrained_hf(model_id="sentence-transformers/all-MiniLM-L6-v2")
     
     # Simulate a corpus that requires semantic, keyword, AND fuzzy matching to test the engine
     corpus = [

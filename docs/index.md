@@ -127,6 +127,21 @@ print(f"{text} — ${meta['price']}")
 # Apple iPhone 15 Pro Max — $1199
 ```
 
+### Custom BM25 variants via fluent builder
+
+You can seamlessly construct a `HybridSearch` model using *any* of the advanced BM25 variants (`BM25L`, `BM25Plus`, `BM25T`) via the `.to_hybrid()` builder method:
+
+```python
+from rustfuzz.search import BM25L
+
+results = (
+    BM25L(docs, delta=0.5, b=0.8)
+    .to_hybrid(embeddings=embeddings)
+    .filter('brand = "Apple"')
+    .match("iphone pro", n=10)
+)
+```
+
 ---
 
 ## Cookbook Recipes 🧑‍🍳
@@ -141,6 +156,6 @@ print(f"{text} — ${meta['price']}")
 | [Real-World Examples](cookbook/06_real_world.md) | Entity resolution, deduplication & production patterns |
 | [Fuzzy Full Join](cookbook/07_fuzzy_join.md) | Multi-array fuzzy joins with MultiJoiner & RRF fusion |
 | [**3-Way Hybrid Search**](cookbook/08_3way_hybrid_search.md) | **BM25 + Fuzzy + Dense via RRF — Document & LangChain support** |
-| [**FastEmbed**](cookbook/09_fastembed.md) | **Lightweight local embeddings — dense + sparse, no GPU needed** |
+| [**EmbedAnything**](cookbook/11_embed_anything.md) | **Rust-native embeddings — dense + sparse, no PyTorch needed** |
 
 Start exploring from the navigation menu on the left!

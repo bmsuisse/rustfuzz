@@ -128,3 +128,62 @@ def test_variant_fuzzy_only(cls, kwargs):
     assert len(results) == 2
     # All results should have scores > 0
     assert all(score > 0 for _, score in results)
+
+def test_hybrid_search_bm25_variants():
+    from rustfuzz.search import BM25L, BM25Plus, BM25T, HybridSearch
+    
+    docs = [
+        "Apple iPhone 15 Pro Max",
+        "Samsung Galaxy S24 Ultra",
+        "Google Pixel 8 Pro",
+        "Apple iPad Pro 12.9",
+    ]
+    
+    # Dummy embeddings
+    embeddings = [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    ]
+    
+    # Default is BM25Okapi
+    hs_default = HybridSearch(docs, embeddings=embeddings)
+    res_default = hs_default.search("iphone pro", n=2)
+    
+    # Test BM25L directly
+    hs_l = HybridSearch(docs, embeddings=embeddings, algorithm="bm25l", delta=0.5)
+    res_l = hs_l.search("iphone pro", n=2)
+    
+    # Test fluent chain
+    bm25_plus = BM25Plus(docs, delta=1.5)
+    hs_plus_fluent = bm25_plus.to_hybrid(embeddings=embeddings)
+    assert hs_plus_fluent._algorithm == "bm25+"
+    assert hs_plus_fluent._delta == 1.5
+    res_plus = hs_plus_fluent.search("iphone pro", n=2)
+    
+    # The models should produce different ranks/scores internally but we primarily 
+    # just test that they execute without error and return exactly 2 results.
+    assert len(res_default) == 2
+    assert len(res_l) == 2
+    assert len(res_plus) == 2
+    
+def test_hybrid_search_variant_pickling():
+    import pickle
+    from rustfuzz.search import BM25L
+    
+    docs = ["Apple iPhone", "Samsung Galaxy"]
+    embeddings = [[1.0, 0.0], [0.0, 1.0]]
+    
+    hs = BM25L(docs, delta=0.8).to_hybrid(embeddings=embeddings)
+    
+    # Round trip
+    hs_unpickled = pickle.loads(pickle.dumps(hs))
+    
+    assert hs_unpickled._algorithm == "bm25l"
+    assert hs_unpickled._delta == 0.8
+    assert hs_unpickled.has_vectors is True
+    
+    res = hs_unpickled.search("iphone")
+    assert res[0][0] == "Apple iPhone"
+

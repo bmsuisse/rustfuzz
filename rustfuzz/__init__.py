@@ -26,7 +26,7 @@ from ._rustfuzz import (  # noqa: F401
 )
 from .document import Document
 
-__version__: str = "0.1.16"
+__version__: str = "0.1.21"
 __author__: str = "BM Suisse"
 
 __all__ = [

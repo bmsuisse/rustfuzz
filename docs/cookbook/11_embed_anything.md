@@ -179,21 +179,6 @@ for r in joiner.join(n=1):
 
 ---
 
-## EmbedAnything vs FastEmbed
-
-| Feature | EmbedAnything | FastEmbed |
-|---------|--------------|-----------|
-| **Backend** | Candle (Rust) | ONNX Runtime |
-| **PyTorch** | Not required | Not required |
-| **File ingestion** | PDF, TXT, MD, images, audio | Text only |
-| **Sparse models** | SPLADE via HF | SPLADE via dedicated class |
-| **Vector streaming** | Built-in concurrent pipeline | N/A |
-| **GPU support** | Via `embed-anything-gpu` | Via ONNX GPU providers |
-
-Both libraries work great with `rustfuzz`. Choose EmbedAnything for the Rust-native pipeline and file ingestion, or FastEmbed for battle-tested ONNX inference.
-
----
-
 ## Tips
 
 - **First run**: Models download from HuggingFace on first use. Subsequent runs use the cache.
@@ -201,4 +186,4 @@ Both libraries work great with `rustfuzz`. Choose EmbedAnything for the Rust-nat
 - **Callback pattern**: Pass a callable to `HybridSearch(embeddings=fn)` to auto-embed queries at search time.
 - **No embedding at query time?** Omit `query_embedding=` — `HybridSearch` gracefully falls back to BM25 + fuzzy (2-way RRF).
 
-> **See also**: [3-Way Hybrid Search](08_3way_hybrid_search.md) for the full API reference, and [FastEmbed](09_fastembed.md) for the ONNX alternative.
+> **See also**: [3-Way Hybrid Search](08_3way_hybrid_search.md) for the full API reference.

@@ -1716,7 +1716,7 @@ impl BM25T {
 #[pyclass]
 pub struct HybridSearchIndex {
     /// The BM25 index (reuses existing implementation)
-    bm25: BM25Index,
+    bm25: BM25Variant,
     /// The original corpus strings
     corpus: Vec<String>,
     /// Reverse lookup: doc text → corpus index
@@ -1728,8 +1728,33 @@ pub struct HybridSearchIndex {
     /// BM25 parameters (for pickle)
     k1: f64,
     b: f64,
+    algorithm: String,
+    delta: Option<f64>,
     /// Optional per-document metadata stored as serde_json::Value for fast filter evaluation
     metadata: Option<Vec<JsonValue>>,
+}
+
+pub enum BM25Variant {
+    Okapi(BM25Index),
+    L(BM25L),
+    Plus(BM25Plus),
+    T(BM25T),
+}
+
+impl BM25Variant {
+    pub fn get_top_n_filtered(
+        &self,
+        query: &str,
+        n: usize,
+        allowed: Option<Vec<bool>>,
+    ) -> Vec<(String, f64)> {
+        match self {
+            Self::Okapi(idx) => idx.get_top_n_filtered(query, n, allowed),
+            Self::L(idx) => idx.get_top_n_filtered(query, n, allowed),
+            Self::Plus(idx) => idx.get_top_n_filtered(query, n, allowed),
+            Self::T(idx) => idx.get_top_n_filtered(query, n, allowed),
+        }
+    }
 }
 
 #[pymethods]
@@ -1747,14 +1772,17 @@ impl HybridSearchIndex {
     /// b : float
     ///     BM25 length normalisation.
     #[new]
-    #[pyo3(signature = (corpus, embeddings=None, k1=1.5, b=0.75))]
+    #[pyo3(signature = (corpus, embeddings=None, k1=1.5, b=0.75, algorithm=None, delta=None))]
     pub fn new(
         corpus: Vec<String>,
         embeddings: Option<Vec<Vec<f32>>>,
         k1: f64,
         b: f64,
+        algorithm: Option<&str>,
+        delta: Option<f64>,
     ) -> PyResult<Self> {
         let n = corpus.len();
+        let algo_str = algorithm.unwrap_or("bm25");
 
         // Validate embeddings
         let (emb, dim) = if let Some(ref e) = embeddings {
@@ -1783,17 +1811,26 @@ impl HybridSearchIndex {
             corpus_index.insert(doc.clone(), i);
         }
 
-        // Build BM25 index
-        let bm25 = BM25Index::new(corpus.clone(), k1, b, false);
+        let bm25_variant = match algo_str {
+            "bm25" => BM25Variant::Okapi(BM25Index::new(corpus.clone(), k1, b, false)),
+            "bm25l" => BM25Variant::L(BM25L::new(corpus.clone(), k1, b, delta.unwrap_or(0.5), false)),
+            "bm25+" => BM25Variant::Plus(BM25Plus::new(corpus.clone(), k1, b, delta.unwrap_or(1.0), false)),
+            "bm25t" => BM25Variant::T(BM25T::new(corpus.clone(), k1, b, false)),
+            _ => return Err(pyo3::exceptions::PyValueError::new_err(
+                format!("Unknown BM25 algorithm '{}'. Expected 'bm25', 'bm25l', 'bm25+', or 'bm25t'", algo_str)
+            )),
+        };
 
         Ok(HybridSearchIndex {
-            bm25,
+            bm25: bm25_variant,
             corpus,
             corpus_index,
             embeddings: emb,
             dim,
             k1,
             b,
+            algorithm: algo_str.to_string(),
+            delta,
             metadata: None,
         })
     }
@@ -1961,7 +1998,7 @@ impl HybridSearchIndex {
 
         // ── Step 5: Assemble and sort ────────────────────────
         let mut results: Vec<(String, f64)> = target_docs.into_iter()
-            .map(|(idx, doc)| (doc.clone(), rrf_scores[idx]))
+            .map(|(idx, doc): (usize, &String)| (doc.clone(), rrf_scores[idx]))
             .collect();
 
         results.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
@@ -2120,11 +2157,18 @@ impl HybridSearchIndex {
             None => py.None(),
         };
 
+        let py_delta = match slf.delta {
+            Some(d) => d.into_pyobject(py)?.into_any().unbind(),
+            None => py.None(),
+        };
+
         let args = PyTuple::new(py, [
             py_corpus.into_any().unbind(),
             py_emb,
             slf.k1.into_pyobject(py)?.into_any().unbind(),
             slf.b.into_pyobject(py)?.into_any().unbind(),
+            slf.algorithm.clone().into_pyobject(py)?.into_any().unbind(),
+            py_delta,
         ])?;
         Ok(PyTuple::new(py, [cls.into_any().unbind(), args.into_any().unbind()])?.into_any().unbind())
     }

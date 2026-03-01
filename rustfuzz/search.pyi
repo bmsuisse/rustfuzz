@@ -44,6 +44,7 @@ class BM25:
     def fuzzy_only(
         self, query: str, n: int = 5
     ) -> list[_Result] | list[_MetaResult]: ...
+    def to_hybrid(self, embeddings: Any) -> HybridSearch: ...
 
 class BM25L:
     def __init__(
@@ -86,6 +87,7 @@ class BM25L:
     def fuzzy_only(
         self, query: str, n: int = 5
     ) -> list[_Result] | list[_MetaResult]: ...
+    def to_hybrid(self, embeddings: Any) -> HybridSearch: ...
 
 class BM25Plus:
     def __init__(
@@ -128,6 +130,7 @@ class BM25Plus:
     def fuzzy_only(
         self, query: str, n: int = 5
     ) -> list[_Result] | list[_MetaResult]: ...
+    def to_hybrid(self, embeddings: Any) -> HybridSearch: ...
 
 class BM25T:
     def __init__(
@@ -169,6 +172,7 @@ class BM25T:
     def fuzzy_only(
         self, query: str, n: int = 5
     ) -> list[_Result] | list[_MetaResult]: ...
+    def to_hybrid(self, embeddings: Any) -> HybridSearch: ...
 
 class Document:
     """A lightweight document with content and metadata."""
@@ -191,6 +195,8 @@ class HybridSearch:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
+        algorithm: str = "bm25",
+        delta: float | None = None,
     ) -> None: ...
     @property
     def has_vectors(self) -> bool: ...

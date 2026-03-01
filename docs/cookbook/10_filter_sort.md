@@ -200,7 +200,7 @@ docs = [
     Document("Google Pixel 8 Pro",       {"brand": "Google", "price": 699}),
 ]
 
-# Provide dense embeddings for your corpus (e.g. from FastEmbed or OpenAI)
+# Provide dense embeddings for your corpus (e.g. from EmbedAnything or OpenAI)
 embeddings = [
     [0.9, 0.1, 0.0], # Apple
     [0.1, 0.8, 0.1], # Samsung

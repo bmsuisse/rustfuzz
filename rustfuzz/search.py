@@ -418,6 +418,17 @@ class BM25:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def to_hybrid(self, embeddings: Any) -> HybridSearch:
+        """Convert this BM25 index into a HybridSearch index with dense embeddings."""
+        return HybridSearch(
+            self._corpus,
+            embeddings=embeddings,
+            k1=self._k1,
+            b=self._b,
+            metadata=self._metadata,
+            algorithm="bm25",
+        )
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
@@ -628,6 +639,18 @@ class BM25L:
     def sort(self, expression: list[str] | str) -> Any:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
+
+    def to_hybrid(self, embeddings: Any) -> HybridSearch:
+        """Convert this BM25L index into a HybridSearch index with dense embeddings."""
+        return HybridSearch(
+            self._corpus,
+            embeddings=embeddings,
+            k1=self._k1,
+            b=self._b,
+            metadata=self._metadata,
+            algorithm="bm25l",
+            delta=self._delta,
+        )
 
     def __reduce__(
         self,
@@ -841,6 +864,18 @@ class BM25Plus:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def to_hybrid(self, embeddings: Any) -> HybridSearch:
+        """Convert this BM25Plus index into a HybridSearch index with dense embeddings."""
+        return HybridSearch(
+            self._corpus,
+            embeddings=embeddings,
+            k1=self._k1,
+            b=self._b,
+            metadata=self._metadata,
+            algorithm="bm25+",
+            delta=self._delta,
+        )
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
@@ -1047,6 +1082,17 @@ class BM25T:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
 
+    def to_hybrid(self, embeddings: Any) -> HybridSearch:
+        """Convert this BM25T index into a HybridSearch index with dense embeddings."""
+        return HybridSearch(
+            self._corpus,
+            embeddings=embeddings,
+            k1=self._k1,
+            b=self._b,
+            metadata=self._metadata,
+            algorithm="bm25t",
+        )
+
     def __reduce__(
         self,
     ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
@@ -1143,12 +1189,16 @@ class HybridSearch:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
+        algorithm: str = "bm25",
+        delta: float | None = None,
     ):
         # ── Coerce corpus (handles str, Document, LangChain) ──
         texts, auto_metadata = _coerce_corpus(corpus)
         self._corpus = texts
         self._k1 = k1
         self._b = b
+        self._algorithm = algorithm
+        self._delta = delta
 
         # Explicit metadata overrides auto-extracted metadata
         if metadata is not None:
@@ -1202,6 +1252,8 @@ class HybridSearch:
             emb_list,
             k1,
             b,
+            algorithm,
+            delta,
         )
 
         # ── Push metadata to Rust for blazing-fast filter evaluation ──
@@ -1283,7 +1335,7 @@ class HybridSearch:
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], Any, float, float, list[Any] | None]]:
+    ) -> tuple[type, tuple[list[str], Any, float, float, list[Any] | None, str, float | None]]:
         return (
             HybridSearch,
             (
@@ -1292,6 +1344,8 @@ class HybridSearch:
                 self._k1,
                 self._b,
                 self._metadata,
+                self._algorithm,
+                self._delta,
             ),
         )
 
