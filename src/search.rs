@@ -347,7 +347,7 @@ impl BM25Index {
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             // Fall back to all allowed docs
             self.corpus.iter().enumerate()
-                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
@@ -536,7 +536,7 @@ fn phrase_proximity_boost(
             // Check if any position pair is within window
             'outer: for &a in p1 {
                 for &b in p2 {
-                    let dist = if a > b { a - b } else { b - a };
+                    let dist = a.abs_diff(b);
                     if dist <= window {
                         hits += 1;
                         break 'outer;
@@ -779,7 +779,7 @@ impl BM25L {
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             self.corpus.iter().enumerate()
-                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
@@ -1153,7 +1153,7 @@ impl BM25Plus {
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             self.corpus.iter().enumerate()
-                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
@@ -1341,7 +1341,7 @@ impl BM25T {
             }
             for (term, tf) in raw_tf {
                 *df.entry(term.to_string()).or_insert(0) += 1;
-                term_postings.entry(term.to_string()).or_insert_with(Vec::new).push((i, tf));
+                term_postings.entry(term.to_string()).or_default().push((i, tf));
             }
         }
 
@@ -1557,7 +1557,7 @@ impl BM25T {
         let is_bm25_empty = bm25_results.is_empty();
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             self.corpus.iter().enumerate()
-                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
@@ -1854,7 +1854,7 @@ impl HybridSearchIndex {
         bm25_candidates: usize,
         allowed: Option<Vec<bool>>,
     ) -> PyResult<Vec<(String, f64)>> {
-        use crate::algorithms::indel_distance;
+        
 
         let candidates_n = bm25_candidates.max(n * 10);
 
@@ -1867,7 +1867,7 @@ impl HybridSearchIndex {
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             // BM25 returned nothing — fall back to all allowed docs
             self.corpus.iter().enumerate()
-                .filter(|(i, _)| allowed.as_ref().map_or(true, |m| i < &m.len() && m[*i]))
+                .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
             bm25_results.iter().map(|(doc, _)| {
@@ -2112,7 +2112,7 @@ impl HybridSearchIndex {
         let py_emb = match &slf.embeddings {
             Some(emb) => {
                 let rows: Vec<PyObject> = emb.iter().map(|row| {
-                    let pyrow = pyo3::types::PyList::new(py, row.iter().copied().collect::<Vec<f32>>()).unwrap();
+                    let pyrow = pyo3::types::PyList::new(py, row.to_vec()).unwrap();
                     pyrow.into_any().unbind()
                 }).collect();
                 pyo3::types::PyList::new(py, rows)?.into_any().unbind()

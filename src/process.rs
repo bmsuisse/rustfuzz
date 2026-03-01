@@ -163,7 +163,7 @@ fn score_bytes_parallel(
         let q_len = q_slice.len();
         let lensum = q_len + c_slice.len();
         if lensum == 0 {
-            return if score_cutoff.map_or(true, |co| 100.0 >= co) { Some(100.0) } else { None };
+            return if score_cutoff.is_none_or(|co| 100.0 >= co) { Some(100.0) } else { None };
         }
 
         let allowed_edits = score_cutoff
@@ -186,7 +186,38 @@ fn score_bytes_parallel(
 
         if dist == usize::MAX { return None; }
         let score = (1.0 - dist as f64 / lensum as f64) * 100.0;
-        return if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None };
+        return if score_cutoff.is_none_or(|c| score >= c) { Some(score) } else { None };
+    }
+
+    // Pre-filter for token-based scorers: compute cheap ratio upper bound.
+    // WRatio can at best scale ratio by 1/0.95 ≈ 1.053, but partial_ratio
+    // with len_ratio >= 1.5 can give 100.0 regardless of base ratio. So we
+    // only skip when len_ratio < 1.5 and histogram says it's hopeless.
+    if let Some(co) = score_cutoff {
+        if co > 0.0 {
+            let q_len = q_slice.len();
+            let c_len = c_slice.len();
+            let lensum = q_len + c_len;
+            if lensum > 0 {
+                let len_ratio = q_len.max(c_len) as f64 / q_len.min(c_len).max(1) as f64;
+                // For WRatio with len_ratio < 1.5: best possible = max(ratio, token_ratio * 0.95)
+                // So max contribution ≈ ratio. Quick histogram filter can prune.
+                if len_ratio < 1.5 {
+                    // Compute histogram-based upper-bound on the base ratio
+                    let mut c_hist = [0i32; 256];
+                    for &c in c_slice { c_hist[c as usize] += 1; }
+                    let hist_diff: i32 = q_hist.iter().zip(c_hist.iter()).map(|(&q, &c)| (q - c).abs()).sum();
+                    // hist_diff is a lower bound on indel distance
+                    let upper_bound_ratio = (1.0 - hist_diff as f64 / lensum as f64) * 100.0;
+                    // For WRatio <1.5: best = max(ratio, token_ratio * 0.95)
+                    // token_ratio ≤ 100, so best ≤ max(ratio, 95)
+                    // If upper_bound_ratio < cutoff AND 95 < cutoff, skip
+                    if upper_bound_ratio < co && 95.0 < co {
+                        return None;
+                    }
+                }
+            }
+        }
     }
 
     let score = match stype {
@@ -201,7 +232,7 @@ fn score_bytes_parallel(
          _ => 0.0,
     };
     
-    if score_cutoff.map_or(true, |c| score >= c) { Some(score) } else { None }
+    if score_cutoff.is_none_or(|c| score >= c) { Some(score) } else { None }
 }
 
 /// Minimum batch size to justify Rayon parallelism (avoids overhead on small batches)
@@ -307,7 +338,7 @@ pub fn extract(
                             |mut heap, (idx, opt)| {
                                 let current_cutoff = f64::from_bits(global_cutoff.load(Ordering::Relaxed));
                                 if let Some(c_slice) = opt {
-                                    if let Some(score) = score_bytes_parallel(stype, *c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, Some(current_cutoff), token_cache) {
+                                    if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, Some(current_cutoff), token_cache) {
                                         if heap.len() < limit_val {
                                             heap.push(Reverse(ScoreItem { score, idx }));
                                             if heap.len() == limit_val {
@@ -358,6 +389,96 @@ pub fn extract(
 
                 // Fast path for extractOne / limit=1
                 if limit_val == 1 {
+                    // --- Large batch path for extractOne ---
+                    if n >= PARALLEL_THRESHOLD {
+                        // Phase 1: extract byte slices (GIL held)
+                        let mut slices: Vec<Option<&'static [u8]>> = Vec::with_capacity(n);
+                        for idx in 0..n {
+                            let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, idx as isize) };
+                            if raw.is_null() || raw == unsafe { pyo3::ffi::Py_None() } {
+                                slices.push(None);
+                                continue;
+                            }
+                            let s: Option<&'static [u8]> = if unsafe { pyo3::ffi::PyUnicode_Check(raw) } != 0 {
+                                let mut length: isize = 0;
+                                let ptr = unsafe { pyo3::ffi::PyUnicode_AsUTF8AndSize(raw, &mut length) };
+                                if ptr.is_null() { None } else {
+                                    let s = unsafe { std::slice::from_raw_parts(ptr as *const u8, length as usize) };
+                                    if s.is_ascii() { Some(unsafe { std::mem::transmute(s) }) } else { None }
+                                }
+                            } else if unsafe { pyo3::ffi::PyBytes_Check(raw) } != 0 {
+                                let len = unsafe { pyo3::ffi::PyBytes_Size(raw) } as usize;
+                                let ptr = unsafe { pyo3::ffi::PyBytes_AsString(raw) } as *const u8;
+                                Some(unsafe { std::mem::transmute(std::slice::from_raw_parts(ptr, len)) })
+                            } else { None };
+                            slices.push(s);
+                        }
+
+                        let q_hist_ref = &q_hist;
+                        let q_pm_ref = &q_pm;
+
+                        // For Ratio/QRatio/PartialRatio: use Rayon parallel
+                        if matches!(stype, ScorerType::Ratio | ScorerType::QRatio | ScorerType::PartialRatio) {
+                            let global_cutoff = AtomicU64::new(init_cutoff.to_bits());
+                            let best = py.allow_threads(|| {
+                                slices.par_iter().enumerate().fold(
+                                    || (f64::NEG_INFINITY, usize::MAX),
+                                    |(best_s, best_i), (idx, opt)| {
+                                        let cur_cut = f64::from_bits(global_cutoff.load(Ordering::Relaxed));
+                                        if let Some(c_slice) = opt {
+                                            if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, Some(cur_cut), token_cache) {
+                                                if score > best_s {
+                                                    global_cutoff.fetch_max(score.to_bits(), Ordering::Relaxed);
+                                                    return (score, idx);
+                                                }
+                                            }
+                                        }
+                                        (best_s, best_i)
+                                    },
+                                ).reduce(
+                                    || (f64::NEG_INFINITY, usize::MAX),
+                                    |(s1, i1), (s2, i2)| if s1 >= s2 { (s1, i1) } else { (s2, i2) },
+                                )
+                            });
+
+                            let (best_score, best_idx) = best;
+                            if best_idx != usize::MAX && best_score >= init_cutoff {
+                                let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, best_idx as isize) };
+                                let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                                results.push((obj, best_score, best_idx));
+                            }
+                            return Ok(results);
+                        }
+
+                        // Token-based scorers: sequential GIL-free pass with aggressive cutoff
+                        let (best_score, best_idx) = py.allow_threads(|| {
+                            let mut best_s: f64 = -1.0;
+                            let mut best_i: usize = usize::MAX;
+                            let mut cut = init_cutoff;
+                            
+                            for (idx, opt_slice) in slices.iter().enumerate() {
+                                if let Some(c_slice) = opt_slice {
+                                    if let Some(score) = score_bytes_parallel(stype, c_slice, q_slice, q_hist_ref, q_pm_ref, use_pm, Some(cut), token_cache) {
+                                        if score > best_s {
+                                            best_s = score;
+                                            best_i = idx;
+                                            cut = cut.max(score);
+                                        }
+                                    }
+                                }
+                            }
+                            (best_s, best_i)
+                        });
+
+                        if best_idx != usize::MAX && best_score >= init_cutoff {
+                            let raw = unsafe { pyo3::ffi::PyList_GetItem(list_ptr, best_idx as isize) };
+                            let obj = unsafe { pyo3::ffi::Py_INCREF(raw); PyObject::from_owned_ptr(py, raw) };
+                            results.push((obj, best_score, best_idx));
+                        }
+                        return Ok(results);
+                    }
+
+                    // --- Sequential path for small lists ---
                     let mut best_score: f64 = -1.0;
                     let mut best_idx: usize = usize::MAX;
 
@@ -407,11 +528,9 @@ pub fn extract(
                     if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
                         if heap.len() < limit_val {
                             heap.push(Reverse(ScoreItem { score, idx }));
-                        } else {
-                            if let Some(mut peek) = heap.peek_mut() {
-                                if score > peek.0.score {
-                                    peek.0 = ScoreItem { score, idx };
-                                }
+                        } else if let Some(mut peek) = heap.peek_mut() {
+                            if score > peek.0.score {
+                                peek.0 = ScoreItem { score, idx };
                             }
                         }
                         if heap.len() == limit_val {
@@ -490,11 +609,9 @@ pub fn extract(
                     if let Some((score, _)) = unsafe { score_raw(stype,raw, q_slice, &q_hist, &q_pm, use_pm, Some(current_cutoff), token_cache) } {
                         if heap.len() < limit_val {
                             heap.push(Reverse(ScoreItem { score, idx }));
-                        } else {
-                            if let Some(mut peek) = heap.peek_mut() {
-                                if score > peek.0.score {
-                                    peek.0 = ScoreItem { score, idx };
-                                }
+                        } else if let Some(mut peek) = heap.peek_mut() {
+                            if score > peek.0.score {
+                                peek.0 = ScoreItem { score, idx };
                             }
                         }
                         if heap.len() == limit_val {
@@ -602,7 +719,7 @@ pub fn extract(
 
         let score = execute_scorer(py, stype, scorer_obj.as_ref(), &processed_query, &choice,
             processor.as_ref().map(|p| p.clone_ref(py)), score_cutoff)?;
-        if score_cutoff.map_or(true, |c| score >= c) {
+        if score_cutoff.is_none_or(|c| score >= c) {
             results.push((choice.into(), score, idx));
         }
     }
@@ -687,8 +804,8 @@ pub fn cdist(
         }
     };
 
-    let q_bytes: Vec<Option<&'static [u8]>> = q_list.iter().map(|o| extract_bytes(o)).collect();
-    let c_bytes: Vec<Option<&'static [u8]>> = c_list.iter().map(|o| extract_bytes(o)).collect();
+    let q_bytes: Vec<Option<&'static [u8]>> = q_list.iter().map(&extract_bytes).collect();
+    let c_bytes: Vec<Option<&'static [u8]>> = c_list.iter().map(extract_bytes).collect();
 
     // Build per-query histogram and PM for fast scoring
     struct QueryCache {
@@ -732,7 +849,7 @@ pub fn cdist(
                         _ => return 0.0,
                     };
                     let score = score_bytes_parallel(
-                        stype, *cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
+                        stype, cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
                     );
                     score.unwrap_or(0.0)
                 }).collect::<Vec<f64>>()
@@ -746,7 +863,7 @@ pub fn cdist(
                         _ => return 0.0,
                     };
                     let score = score_bytes_parallel(
-                        stype, *cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
+                        stype, cb, qc.bytes, &qc.hist, &qc.pm, qc.use_pm, score_cutoff, qc.token_cache.as_ref()
                     );
                     score.unwrap_or(0.0)
                 }).collect::<Vec<f64>>()

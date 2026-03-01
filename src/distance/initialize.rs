@@ -101,7 +101,7 @@ impl Editop {
             self.dest_pos.into_pyobject(py)?.into_any().unbind(),
         ];
         let i = if idx < 0 { 3 + idx } else { idx };
-        if i < 0 || i >= 3 {
+        if !(0..3).contains(&i) {
             return Err(pyo3::exceptions::PyIndexError::new_err("index out of range"));
         }
         Ok(items[i as usize].clone_ref(py))
@@ -234,7 +234,7 @@ impl Opcode {
             self.dest_end.into_pyobject(py)?.into_any().unbind(),
         ];
         let i = if idx < 0 { 5 + idx } else { idx };
-        if i < 0 || i >= 5 {
+        if !(0..5).contains(&i) {
             return Err(pyo3::exceptions::PyIndexError::new_err("index out of range"));
         }
         Ok(items[i as usize].clone_ref(py))
@@ -336,7 +336,7 @@ impl ScoreAlignment {
             self.dest_end.into_pyobject(py)?.into_any().unbind(),
         ];
         let i = if idx < 0 { 5 + idx } else { idx };
-        if i < 0 || i >= 5 {
+        if !(0..5).contains(&i) {
             return Err(pyo3::exceptions::PyIndexError::new_err("index out of range"));
         }
         Ok(items[i as usize].clone_ref(py))

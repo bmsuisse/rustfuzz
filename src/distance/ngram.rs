@@ -83,7 +83,7 @@ pub fn sorensen_dice(
     let v2 = extract_single(&p2)?;
 
     let sim = match (&v1, &v2) {
-        (Seq::Ascii(a), Seq::Ascii(b)) => sorensen_dice_similarity(*a, *b, n),
+        (Seq::Ascii(a), Seq::Ascii(b)) => sorensen_dice_similarity(a, b, n),
         (Seq::U32(a), Seq::U32(b)) => sorensen_dice_similarity(a, b, n),
         (Seq::U64(a), Seq::U64(b)) => sorensen_dice_similarity(a, b, n),
         _ => return Err(pyo3::exceptions::PyValueError::new_err("Mismatched sequence types")),
@@ -113,7 +113,7 @@ pub fn jaccard(
     let v2 = extract_single(&p2)?;
 
     let sim = match (&v1, &v2) {
-        (Seq::Ascii(a), Seq::Ascii(b)) => jaccard_similarity(*a, *b, n),
+        (Seq::Ascii(a), Seq::Ascii(b)) => jaccard_similarity(a, b, n),
         (Seq::U32(a), Seq::U32(b)) => jaccard_similarity(a, b, n),
         (Seq::U64(a), Seq::U64(b)) => jaccard_similarity(a, b, n),
         _ => return Err(pyo3::exceptions::PyValueError::new_err("Mismatched sequence types")),

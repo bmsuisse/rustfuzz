@@ -13,7 +13,7 @@ use crate::algorithms as alg;
 macro_rules! dispatch_metric {
     ($func:path, $s1:expr, $s2:expr $(, $args:expr)*) => {
         match ($s1, $s2) {
-            (crate::types::Seq::Ascii(a), crate::types::Seq::Ascii(b)) => $func(*a, *b $(, $args)*),
+            ($crate::types::Seq::Ascii(a), crate::types::Seq::Ascii(b)) => $func(*a, *b $(, $args)*),
             (crate::types::Seq::Ascii(a), crate::types::Seq::U32(b)) => $func(&a.iter().map(|&x| x as u32).collect::<Vec<_>>(), b $(, $args)*),
             (crate::types::Seq::Ascii(a), crate::types::Seq::U64(b)) => $func(&a.iter().map(|&x| x as u64).collect::<Vec<_>>(), b $(, $args)*),
             (crate::types::Seq::U32(a), crate::types::Seq::Ascii(b)) => $func(a, &b.iter().map(|&x| x as u32).collect::<Vec<_>>() $(, $args)*),

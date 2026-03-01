@@ -139,7 +139,7 @@ fn myers_64<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
 
 fn myers_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let len1 = s1.len();
-    let words = (len1 + 63) / 64;
+    let words = len1.div_ceil(64);
 
     // Build pattern bitmasks per word (keyed by character)
     let mut pm = PatternMaskMulti::new(words);
@@ -156,7 +156,7 @@ fn myers_multiword<T: HashableChar>(s1: &[T], s2: &[T]) -> usize {
     let mut dist = len1;
 
     // last_bits: number of valid bits in the last word
-    let last_bits = if len1 % 64 == 0 { 64 } else { len1 % 64 };
+    let last_bits = if len1.is_multiple_of(64) { 64 } else { len1 % 64 };
     let last_valid_mask: u64 = if last_bits == 64 { u64::MAX } else { (1u64 << last_bits) - 1 };
     let last_mask: u64 = 1u64 << (last_bits - 1);
     // Mask last word of initial VP to valid bits only
@@ -371,8 +371,8 @@ fn levenshtein_editops_bitvec<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize) -
 fn levenshtein_editops_multiword<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize) -> Vec<(String, usize, usize)> {
     let m = s1.len();
     let n = s2.len();
-    let words = (m + 63) / 64;
-    let last_bits = if m % 64 == 0 { 64 } else { m % 64 };
+    let words = m.div_ceil(64);
+    let last_bits = if m.is_multiple_of(64) { 64 } else { m % 64 };
     let last_valid_mask: u64 = if last_bits == 64 { u64::MAX } else { (1u64 << last_bits) - 1 };
 
     // Build pattern bitmasks
@@ -462,7 +462,7 @@ pub fn lcs_length_64_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Opti
     
     let required_lcs = max_dist.map(|d| {
         let diff = m + n;
-        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+        if diff <= d { 0 } else { (diff - d).div_ceil(2) }
     });
 
     for (i, &c) in s2.iter().enumerate() {
@@ -490,7 +490,7 @@ pub fn lcs_from_pm64(pm: &PatternMask64<u8>, q_len: usize, s2: &[u8], max_dist: 
 
     let required_lcs = max_dist.map(|d| {
         let diff = q_len + n;
-        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+        if diff <= d { 0 } else { (diff - d).div_ceil(2) }
     });
 
     let mut v = !0u64;
@@ -601,7 +601,7 @@ pub fn partial_ratio_ascii_fast(needle: &[u8], haystack: &[u8]) -> f64 {
 fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: Option<usize>) -> usize {
     let m = s1.len();
     let n = s2.len();
-    let words = (m + 63) / 64;
+    let words = m.div_ceil(64);
     let mut pm = PatternMaskMulti::new(words);
     for (i, &c) in s1.iter().enumerate() {
         pm.set_bit(c, i / 64, i % 64);
@@ -609,12 +609,12 @@ fn lcs_length_multiword_bounded<T: HashableChar>(s1: &[T], s2: &[T], max_dist: O
 
     let mut v = vec![!0u64; words];
     let mut next_v = vec![0u64; words]; // hoisted scratch buffer
-    let last_bits = if m % 64 == 0 { 64 } else { m % 64 };
+    let last_bits = if m.is_multiple_of(64) { 64 } else { m % 64 };
     let mask = if last_bits == 64 { !0u64 } else { (1u64 << last_bits) - 1 };
 
     let required_lcs = max_dist.map(|d| {
         let diff = m + n;
-        if diff <= d { 0 } else { (diff - d + 1) / 2 }
+        if diff <= d { 0 } else { (diff - d).div_ceil(2) }
     });
 
     for (i, &c) in s2.iter().enumerate() {
@@ -702,7 +702,7 @@ pub fn indel_distance<T: HashableChar>(s1: &[T], s2: &[T], score_cutoff: Option<
     let lcs = lcs_length(s1, s2, score_cutoff);
     let dist = s1.len() + s2.len() - 2 * lcs;
     
-    if score_cutoff.map_or(false, |c| dist > c) {
+    if score_cutoff.is_some_and(|c| dist > c) {
         return usize::MAX;
     }
     dist

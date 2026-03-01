@@ -37,7 +37,7 @@ fn gotoh_raw(v1: &Seq<'_>, v2: &Seq<'_>, op: usize, ep: usize) -> PyResult<(usiz
         // But we must also compare against replacing all min(m,n) chars + gapping the rest
         let gap_all = 2 * op + (m + n) * ep;
         let replace_min = m.min(n) * 100; // 100 = mismatch cost in scaled units
-        let diff = if m > n { m - n } else { n - m };
+        let diff = m.abs_diff(n);
         let replace_and_gap = if diff == 0 {
             replace_min
         } else {

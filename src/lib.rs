@@ -109,10 +109,10 @@ fn _rustfuzz(_py: Python<'_>, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(metrics::postfix_normalized_distance, m)?)?;
     m.add_function(wrap_pyfunction!(metrics::postfix_normalized_similarity, m)?)?;
 
-    distance::phonetic::register(&m)?;
-    distance::gotoh::register(&m)?;
-    distance::ngram::register(&m)?;
-    distance::bktree::register(&m)?;
+    distance::phonetic::register(m)?;
+    distance::gotoh::register(m)?;
+    distance::ngram::register(m)?;
+    distance::bktree::register(m)?;
 
     Ok(())
 }
