@@ -24,6 +24,7 @@ from rustfuzz.distance import (
 # Fuzz / String Matching Properties
 # ---------------------------------------------------------------------------
 
+
 @given(st.text())
 def test_fuzz_ratio_identity(s: str) -> None:
     """The ratio of a string with itself should be 100.0. Token metrics may be 0 for empty strings."""
@@ -58,7 +59,9 @@ def test_fuzz_ratio_bounds(s1: str, s2: str) -> None:
     ]
     for method in methods:
         score = method(s1, s2)
-        assert 0.0 <= score <= 100.0, f"{method.__name__} returned {score} which is out of bounds."
+        assert 0.0 <= score <= 100.0, (
+            f"{method.__name__} returned {score} which is out of bounds."
+        )
 
 
 @given(st.text(), st.text())
@@ -70,6 +73,7 @@ def test_fuzz_ratio_symmetry(s1: str, s2: str) -> None:
 # ---------------------------------------------------------------------------
 # Utils Properties
 # ---------------------------------------------------------------------------
+
 
 @given(st.text())
 def test_utils_default_process(s: str) -> None:
@@ -92,6 +96,7 @@ DISTANCE_METRICS = [
     Postfix,
     Prefix,
 ]
+
 
 @given(st.text())
 def test_distance_identity(s: str) -> None:
@@ -139,6 +144,7 @@ def test_levenshtein_triangle_inequality(s1: str, s2: str, s3: str) -> None:
 # Hamming Properties
 # ---------------------------------------------------------------------------
 
+
 @given(st.text())
 def test_hamming_identity(s: str) -> None:
     """Hamming distance of string to itself should be 0."""
@@ -157,6 +163,7 @@ def test_hamming_bounds(s1: str, s2: str) -> None:
 # ---------------------------------------------------------------------------
 # Jaro / JaroWinkler Properties
 # ---------------------------------------------------------------------------
+
 
 @given(st.text(min_size=1))
 def test_jaro_identity_non_empty(s: str) -> None:
