@@ -435,9 +435,20 @@ class BM25:
         """Execute a text search with the query builder."""
         return _search_query(self).match(query, **kwargs)
 
-    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> Any:
         """Add a Reranker and start a query builder chain."""
-        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+        return _search_query(self).rerank(
+            model_or_callable,
+            top_k=top_k,
+            blend_alpha=blend_alpha,
+            adaptive_blend=adaptive_blend
+        )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """
@@ -955,9 +966,20 @@ class BM25Plus:
         """Execute a text search with the query builder."""
         return _search_query(self).match(query, **kwargs)
 
-    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> Any:
         """Add a Reranker and start a query builder chain."""
-        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+        return _search_query(self).rerank(
+            model_or_callable,
+            top_k=top_k,
+            blend_alpha=blend_alpha,
+            adaptive_blend=adaptive_blend
+        )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25Plus index into a HybridSearch index with dense embeddings."""
@@ -1213,9 +1235,20 @@ class BM25T:
         """Execute a text search with the query builder."""
         return _search_query(self).match(query, **kwargs)
 
-    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> Any:
         """Add a Reranker and start a query builder chain."""
-        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+        return _search_query(self).rerank(
+            model_or_callable,
+            top_k=top_k,
+            blend_alpha=blend_alpha,
+            adaptive_blend=adaptive_blend
+        )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25T index into a HybridSearch index with dense embeddings."""
@@ -1472,9 +1505,20 @@ class HybridSearch:
         """Execute a text search with the query builder."""
         return _search_query(self).match(query, **kwargs)
 
-    def rerank(self, model_or_callable: Any, top_k: int = 10) -> Any:
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> Any:
         """Add a Reranker and start a query builder chain."""
-        return _search_query(self).rerank(model_or_callable, top_k=top_k)
+        return _search_query(self).rerank(
+            model_or_callable,
+            top_k=top_k,
+            blend_alpha=blend_alpha,
+            adaptive_blend=adaptive_blend
+        )
 
     def __reduce__(
         self,
@@ -1509,10 +1553,19 @@ class Reranker:
     model_or_callable : Any
         A cross-encoder model object (must have `.predict()` or similar) or
         a callable function `fn(query, texts) -> list[float]`.
+    blend_alpha : float, default 0.0
+        If > 0.0, blends the original retrieval rank with the reranker score.
+        E.g., 0.1 means 10% original rank score, 90% reranker score.
+        Useful to prevent the reranker from completely destroying a good BM25 ranking.
+    adaptive_blend : bool, default False
+        If True, dynamically adjusts blend_alpha based on the variance of the
+        reranker's scores. High variance = trust reranker more.
     """
 
-    def __init__(self, model_or_callable: Any) -> None:
+    def __init__(self, model_or_callable: Any, blend_alpha: float = 0.0, adaptive_blend: bool = False) -> None:
         self._model = model_or_callable
+        self.blend_alpha = blend_alpha
+        self.adaptive_blend = adaptive_blend
         # Auto-detect common model interfaces
         if hasattr(model_or_callable, "predict"):
             # Typical sentence-transformers interface: .predict([(q, ctx), (q, ctx)])
@@ -1577,7 +1630,8 @@ class Reranker:
 
         # Get actual scores from the cross-encoder
         try:
-            new_scores = self._score_fn(query, texts)
+            # Type ignore is needed here because the generic callable signature may be opaque
+            new_scores = cast("list[float]", self._score_fn(query, texts))
         except Exception as e:
             raise RuntimeError(f"Reranker model failed to score texts: {e}") from e
 
@@ -1585,6 +1639,31 @@ class Reranker:
             raise ValueError(
                 f"Reranker returned {len(new_scores)} scores for {len(results)} documents."
             )
+
+        # Apply score blending if configured
+        alpha = self.blend_alpha
+        if self.adaptive_blend and len(new_scores) > 1:
+            mean_s = sum(float(x) for x in new_scores) / len(new_scores)
+            variance = sum([float((float(s) - mean_s) ** 2) for s in new_scores]) / len(new_scores)
+            std_dev = variance ** 0.5
+            # Adaptive alpha: high std -> trust reranker (alpha->0), low std -> trust BM25 (alpha->1)
+            alpha = max(0.0, min(1.0, 0.5 - std_dev * 0.1))
+
+        if alpha > 0.0 and len(new_scores) > 0:
+            # Rank-based score for original retrieval results (1.0 for 1st, 0.5 for 2nd, etc)
+            orig_scores = {text: 1.0 / (rank + 1) for rank, text in enumerate(texts)}
+
+            # Min-max normalize reranker scores
+            min_s = min(new_scores)
+            max_s = max(new_scores)
+            rng = max_s - min_s + 1e-10
+
+            blended = []
+            for text, r_s in zip(texts, new_scores, strict=True):
+                b_s = orig_scores.get(text, 0.0)
+                norm_r = (r_s - min_s) / rng
+                blended.append(alpha * b_s + (1.0 - alpha) * norm_r)
+            new_scores = blended
 
         # Re-pack and sort
         reranked = []

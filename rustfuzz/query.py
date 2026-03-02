@@ -109,7 +109,13 @@ class SearchQuery:
         self._sort_expr = expression
         return self
 
-    def rerank(self, model_or_callable: Any, top_k: int = 10) -> SearchQuery:
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> SearchQuery:
         """
         Add a reranker (e.g., EmbedAnything CrossEncoder) to re-score and re-order
         the final results. This forces the base search engine to fetch more candidates
@@ -119,16 +125,26 @@ class SearchQuery:
         ----------
         model_or_callable : Any
             A cross-encoder model (must have `.predict()` or similar) or a callable
-            that accepts ``(query, [texts])`` and returns a list of float scores.
+            that accepts `(query, [texts])` and returns a list of float scores.
         top_k : int, default 10
             The final number of documents to return after reranking.
+        blend_alpha : float, default 0.0
+            Weight of the original BM25/Hybrid rank (0.0 to 1.0).
+        adaptive_blend : bool, default False
+            If True, dynamically adjusts blend_alpha based on reranker score variance.
         """
         from .search import Reranker
 
         if isinstance(model_or_callable, Reranker):
             self._reranker = model_or_callable
+            if blend_alpha > 0.0:
+                self._reranker.blend_alpha = blend_alpha
+            if adaptive_blend:
+                self._reranker.adaptive_blend = adaptive_blend
         else:
             self._reranker = Reranker(model_or_callable)
+            self._reranker.blend_alpha = blend_alpha
+            self._reranker.adaptive_blend = adaptive_blend
 
         self._rerank_top_k = top_k
         return self
