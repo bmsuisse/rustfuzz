@@ -60,7 +60,7 @@ def test_reranker_with_fuzzy_fallback():
         "apple iphone 15 pro max",
         "samsung galaxy s24 ultra",
     ]
-    
+
     # We'll make our dummy cross encoder slightly smarter for this test
     # so it grants 1 point if "iphn" is in the query and "iphone" in the context
     class SmarterDummy(DummyCrossEncoder):
@@ -84,7 +84,7 @@ def test_reranker_with_fuzzy_fallback():
         .search("iphn", method="get_top_n_fuzzy", n=10)
         .collect()
     )
-    
+
     # Debug what chain produces
     print(f"Chain res: {chain_res}")
 

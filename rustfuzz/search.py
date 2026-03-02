@@ -334,19 +334,14 @@ class BM25:
         n: int = 5,
         reranker: Any = None,
         rerank_candidates: int = 50,
+        blend_alpha: float = 0.0,
     ) -> list[_Result] | list[_MetaResult]:
         """
         BM25 retrieval + external reranker callback.
 
-        Parameters
-        ----------
-        query : str
-        n : int
-            Final number of results.
-        reranker : Callable[[str, list[str]], list[float]] | None
-            Function ``(query, docs) -> scores``. If None, falls back to BM25.
-        rerank_candidates : int
-            How many BM25 candidates to pass to the reranker.
+        If `blend_alpha > 0.0`, blends BM25 normalized ranks with reranker min-max
+        normalized scores via: `blend_alpha * bm25_rank_score + (1 - blend_alpha) * rerank_score`.
+        Higher blend_alpha trusts BM25 more.
         """
         if reranker is None:
             return self.get_top_n(query, n)
@@ -357,6 +352,24 @@ class BM25:
 
         docs = [d for d, _ in candidates]
         rerank_scores = reranker(query, docs)
+
+        if blend_alpha > 0.0 and len(rerank_scores) > 0:
+            # Normalized BM25 based on inverse rank
+            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+
+            # Normalize reranker scores between 0 and 1
+            min_s = min(rerank_scores)
+            max_s = max(rerank_scores)
+            rng = max_s - min_s + 1e-10
+
+            blended_scores = []
+            for doc, r_s in zip(docs, rerank_scores, strict=False):
+                b_s = bm25_scores.get(doc, 0.0)
+                norm_r = (r_s - min_s) / rng
+                final = blend_alpha * b_s + (1.0 - blend_alpha) * norm_r
+                blended_scores.append(final)
+            rerank_scores = blended_scores
+
         paired = sorted(
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
@@ -594,16 +607,47 @@ class BM25L:
             self._corpus_index = _build_corpus_index(self._corpus)
 
     def get_top_n_reranked(
-        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+        self,
+        query: str,
+        n: int = 5,
+        reranker: Any = None,
+        rerank_candidates: int = 50,
+        blend_alpha: float = 0.0,
     ) -> list[_Result] | list[_MetaResult]:
-        """BM25 retrieval + external reranker callback."""
+        """
+        BM25 retrieval + external reranker callback.
+
+        If `blend_alpha > 0.0`, blends BM25 normalized ranks with reranker min-max
+        normalized scores via: `blend_alpha * bm25_rank_score + (1 - blend_alpha) * rerank_score`.
+        Higher blend_alpha trusts BM25 more.
+        """
         if reranker is None:
             return self.get_top_n(query, n)
+
         candidates = self._index.get_top_n(query, rerank_candidates)
         if not candidates:
             return []
+
         docs = [d for d, _ in candidates]
         rerank_scores = reranker(query, docs)
+
+        if blend_alpha > 0.0 and len(rerank_scores) > 0:
+            # Normalized BM25 based on inverse rank
+            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+
+            # Normalize reranker scores between 0 and 1
+            min_s = min(rerank_scores)
+            max_s = max(rerank_scores)
+            rng = max_s - min_s + 1e-10
+
+            blended_scores = []
+            for doc, r_s in zip(docs, rerank_scores, strict=False):
+                b_s = bm25_scores.get(doc, 0.0)
+                norm_r = (r_s - min_s) / rng
+                final = blend_alpha * b_s + (1.0 - blend_alpha) * norm_r
+                blended_scores.append(final)
+            rerank_scores = blended_scores
+
         paired = sorted(
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
@@ -822,15 +866,47 @@ class BM25Plus:
             self._corpus_index = _build_corpus_index(self._corpus)
 
     def get_top_n_reranked(
-        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+        self,
+        query: str,
+        n: int = 5,
+        reranker: Any = None,
+        rerank_candidates: int = 50,
+        blend_alpha: float = 0.0,
     ) -> list[_Result] | list[_MetaResult]:
+        """
+        BM25 retrieval + external reranker callback.
+
+        If `blend_alpha > 0.0`, blends BM25 normalized ranks with reranker min-max
+        normalized scores via: `blend_alpha * bm25_rank_score + (1 - blend_alpha) * rerank_score`.
+        Higher blend_alpha trusts BM25 more.
+        """
         if reranker is None:
             return self.get_top_n(query, n)
+
         candidates = self._index.get_top_n(query, rerank_candidates)
         if not candidates:
             return []
+
         docs = [d for d, _ in candidates]
         rerank_scores = reranker(query, docs)
+
+        if blend_alpha > 0.0 and len(rerank_scores) > 0:
+            # Normalized BM25 based on inverse rank
+            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+
+            # Normalize reranker scores between 0 and 1
+            min_s = min(rerank_scores)
+            max_s = max(rerank_scores)
+            rng = max_s - min_s + 1e-10
+
+            blended_scores = []
+            for doc, r_s in zip(docs, rerank_scores, strict=False):
+                b_s = bm25_scores.get(doc, 0.0)
+                norm_r = (r_s - min_s) / rng
+                final = blend_alpha * b_s + (1.0 - blend_alpha) * norm_r
+                blended_scores.append(final)
+            rerank_scores = blended_scores
+
         paired = sorted(
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
@@ -1048,15 +1124,47 @@ class BM25T:
             self._corpus_index = _build_corpus_index(self._corpus)
 
     def get_top_n_reranked(
-        self, query: str, n: int = 5, reranker: Any = None, rerank_candidates: int = 50
+        self,
+        query: str,
+        n: int = 5,
+        reranker: Any = None,
+        rerank_candidates: int = 50,
+        blend_alpha: float = 0.0,
     ) -> list[_Result] | list[_MetaResult]:
+        """
+        BM25 retrieval + external reranker callback.
+
+        If `blend_alpha > 0.0`, blends BM25 normalized ranks with reranker min-max
+        normalized scores via: `blend_alpha * bm25_rank_score + (1 - blend_alpha) * rerank_score`.
+        Higher blend_alpha trusts BM25 more.
+        """
         if reranker is None:
             return self.get_top_n(query, n)
+
         candidates = self._index.get_top_n(query, rerank_candidates)
         if not candidates:
             return []
+
         docs = [d for d, _ in candidates]
         rerank_scores = reranker(query, docs)
+
+        if blend_alpha > 0.0 and len(rerank_scores) > 0:
+            # Normalized BM25 based on inverse rank
+            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+
+            # Normalize reranker scores between 0 and 1
+            min_s = min(rerank_scores)
+            max_s = max(rerank_scores)
+            rng = max_s - min_s + 1e-10
+
+            blended_scores = []
+            for doc, r_s in zip(docs, rerank_scores, strict=False):
+                b_s = bm25_scores.get(doc, 0.0)
+                norm_r = (r_s - min_s) / rng
+                final = blend_alpha * b_s + (1.0 - blend_alpha) * norm_r
+                blended_scores.append(final)
+            rerank_scores = blended_scores
+
         paired = sorted(
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
@@ -1485,7 +1593,7 @@ class Reranker:
             raw = results[i]
             if is_meta:
                 # raw: (text, old_score, meta)
-                reranked.append((raw[0], float(new_score), raw[2]))
+                reranked.append((raw[0], float(new_score), raw[2])) # type: ignore[misc]
             else:
                 reranked.append((raw[0], float(new_score)))
 

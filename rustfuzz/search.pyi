@@ -179,8 +179,12 @@ class Document:
 
     content: str
     metadata: dict[str, Any]
+    _vector: list[float] | None
     def __init__(
-        self, content: str, metadata: dict[str, Any] | None = None
+        self,
+        content: str,
+        metadata: dict[str, Any] | None = None,
+        _vector: list[float] | None = None,
     ) -> None: ...
     def __repr__(self) -> str: ...
     def __eq__(self, other: object) -> bool: ...

@@ -28,7 +28,7 @@ from ._rustfuzz import (  # noqa: F401
 from .document import Document
 from .engine import Retriever, RetrieverConfig
 
-__version__: str = "0.1.21"
+__version__: str = "0.1.23"
 __author__: str = "BM Suisse"
 
 __all__ = [

@@ -22,6 +22,8 @@ class Document:
         The document text content.
     metadata : dict[str, Any] | None, default None
         Optional metadata dict attached to this document.
+    _vector : list[float] | None, default None
+        Optional vector embedding for this document.
 
     Examples
     --------
@@ -32,21 +34,32 @@ class Document:
     {'category': 'phones', 'price': 999}
     """
 
-    __slots__ = ("content", "metadata")
+    __slots__ = ("content", "metadata", "_vector")
 
-    def __init__(self, content: str, metadata: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self,
+        content: str,
+        metadata: dict[str, Any] | None = None,
+        _vector: list[float] | None = None,
+    ) -> None:
         self.content = content
         self.metadata = metadata or {}
+        self._vector = _vector
 
     def __repr__(self) -> str:
         meta_preview = f", metadata={self.metadata!r}" if self.metadata else ""
+        vec_preview = ", _vector=[...]" if self._vector else ""
         text = self.content[:60] + "..." if len(self.content) > 60 else self.content
-        return f'Document("{text}"{meta_preview})'
+        return f'Document("{text}"{meta_preview}{vec_preview})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Document):
             return NotImplemented
-        return self.content == other.content and self.metadata == other.metadata
+        return (
+            self.content == other.content
+            and self.metadata == other.metadata
+            and self._vector == other._vector
+        )
 
 
 __all__ = ["Document"]

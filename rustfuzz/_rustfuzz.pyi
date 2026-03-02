@@ -774,6 +774,8 @@ class HybridSearchIndex:
         embeddings: list[list[float]] | None = None,
         k1: float = 1.5,
         b: float = 0.75,
+        algorithm: str = "bm25",
+        delta: float | None = None,
     ) -> None: ...
     @property
     def num_docs(self) -> int: ...
