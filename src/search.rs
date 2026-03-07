@@ -1560,9 +1560,10 @@ impl BM25T {
                 .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
-            bm25_results.iter().map(|(doc, _)| {
+            let mut seen = rustc_hash::FxHashSet::default();
+            bm25_results.iter().filter_map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
-                (idx, doc)
+                if seen.insert(idx) { Some((idx, doc)) } else { None }
             }).collect()
         };
 
@@ -1900,16 +1901,17 @@ impl HybridSearchIndex {
 
         let is_bm25_empty = bm25_results.is_empty();
 
-        // Candidate doc indices + refs
+        // Candidate doc indices + refs (deduplicated by index)
         let target_docs: Vec<(usize, &String)> = if is_bm25_empty {
             // BM25 returned nothing — fall back to all allowed docs
             self.corpus.iter().enumerate()
                 .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
-            bm25_results.iter().map(|(doc, _)| {
+            let mut seen = rustc_hash::FxHashSet::default();
+            bm25_results.iter().filter_map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
-                (idx, doc)
+                if seen.insert(idx) { Some((idx, doc)) } else { None }
             }).collect()
         };
 
