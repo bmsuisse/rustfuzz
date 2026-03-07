@@ -355,7 +355,9 @@ class BM25:
 
         if blend_alpha > 0.0 and len(rerank_scores) > 0:
             # Normalized BM25 based on inverse rank
-            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+            bm25_scores = {
+                text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)
+            }
 
             # Normalize reranker scores between 0 and 1
             min_s = min(rerank_scores)
@@ -447,7 +449,7 @@ class BM25:
             model_or_callable,
             top_k=top_k,
             blend_alpha=blend_alpha,
-            adaptive_blend=adaptive_blend
+            adaptive_blend=adaptive_blend,
         )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
@@ -644,7 +646,9 @@ class BM25L:
 
         if blend_alpha > 0.0 and len(rerank_scores) > 0:
             # Normalized BM25 based on inverse rank
-            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+            bm25_scores = {
+                text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)
+            }
 
             # Normalize reranker scores between 0 and 1
             min_s = min(rerank_scores)
@@ -705,6 +709,25 @@ class BM25L:
     def sort(self, expression: list[str] | str) -> Any:
         """Start a sorted query chain. Returns a :class:`SearchQuery` builder."""
         return _search_query(self).sort(expression)
+
+    def match(self, query: str, **kwargs: Any) -> Any:
+        """Execute a text search with the query builder."""
+        return _search_query(self).match(query, **kwargs)
+
+    def rerank(
+        self,
+        model_or_callable: Any,
+        top_k: int = 10,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> Any:
+        """Add a Reranker and start a query builder chain."""
+        return _search_query(self).rerank(
+            model_or_callable,
+            top_k=top_k,
+            blend_alpha=blend_alpha,
+            adaptive_blend=adaptive_blend,
+        )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25L index into a HybridSearch index with dense embeddings."""
@@ -903,7 +926,9 @@ class BM25Plus:
 
         if blend_alpha > 0.0 and len(rerank_scores) > 0:
             # Normalized BM25 based on inverse rank
-            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+            bm25_scores = {
+                text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)
+            }
 
             # Normalize reranker scores between 0 and 1
             min_s = min(rerank_scores)
@@ -978,7 +1003,7 @@ class BM25Plus:
             model_or_callable,
             top_k=top_k,
             blend_alpha=blend_alpha,
-            adaptive_blend=adaptive_blend
+            adaptive_blend=adaptive_blend,
         )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
@@ -1172,7 +1197,9 @@ class BM25T:
 
         if blend_alpha > 0.0 and len(rerank_scores) > 0:
             # Normalized BM25 based on inverse rank
-            bm25_scores = {text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)}
+            bm25_scores = {
+                text: 1.0 / (rank + 1) for rank, (text, _) in enumerate(candidates)
+            }
 
             # Normalize reranker scores between 0 and 1
             min_s = min(rerank_scores)
@@ -1247,7 +1274,7 @@ class BM25T:
             model_or_callable,
             top_k=top_k,
             blend_alpha=blend_alpha,
-            adaptive_blend=adaptive_blend
+            adaptive_blend=adaptive_blend,
         )
 
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
@@ -1517,7 +1544,7 @@ class HybridSearch:
             model_or_callable,
             top_k=top_k,
             blend_alpha=blend_alpha,
-            adaptive_blend=adaptive_blend
+            adaptive_blend=adaptive_blend,
         )
 
     def __reduce__(
@@ -1562,7 +1589,12 @@ class Reranker:
         reranker's scores. High variance = trust reranker more.
     """
 
-    def __init__(self, model_or_callable: Any, blend_alpha: float = 0.0, adaptive_blend: bool = False) -> None:
+    def __init__(
+        self,
+        model_or_callable: Any,
+        blend_alpha: float = 0.0,
+        adaptive_blend: bool = False,
+    ) -> None:
         self._model = model_or_callable
         self.blend_alpha = blend_alpha
         self.adaptive_blend = adaptive_blend
@@ -1577,13 +1609,20 @@ class Reranker:
                 for t in texts:
                     result = model_or_callable.compute_scores([q], [t], 1)
                     # Flatten nested lists: [[0.96]] -> 0.96
-                    val = result[0] if isinstance(result[0], (int, float)) else result[0][0]
+                    val = (
+                        result[0]
+                        if isinstance(result[0], (int, float))
+                        else result[0][0]
+                    )
                     scores.append(float(val))
                 return scores
+
             self._score_fn = _compute_scores
         elif hasattr(model_or_callable, "score"):
+
             def _score(q: str, texts: list[str]) -> list[float]:
                 return model_or_callable.score(q, texts)
+
             self._score_fn = _score
         elif callable(model_or_callable):
             self._score_fn = model_or_callable
@@ -1644,8 +1683,10 @@ class Reranker:
         alpha = self.blend_alpha
         if self.adaptive_blend and len(new_scores) > 1:
             mean_s = sum(float(x) for x in new_scores) / len(new_scores)
-            variance = sum([float((float(s) - mean_s) ** 2) for s in new_scores]) / len(new_scores)
-            std_dev = variance ** 0.5
+            variance = sum([float((float(s) - mean_s) ** 2) for s in new_scores]) / len(
+                new_scores
+            )
+            std_dev = variance**0.5
             # Adaptive alpha: high std -> trust reranker (alpha->0), low std -> trust BM25 (alpha->1)
             alpha = max(0.0, min(1.0, 0.5 - std_dev * 0.1))
 
@@ -1672,7 +1713,7 @@ class Reranker:
             raw = results[i]
             if is_meta:
                 # raw: (text, old_score, meta)
-                reranked.append((raw[0], float(new_score), raw[2])) # type: ignore[misc]
+                reranked.append((raw[0], float(new_score), raw[2]))  # type: ignore[misc]
             else:
                 reranked.append((raw[0], float(new_score)))
 

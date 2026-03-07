@@ -129,6 +129,7 @@ def test_variant_fuzzy_only(cls, kwargs):
     # All results should have scores > 0
     assert all(score > 0 for _, score in results)
 
+
 def test_hybrid_search_bm25_variants():
     from rustfuzz.search import BM25Plus, HybridSearch
 
@@ -168,6 +169,7 @@ def test_hybrid_search_bm25_variants():
     assert len(res_l) == 2
     assert len(res_plus) == 2
 
+
 def test_hybrid_search_variant_pickling():
     import pickle
 
@@ -187,4 +189,3 @@ def test_hybrid_search_variant_pickling():
 
     res = hs_unpickled.search("iphone")
     assert res[0][0] == "Apple iPhone"
-

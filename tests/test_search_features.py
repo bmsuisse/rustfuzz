@@ -260,3 +260,63 @@ class TestAsync:
         bm25 = cls(CORPUS[:5], **kw)
         results = asyncio.run(bm25.get_top_n_async("fox", 3))
         assert len(results) > 0
+
+
+# ---------------------------------------------------------------------------
+# .match() — direct call (no .filter() chaining)
+# ---------------------------------------------------------------------------
+
+
+class TestMatchDirect:
+    """Verify .match() works standalone on ALL search classes."""
+
+    def test_bm25_match(self) -> None:
+        bm25 = BM25(CORPUS, metadata=METADATA)
+        results = bm25.match("fox", n=3)
+        assert len(results) > 0
+        assert "fox" in results[0][0]
+
+    def test_bm25l_match(self) -> None:
+        bm25l = BM25L(CORPUS, metadata=METADATA)
+        results = bm25l.match("fox", n=3)
+        assert len(results) > 0
+        assert "fox" in results[0][0]
+
+    def test_bm25plus_match(self) -> None:
+        bm25p = BM25Plus(CORPUS, metadata=METADATA)
+        results = bm25p.match("fox", n=3)
+        assert len(results) > 0
+        assert "fox" in results[0][0]
+
+    def test_bm25t_match(self) -> None:
+        bm25t = BM25T(CORPUS, metadata=METADATA)
+        results = bm25t.match("fox", n=3)
+        assert len(results) > 0
+        assert "fox" in results[0][0]
+
+    def test_hybrid_search_match(self) -> None:
+        from rustfuzz.search import HybridSearch
+
+        embeddings = [
+            [1.0, 0.0, 0.0],
+            [0.9, 0.1, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.95, 0.05, 0.0],
+            [0.0, 0.8, 0.2],
+            [0.5, 0.5, 0.0],
+            [0.3, 0.7, 0.0],
+        ]
+        hs = HybridSearch(CORPUS, embeddings=embeddings, metadata=METADATA)
+        # Direct .match() — no .filter() chaining needed
+        results = hs.match("fox", n=3, query_embedding=[1.0, 0.0, 0.0])
+        assert len(results) > 0
+        assert "fox" in results[0][0]
+
+    @pytest.mark.parametrize("cls", [BM25, BM25L, BM25Plus, BM25T])
+    def test_match_all_variants(self, cls: type) -> None:
+        kw: dict[str, Any] = {}
+        if cls in (BM25L, BM25Plus):
+            kw["delta"] = 0.5
+        bm25 = cls(CORPUS[:5], metadata=METADATA[:5], **kw)
+        results = bm25.match("fox", n=2)
+        assert len(results) > 0

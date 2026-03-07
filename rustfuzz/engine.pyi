@@ -23,7 +23,11 @@ class Retriever:
         self,
         corpus: Iterable[str] | Iterable[Any] | Any,
         *,
-        embeddings: Any | str | bool | Callable[[list[str]], list[list[float]]] | None = None,
+        embeddings: Any
+        | str
+        | bool
+        | Callable[[list[str]], list[list[float]]]
+        | None = None,
         reranker: Any | None = None,
         config: RetrieverConfig | None = None,
         metadata: Iterable[Any] | None = None,
@@ -70,8 +74,6 @@ class Retriever:
         *,
         query_embedding: Any = None,
     ) -> list[_Result] | list[_MetaResult]: ...
-    def to_hybrid(
-        self, embeddings: Any | str | bool | None = True
-    ) -> Retriever: ...
+    def to_hybrid(self, embeddings: Any | str | bool | None = True) -> Retriever: ...
 
 __all__ = ["Retriever", "RetrieverConfig"]
