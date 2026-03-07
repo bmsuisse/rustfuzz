@@ -3412,13 +3412,8 @@ wheels = [
 
 [[package]]
 name = "rustfuzz"
-version = "0.1.26"
+version = "0.1.28"
 source = { editable = "." }
-dependencies = [
-    { name = "embed-anything" },
-    { name = "huggingface-hub" },
-    { name = "tokenizers" },
-]
 
 [package.optional-dependencies]
 all = [
@@ -3431,6 +3426,11 @@ all = [
 ]
 arrow = [
     { name = "pyarrow" },
+]
+embed = [
+    { name = "embed-anything" },
+    { name = "huggingface-hub" },
+    { name = "tokenizers" },
 ]
 pandas = [
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -3476,8 +3476,8 @@ docs = [
 
 [package.metadata]
 requires-dist = [
-    { name = "embed-anything", specifier = ">=0.7.0" },
-    { name = "huggingface-hub", specifier = ">=1.5.0" },
+    { name = "embed-anything", marker = "extra == 'embed'", specifier = ">=0.7.0" },
+    { name = "huggingface-hub", marker = "extra == 'embed'", specifier = ">=1.5.0" },
     { name = "numpy", marker = "extra == 'all'" },
     { name = "pandas", marker = "extra == 'all'" },
     { name = "pandas", marker = "extra == 'pandas'" },
@@ -3486,7 +3486,7 @@ requires-dist = [
     { name = "pyarrow", marker = "extra == 'all'" },
     { name = "pyarrow", marker = "extra == 'arrow'" },
     { name = "pyspark", marker = "extra == 'spark'" },
-    { name = "tokenizers", specifier = ">=0.22.2" },
+    { name = "tokenizers", marker = "extra == 'embed'", specifier = ">=0.22.2" },
 ]
 provides-extras = ["polars", "pandas", "arrow", "spark", "embed", "all"]
 

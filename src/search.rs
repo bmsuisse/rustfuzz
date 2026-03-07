@@ -350,9 +350,10 @@ impl BM25Index {
                 .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
-            bm25_results.iter().map(|(doc, _)| {
+            let mut seen = rustc_hash::FxHashSet::default();
+            bm25_results.iter().filter_map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
-                (idx, doc)
+                if seen.insert(idx) { Some((idx, doc)) } else { None }
             }).collect()
         };
 
@@ -782,9 +783,10 @@ impl BM25L {
                 .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
-            bm25_results.iter().map(|(doc, _)| {
+            let mut seen = rustc_hash::FxHashSet::default();
+            bm25_results.iter().filter_map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
-                (idx, doc)
+                if seen.insert(idx) { Some((idx, doc)) } else { None }
             }).collect()
         };
 
@@ -1156,9 +1158,10 @@ impl BM25Plus {
                 .filter(|(i, _)| allowed.as_ref().is_none_or(|m| i < &m.len() && m[*i]))
                 .collect()
         } else {
-            bm25_results.iter().map(|(doc, _)| {
+            let mut seen = rustc_hash::FxHashSet::default();
+            bm25_results.iter().filter_map(|(doc, _)| {
                 let idx = *self.corpus_index.get(doc).unwrap();
-                (idx, doc)
+                if seen.insert(idx) { Some((idx, doc)) } else { None }
             }).collect()
         };
 

@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rustfuzz"
-version = "0.1.27"
+version = "0.1.28"
 requires-python = ">= 3.10"
 authors = [
   {name = "BM Suisse", email = "info@bmsuisse.com"},
@@ -21,18 +21,18 @@ classifiers=[
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Rust",
 ]
-dependencies = [
-    "embed-anything>=0.7.0",
-    "huggingface-hub>=1.5.0",
-    "tokenizers>=0.22.2",
-]
+dependencies = []
 
 [project.optional-dependencies]
 polars = ["polars"]
 pandas = ["pandas"]
 arrow = ["pyarrow"]
 spark = ["pyspark"]
-embed = []
+embed = [
+  "embed-anything>=0.7.0",
+  "huggingface-hub>=1.5.0",
+  "tokenizers>=0.22.2",
+]
 all = [
   "numpy",
   "polars",
