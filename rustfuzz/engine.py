@@ -41,10 +41,10 @@ from typing import Any
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
-    BM25Algorithm,
     BM25L,
-    BM25Plus,
     BM25T,
+    BM25Algorithm,
+    BM25Plus,
     HybridSearch,
     Reranker,
     _extract_column,
