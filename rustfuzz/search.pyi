@@ -1,5 +1,7 @@
 from collections.abc import Callable, Iterable
-from typing import Any
+from typing import Any, Literal
+
+BM25Algorithm = Literal["bm25", "bm25okapi", "bm25l", "bm25+", "bm25plus", "bm25t"]
 
 _Result = tuple[str, float]
 _MetaResult = tuple[str, float, Any]
@@ -339,7 +341,7 @@ class HybridSearch:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
-        algorithm: str = "bm25",
+        algorithm: BM25Algorithm = "bm25",
         delta: float | None = None,
     ) -> None: ...
     @property
@@ -379,4 +381,4 @@ class Reranker:
         top_k: int = 10,
     ) -> list[_Result] | list[_MetaResult]: ...
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]
+__all__ = ["BM25", "BM25Algorithm", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]

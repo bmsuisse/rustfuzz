@@ -1,7 +1,10 @@
 """Type stubs for the _rustfuzz native extension module."""
 
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from typing import Any
+from typing import Any, Literal
+
+BM25Algorithm = Literal["bm25", "bm25okapi", "bm25l", "bm25+", "bm25plus", "bm25t"]
+BM25Variant = Literal["BM25Okapi", "BM25L", "BM25Plus", "BM25T"]
 
 # ---------------------------------------------------------------------------
 # Types
@@ -774,7 +777,7 @@ class HybridSearchIndex:
         embeddings: list[list[float]] | None = None,
         k1: float = 1.5,
         b: float = 0.75,
-        algorithm: str = "bm25",
+        algorithm: BM25Algorithm = "bm25",
         delta: float | None = None,
     ) -> None: ...
     @property
@@ -831,7 +834,7 @@ class MultiJoiner:
         dense_weight: float = 1.0,
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
-        bm25_variant: str = "BM25Okapi",
+        bm25_variant: BM25Variant = "BM25Okapi",
         rrf_k: int = 60,
         bm25_candidates: int = 100,
     ) -> None: ...

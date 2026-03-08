@@ -9,11 +9,13 @@ using Reciprocal Rank Fusion (RRF).
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from . import _rustfuzz
 from .compat import _coerce_to_strings, _extract_column, _extract_metadata
 from .document import Document  # noqa: F401 — re-export for backward compat
+
+BM25Algorithm = Literal["bm25", "bm25okapi", "bm25l", "bm25+", "bm25plus", "bm25t"]
 
 # Type aliases for result tuples
 _Result = tuple[str, float]
@@ -1384,7 +1386,7 @@ class HybridSearch:
         k1: float = 1.5,
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
-        algorithm: str = "bm25",
+        algorithm: BM25Algorithm = "bm25",
         delta: float | None = None,
     ):
         # ── Coerce corpus (handles str, Document, LangChain) ──
@@ -1721,4 +1723,4 @@ class Reranker:
         return reranked[:top_k]
 
 
-__all__ = ["BM25", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]
+__all__ = ["BM25", "BM25Algorithm", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]

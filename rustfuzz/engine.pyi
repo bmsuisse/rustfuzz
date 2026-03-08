@@ -2,6 +2,8 @@ import dataclasses
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from .search import BM25Algorithm
+
 _Result = tuple[str, float]
 _MetaResult = tuple[str, float, Any]
 
@@ -9,7 +11,7 @@ _MetaResult = tuple[str, float, Any]
 class RetrieverConfig:
     """Configuration for :class:`Retriever`."""
 
-    algorithm: str = "bm25plus"
+    algorithm: BM25Algorithm = "bm25plus"
     k1: float = 1.5
     b: float = 0.75
     delta: float | None = None
@@ -33,7 +35,7 @@ class Retriever:
         metadata: Iterable[Any] | None = None,
         api_key: str | None = None,
         api_base: str | None = None,
-        algorithm: str = "bm25plus",
+        algorithm: BM25Algorithm = "bm25plus",
         k1: float = 1.5,
         b: float = 0.75,
         delta: float | None = None,

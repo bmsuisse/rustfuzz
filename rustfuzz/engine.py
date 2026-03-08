@@ -41,9 +41,10 @@ from typing import Any
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
+    BM25Algorithm,
     BM25L,
-    BM25T,
     BM25Plus,
+    BM25T,
     HybridSearch,
     Reranker,
     _extract_column,
@@ -138,7 +139,7 @@ class RetrieverConfig:
     >>> r = Retriever(docs, config=cfg, embeddings="openai")
     """
 
-    algorithm: str = "bm25plus"
+    algorithm: BM25Algorithm = "bm25plus"
     k1: float = 1.5
     b: float = 0.75
     delta: float | None = None
@@ -474,7 +475,7 @@ class Retriever:
         api_key: str | None = None,
         api_base: str | None = None,
         # Config overrides (ignored when config= is provided)
-        algorithm: str = "bm25plus",
+        algorithm: BM25Algorithm = "bm25plus",
         k1: float = 1.5,
         b: float = 0.75,
         delta: float | None = None,

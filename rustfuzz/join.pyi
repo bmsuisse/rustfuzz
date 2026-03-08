@@ -1,6 +1,7 @@
 from typing import Any, Literal
 
 _HOW = Literal["full", "inner"]
+BM25Variant = Literal["BM25Okapi", "BM25L", "BM25Plus", "BM25T"]
 
 class MultiJoiner:
     def __init__(
@@ -11,7 +12,7 @@ class MultiJoiner:
         dense_weight: float = 1.0,
         bm25_k1: float = 1.5,
         bm25_b: float = 0.75,
-        bm25_variant: str = "BM25Okapi",
+        bm25_variant: BM25Variant = "BM25Okapi",
         rrf_k: int = 60,
         bm25_candidates: int = 100,
     ) -> None: ...
@@ -64,9 +65,9 @@ def fuzzy_join(
     score_cutoff: float | None = None,
     bm25_k1: float = 1.5,
     bm25_b: float = 0.75,
-    bm25_variant: str = "BM25Okapi",
+    bm25_variant: BM25Variant = "BM25Okapi",
     rrf_k: int = 60,
     bm25_candidates: int = 100,
 ) -> list[dict[str, Any]]: ...
 
-__all__ = ["MultiJoiner", "fuzzy_join"]
+__all__ = ["BM25Variant", "MultiJoiner", "fuzzy_join"]
