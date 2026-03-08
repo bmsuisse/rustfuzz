@@ -54,7 +54,7 @@ class TestDuplicateResults:
         """search('badewanne', n=100) should return 100 unique document IDs."""
         idx = _build_index(1000)
         results = idx.search("badewanne", n=100)
-        ids = [r[2]["id"] for r in results]  # type: ignore[index]
+        ids = [r[2]["id"] for r in results]  # type: ignore[index] # pyright: ignore[reportIndexIssue,reportGeneralTypeIssues]
         assert len(ids) == len(set(ids)), (
             f"Expected {len(ids)} unique IDs but got {len(set(ids))}. "
             f"Duplicates: {[(k, v) for k, v in Counter(ids).items() if v > 1]}"
@@ -64,7 +64,7 @@ class TestDuplicateResults:
         """Even a small n=20 request should have no duplicates."""
         idx = _build_index(1000)
         results = idx.search("badewanne", n=20)
-        ids = [r[2]["id"] for r in results]  # type: ignore[index]
+        ids = [r[2]["id"] for r in results]  # type: ignore[index] # pyright: ignore[reportIndexIssue,reportGeneralTypeIssues]
         assert len(ids) == len(set(ids)), (
             f"Expected {len(ids)} unique IDs but got {len(set(ids))}. "
             f"Duplicates: {[(k, v) for k, v in Counter(ids).items() if v > 1]}"
@@ -76,7 +76,7 @@ class TestDuplicateResults:
         # Use match via a trivial filter that matches everything
         # (if filter() is available with a passthrough)
         results = idx.search("waschtisch", n=50)
-        ids = [r[2]["id"] for r in results]  # type: ignore[index]
+        ids = [r[2]["id"] for r in results]  # type: ignore[index] # pyright: ignore[reportIndexIssue,reportGeneralTypeIssues]
         assert len(ids) == len(set(ids)), (
             f"Expected {len(ids)} unique IDs but got {len(set(ids))}. "
             f"Duplicates: {[(k, v) for k, v in Counter(ids).items() if v > 1]}"
@@ -86,7 +86,7 @@ class TestDuplicateResults:
         """Reproduce the production scenario: 10k docs, n=500."""
         idx = _build_index(10_000)
         results = idx.search("badewanne", n=500)
-        ids = [r[2]["id"] for r in results]  # type: ignore[index]
+        ids = [r[2]["id"] for r in results]  # type: ignore[index] # pyright: ignore[reportIndexIssue,reportGeneralTypeIssues]
         unique_count = len(set(ids))
         assert len(ids) == unique_count, (
             f"At scale (10k docs, n=500): expected {len(ids)} unique IDs "

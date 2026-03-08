@@ -97,12 +97,14 @@ class BM25:
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._normalize = normalize
+        self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
@@ -528,6 +530,7 @@ class BM25L:
         self._delta = delta
         self._normalize = normalize
         self._normalize_scores = normalize_scores
+        self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
@@ -841,6 +844,7 @@ class BM25Plus:
         self._b = b
         self._delta = delta
         self._normalize = normalize
+        self._normalize_scores = normalize_scores
         self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
@@ -1513,7 +1517,6 @@ class HybridSearch:
     def __init__(
         self,
         corpus: Iterable[str] | Iterable[Any] | Any,
-        *,
         embeddings: Any | None = None,
         k1: float = 1.5,
         b: float = 0.75,
@@ -1690,7 +1693,8 @@ class HybridSearch:
     def __reduce__(
         self,
     ) -> tuple[
-        type, tuple[list[str], Any, float, float, list[Any] | None, str, float | None]
+        type,
+        tuple[list[str], Any, float, float, str, float | None, bool, list[Any] | None],
     ]:
         return (
             HybridSearch,
@@ -1699,9 +1703,10 @@ class HybridSearch:
                 self._embeddings,
                 self._k1,
                 self._b,
-                self._metadata,
                 self._algorithm,
                 self._delta,
+                self._normalize_scores,
+                self._metadata,
             ),
         )
 
