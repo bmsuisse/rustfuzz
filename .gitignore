@@ -33,3 +33,7 @@ bench/temp/
 
 # Rust build artifacts
 target/
+*.dSYM/
+*.so
+*.pyd
+*.dylib
