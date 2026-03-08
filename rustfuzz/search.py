@@ -1723,4 +1723,13 @@ class Reranker:
         return reranked[:top_k]
 
 
-__all__ = ["BM25", "BM25Algorithm", "BM25L", "BM25Plus", "BM25T", "Document", "HybridSearch", "Reranker"]
+__all__ = [
+    "BM25",
+    "BM25Algorithm",
+    "BM25L",
+    "BM25Plus",
+    "BM25T",
+    "Document",
+    "HybridSearch",
+    "Reranker",
+]

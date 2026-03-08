@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Pre-commit hook: auto-format staged Python files with ruff and check lints.
+# Install once:  git config core.hooksPath .githooks
+
+set -e
+
+# Collect staged .py and .pyi files
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(py|pyi)$' || true)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+# Auto-format staged files and re-stage them
+uv run ruff format $STAGED
+git add $STAGED
+
+# Lint check (with auto-fix for safe fixes)
+uv run ruff check --fix $STAGED
+git add $STAGED
+
+# Final lint gate — fail if unfixable issues remain
+uv run ruff check $STAGED
