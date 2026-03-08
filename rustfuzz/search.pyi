@@ -14,6 +14,7 @@ class BM25:
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ) -> None: ...
     @classmethod
     def from_column(
@@ -92,6 +93,7 @@ class BM25L:
         delta: float = 0.5,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ) -> None: ...
     @classmethod
     def from_column(
@@ -170,6 +172,7 @@ class BM25Plus:
         delta: float = 1.0,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ) -> None: ...
     @classmethod
     def from_column(
@@ -247,6 +250,7 @@ class BM25T:
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ) -> None: ...
     @classmethod
     def from_column(
@@ -343,6 +347,7 @@ class HybridSearch:
         metadata: Iterable[Any] | None = None,
         algorithm: BM25Algorithm = "bm25",
         delta: float | None = None,
+        normalize_scores: bool = False,
     ) -> None: ...
     @property
     def has_vectors(self) -> bool: ...

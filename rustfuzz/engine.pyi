@@ -16,6 +16,7 @@ class RetrieverConfig:
     b: float = 0.75
     delta: float | None = None
     normalize: bool = True
+    normalize_scores: bool = False
     rerank_top_k: int = 10
 
 class Retriever:
@@ -40,6 +41,7 @@ class Retriever:
         b: float = 0.75,
         delta: float | None = None,
         normalize: bool = True,
+        normalize_scores: bool = False,
         rerank_top_k: int = 10,
     ) -> None: ...
     @classmethod

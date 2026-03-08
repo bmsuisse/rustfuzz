@@ -144,16 +144,20 @@ class BM25:
         return self._index.get_scores(query)
 
     def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        """
-        Return the top N matching documents and their BM25 scores.
-        Only documents with score > 0.0 are returned (up to n).
-        """
-        return _enrich(
-            self._index.get_top_n(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        """Return the top N matching documents for the query."""
+        res = self._index.get_top_n(query, n=n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_filtered(
+        self, query: str, allowed: list[bool], n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        """Return the top N matching documents, considering only the allowed subset."""
+        res = self._index.get_top_n_filtered(query, allowed=allowed, n=n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
         """
@@ -186,12 +190,10 @@ class BM25:
         fuzzy_weight : float, default 0.3
             Weight applied to the Levenshtein fuzzy string similarity ratio [0.0 - 1.0].
         """
-        return _enrich(
-            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_rrf(
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
@@ -202,12 +204,10 @@ class BM25:
         This is generally more robust than `get_top_n_fuzzy` because it uses RRF,
         shielding the combined metric from score-scale variances.
         """
-        return _enrich(
-            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def fuzzy_only(
         self,
@@ -226,12 +226,10 @@ class BM25:
         n : int, default 5
             Number of documents to return.
         """
-        return _enrich(
-            self._index.fuzzy_only(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.fuzzy_only(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     # ── New features ──────────────────────────────────────────
 
@@ -378,6 +376,8 @@ class BM25:
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
         results: list[_Result] = [(d, s) for d, s in paired]
+        if self._normalize_scores:
+            results = _rustfuzz.normalize_bayes(results)
         return _enrich(results, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_phrase(
@@ -402,12 +402,10 @@ class BM25:
         phrase_boost : float, default 2.0
             Multiplicative boost factor (1.0 = no boost).
         """
-        return _enrich(
-            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     async def get_top_n_async(
         self, query: str, n: int = 5, **kwargs: Any
@@ -454,6 +452,31 @@ class BM25:
             adaptive_blend=adaptive_blend,
         )
 
+    def search_filtered_sorted(
+        self,
+        query: str,
+        *,
+        n: int = 5,
+        query_embedding: Any | None = None,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        filter_json: str | None = None,
+        sort_keys: list[tuple[str, bool]] | None = None,
+    ) -> list[_Result] | list[_MetaResult]:
+        """Search with pushed-down filters and sorting using Rust metadata evaluation."""
+        res = self._index.search_filtered_sorted(
+            query,
+            query_embedding=query_embedding,
+            n=n,
+            rrf_k=rrf_k,
+            bm25_candidates=bm25_candidates,
+            filter_json=filter_json,
+            sort_keys=sort_keys,
+        )
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """
         Convert this BM25 index into a full HybridSearch index by attaching
@@ -466,14 +489,22 @@ class BM25:
             b=self._b,
             metadata=self._metadata,
             algorithm="bm25",
+            normalize_scores=self._normalize_scores,
         )
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool, bool]]:
         return (
             BM25,
-            (self._corpus, self._k1, self._b, self._metadata, self._normalize),
+            (
+                self._corpus,
+                self._k1,
+                self._b,
+                self._metadata,
+                self._normalize,
+                self._normalize_scores,
+            ),
         )
 
 
@@ -488,6 +519,7 @@ class BM25L:
         delta: float = 0.5,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
@@ -495,6 +527,7 @@ class BM25L:
         self._b = b
         self._delta = delta
         self._normalize = normalize
+        self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
@@ -521,12 +554,19 @@ class BM25L:
         return self._index.get_scores(query)
 
     def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_filtered(
+        self, query: str, allowed: list[bool], n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        """Return the top N matching documents, considering only the allowed subset."""
+        res = self._index.get_top_n_filtered(query, allowed=allowed, n=n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
         return self._index.get_batch_scores(list(queries))
@@ -538,30 +578,24 @@ class BM25L:
         bm25_candidates: int = 50,
         fuzzy_weight: float = 0.3,
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_rrf(
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.fuzzy_only(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.fuzzy_only(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def explain(self, query: str, doc: str | int) -> dict[str, Any]:
         """Per-term BM25 score breakdown for a query against a specific document."""
@@ -669,6 +703,8 @@ class BM25L:
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
         results: list[_Result] = [(d, s) for d, s in paired]
+        if self._normalize_scores:
+            results = _rustfuzz.normalize_bayes(results)
         return _enrich(results, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_phrase(
@@ -679,12 +715,10 @@ class BM25L:
         phrase_boost: float = 2.0,
     ) -> list[_Result] | list[_MetaResult]:
         """BM25 scoring with phrase proximity boost."""
-        return _enrich(
-            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     async def get_top_n_async(
         self, query: str, n: int = 5, **kwargs: Any
@@ -731,6 +765,31 @@ class BM25L:
             adaptive_blend=adaptive_blend,
         )
 
+    def search_filtered_sorted(
+        self,
+        query: str,
+        *,
+        n: int = 5,
+        query_embedding: Any | None = None,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        filter_json: str | None = None,
+        sort_keys: list[tuple[str, bool]] | None = None,
+    ) -> list[_Result] | list[_MetaResult]:
+        """Search with pushed-down filters and sorting using Rust metadata evaluation."""
+        res = self._index.search_filtered_sorted(
+            query,
+            query_embedding=query_embedding,
+            n=n,
+            rrf_k=rrf_k,
+            bm25_candidates=bm25_candidates,
+            filter_json=filter_json,
+            sort_keys=sort_keys,
+        )
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25L index into a HybridSearch index with dense embeddings."""
         return HybridSearch(
@@ -741,11 +800,14 @@ class BM25L:
             metadata=self._metadata,
             algorithm="bm25l",
             delta=self._delta,
+            normalize_scores=self._normalize_scores,
         )
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
+    ) -> tuple[
+        type, tuple[list[str], float, float, float, list[Any] | None, bool, bool]
+    ]:
         return (
             BM25L,
             (
@@ -755,6 +817,7 @@ class BM25L:
                 self._delta,
                 self._metadata,
                 self._normalize,
+                self._normalize_scores,
             ),
         )
 
@@ -770,6 +833,7 @@ class BM25Plus:
         delta: float = 1.0,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
@@ -777,6 +841,7 @@ class BM25Plus:
         self._b = b
         self._delta = delta
         self._normalize = normalize
+        self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
@@ -803,12 +868,19 @@ class BM25Plus:
         return self._index.get_scores(query)
 
     def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_filtered(
+        self, query: str, allowed: list[bool], n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        """Return the top N matching documents, considering only the allowed subset."""
+        res = self._index.get_top_n_filtered(query, allowed=allowed, n=n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
         return self._index.get_batch_scores(list(queries))
@@ -820,30 +892,24 @@ class BM25Plus:
         bm25_candidates: int = 50,
         fuzzy_weight: float = 0.3,
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_rrf(
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.fuzzy_only(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.fuzzy_only(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def explain(self, query: str, doc: str | int) -> dict[str, Any]:
         """Per-term BM25 score breakdown."""
@@ -949,6 +1015,8 @@ class BM25Plus:
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
         results: list[_Result] = [(d, s) for d, s in paired]
+        if self._normalize_scores:
+            results = _rustfuzz.normalize_bayes(results)
         return _enrich(results, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_phrase(
@@ -958,12 +1026,10 @@ class BM25Plus:
         proximity_window: int = 3,
         phrase_boost: float = 2.0,
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     async def get_top_n_async(
         self, query: str, n: int = 5, **kwargs: Any
@@ -1008,6 +1074,31 @@ class BM25Plus:
             adaptive_blend=adaptive_blend,
         )
 
+    def search_filtered_sorted(
+        self,
+        query: str,
+        *,
+        n: int = 5,
+        query_embedding: Any | None = None,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        filter_json: str | None = None,
+        sort_keys: list[tuple[str, bool]] | None = None,
+    ) -> list[_Result] | list[_MetaResult]:
+        """Search with pushed-down filters and sorting using Rust metadata evaluation."""
+        res = self._index.search_filtered_sorted(
+            query,
+            query_embedding=query_embedding,
+            n=n,
+            rrf_k=rrf_k,
+            bm25_candidates=bm25_candidates,
+            filter_json=filter_json,
+            sort_keys=sort_keys,
+        )
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25Plus index into a HybridSearch index with dense embeddings."""
         return HybridSearch(
@@ -1018,11 +1109,14 @@ class BM25Plus:
             metadata=self._metadata,
             algorithm="bm25+",
             delta=self._delta,
+            normalize_scores=self._normalize_scores,
         )
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, float, list[Any] | None, bool]]:
+    ) -> tuple[
+        type, tuple[list[str], float, float, float, list[Any] | None, bool, bool]
+    ]:
         return (
             BM25Plus,
             (
@@ -1032,6 +1126,7 @@ class BM25Plus:
                 self._delta,
                 self._metadata,
                 self._normalize,
+                self._normalize_scores,
             ),
         )
 
@@ -1046,12 +1141,14 @@ class BM25T:
         b: float = 0.75,
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
+        normalize_scores: bool = False,
     ):
         corpus_list = _coerce_to_strings(corpus)
         self._corpus = corpus_list
         self._k1 = k1
         self._b = b
         self._normalize = normalize
+        self._normalize_scores = normalize_scores
         self._metadata = _validate_metadata(metadata, len(corpus_list))
         self._corpus_index: dict[str, int] | None = (
             _build_corpus_index(corpus_list) if self._metadata is not None else None
@@ -1078,12 +1175,19 @@ class BM25T:
         return self._index.get_scores(query)
 
     def get_top_n(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
+    def get_top_n_filtered(
+        self, query: str, allowed: list[bool], n: int = 5
+    ) -> list[_Result] | list[_MetaResult]:
+        """Return the top N matching documents, considering only the allowed subset."""
+        res = self._index.get_top_n_filtered(query, allowed=allowed, n=n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_batch_scores(self, queries: Iterable[str]) -> list[list[float]]:
         return self._index.get_batch_scores(list(queries))
@@ -1095,30 +1199,24 @@ class BM25T:
         bm25_candidates: int = 50,
         fuzzy_weight: float = 0.3,
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_fuzzy(query, n, bm25_candidates, fuzzy_weight)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_rrf(
         self, query: str, n: int = 5, bm25_candidates: int = 100, rrf_k: int = 60
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_rrf(query, n, bm25_candidates, rrf_k)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def fuzzy_only(self, query: str, n: int = 5) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.fuzzy_only(query, n),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.fuzzy_only(query, n)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     def explain(self, query: str, doc: str | int) -> dict[str, Any]:
         """Per-term BM25 score breakdown."""
@@ -1220,6 +1318,8 @@ class BM25T:
             zip(docs, rerank_scores, strict=True), key=lambda x: x[1], reverse=True
         )[:n]
         results: list[_Result] = [(d, s) for d, s in paired]
+        if self._normalize_scores:
+            results = _rustfuzz.normalize_bayes(results)
         return _enrich(results, self._corpus, self._metadata, self._corpus_index)
 
     def get_top_n_phrase(
@@ -1229,12 +1329,10 @@ class BM25T:
         proximity_window: int = 3,
         phrase_boost: float = 2.0,
     ) -> list[_Result] | list[_MetaResult]:
-        return _enrich(
-            self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost),
-            self._corpus,
-            self._metadata,
-            self._corpus_index,
-        )
+        res = self._index.get_top_n_phrase(query, n, proximity_window, phrase_boost)
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
 
     async def get_top_n_async(
         self, query: str, n: int = 5, **kwargs: Any
@@ -1279,6 +1377,31 @@ class BM25T:
             adaptive_blend=adaptive_blend,
         )
 
+    def search_filtered_sorted(
+        self,
+        query: str,
+        *,
+        n: int = 5,
+        query_embedding: Any | None = None,
+        rrf_k: int = 60,
+        bm25_candidates: int = 100,
+        filter_json: str | None = None,
+        sort_keys: list[tuple[str, bool]] | None = None,
+    ) -> list[_Result] | list[_MetaResult]:
+        """Search with pushed-down filters and sorting using Rust metadata evaluation."""
+        res = self._index.search_filtered_sorted(
+            query,
+            query_embedding=query_embedding,
+            n=n,
+            rrf_k=rrf_k,
+            bm25_candidates=bm25_candidates,
+            filter_json=filter_json,
+            sort_keys=sort_keys,
+        )
+        if self._normalize_scores:
+            res = _rustfuzz.normalize_bayes(res)
+        return _enrich(res, self._corpus, self._metadata, self._corpus_index)
+
     def to_hybrid(self, embeddings: Any) -> HybridSearch:
         """Convert this BM25T index into a HybridSearch index with dense embeddings."""
         return HybridSearch(
@@ -1288,14 +1411,22 @@ class BM25T:
             b=self._b,
             metadata=self._metadata,
             algorithm="bm25t",
+            normalize_scores=self._normalize_scores,
         )
 
     def __reduce__(
         self,
-    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool]]:
+    ) -> tuple[type, tuple[list[str], float, float, list[Any] | None, bool, bool]]:
         return (
             BM25T,
-            (self._corpus, self._k1, self._b, self._metadata, self._normalize),
+            (
+                self._corpus,
+                self._k1,
+                self._b,
+                self._metadata,
+                self._normalize,
+                self._normalize_scores,
+            ),
         )
 
 
@@ -1382,16 +1513,23 @@ class HybridSearch:
     def __init__(
         self,
         corpus: Iterable[str] | Iterable[Any] | Any,
-        embeddings: Any = None,
+        *,
+        embeddings: Any | None = None,
         k1: float = 1.5,
         b: float = 0.75,
-        metadata: Iterable[Any] | None = None,
         algorithm: BM25Algorithm = "bm25",
         delta: float | None = None,
-    ):
+        normalize_scores: bool = False,
+        metadata: Iterable[Any] | None = None,
+    ) -> None:
+        """
+        Create a new HybridSearch engine.
+        """
         # ── Coerce corpus (handles str, Document, LangChain) ──
         texts, auto_metadata = _coerce_corpus(corpus)
         self._corpus = texts
+        self._embeddings = embeddings
+        self._normalize_scores = normalize_scores
         self._k1 = k1
         self._b = b
         self._algorithm = algorithm
@@ -1715,7 +1853,8 @@ class Reranker:
             raw = results[i]
             if is_meta:
                 # raw: (text, old_score, meta)
-                reranked.append((raw[0], float(new_score), raw[2]))  # type: ignore[misc]
+                raw_meta = cast(_MetaResult, raw)
+                reranked.append((raw_meta[0], float(new_score), raw_meta[2]))  # type: ignore[misc]
             else:
                 reranked.append((raw[0], float(new_score)))
 

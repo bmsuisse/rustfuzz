@@ -128,8 +128,10 @@ class RetrieverConfig:
         BM25 document-length normalisation parameter.
     delta : float | None
         BM25L / BM25Plus delta. Auto-selected when ``None``.
-    normalize : bool
+    normalize: bool
         Apply Unicode NFKD + lowercase text normalisation.
+    normalize_scores: bool
+        Apply Bayes normalization to scale BM25/Fuzzy scores into [0, 1] calibrated probabilities.
     rerank_top_k : int
         Max results returned after reranking.
 
@@ -144,6 +146,7 @@ class RetrieverConfig:
     b: float = 0.75
     delta: float | None = None
     normalize: bool = True
+    normalize_scores: bool = False
     rerank_top_k: int = 10
 
 
@@ -480,6 +483,7 @@ class Retriever:
         b: float = 0.75,
         delta: float | None = None,
         normalize: bool = True,
+        normalize_scores: bool = False,
         rerank_top_k: int = 10,
     ) -> None:
         # ── Merge config ──
@@ -492,6 +496,7 @@ class Retriever:
                 b=b,
                 delta=delta,
                 normalize=normalize,
+                normalize_scores=normalize_scores,
                 rerank_top_k=rerank_top_k,
             )
 
@@ -537,6 +542,7 @@ class Retriever:
                 metadata=metadata,
                 algorithm=hybrid_algo,
                 delta=effective_delta,
+                normalize_scores=cfg.normalize_scores,
             )
             self._bm25: BM25 | BM25L | BM25Plus | BM25T | None = None
             self._corpus = self._hybrid._corpus
@@ -547,6 +553,7 @@ class Retriever:
                 "k1": cfg.k1,
                 "b": cfg.b,
                 "normalize": cfg.normalize,
+                "normalize_scores": cfg.normalize_scores,
             }
             if algo_cls in (BM25L, BM25Plus) and cfg.delta is not None:
                 bm25_kwargs["delta"] = cfg.delta

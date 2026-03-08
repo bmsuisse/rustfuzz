@@ -2440,3 +2440,43 @@ fn compare_json_values(a: &Option<&JsonValue>, b: &Option<&JsonValue>, reverse: 
         }
     }
 }
+
+/// Applies a 5-step Bayes normalization to calibrate BM25/fuzzy scores to [0, 1] probabilities.
+/// 
+/// 1. Filters non-zero scores.
+/// 2. Calculates median and std_dev.
+/// 3. Computes beta = median, alpha_eff = 1.0 / max(std_dev, 1e-6)
+/// 4. Transforms scores using Sigmoid function.
+#[pyfunction]
+pub fn normalize_bayes(mut scores: Vec<(String, f64)>) -> Vec<(String, f64)> {
+    if scores.is_empty() { return scores; }
+    
+    let mut non_zero: Vec<f64> = scores.iter().filter(|s| s.1 > 0.0).map(|s| s.1).collect();
+    if non_zero.is_empty() { return scores; }
+    
+    non_zero.sort_unstable_by(|a, b| a.partial_cmp(b).unwrap());
+    let mid = non_zero.len() / 2;
+    let median_score = if non_zero.len() % 2 == 0 {
+        (non_zero[mid - 1] + non_zero[mid]) / 2.0
+    } else {
+        non_zero[mid]
+    };
+    
+    let mean: f64 = non_zero.iter().sum::<f64>() / non_zero.len() as f64;
+    let variance: f64 = non_zero.iter().map(|&x| {
+        let diff = x - mean;
+        diff * diff
+    }).sum::<f64>() / non_zero.len() as f64;
+    let std_dev = variance.sqrt();
+    
+    let beta = median_score;
+    let alpha_eff = 1.0 / std_dev.max(1e-6);
+    
+    for item in &mut scores {
+        if item.1 > 0.0 {
+            item.1 = 1.0 / (1.0 + (-alpha_eff * (item.1 - beta)).exp());
+        }
+    }
+    
+    scores
+}
