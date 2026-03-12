@@ -163,11 +163,11 @@ def _build_embed_fn_hf(
     try:
         import embed_anything
         from embed_anything import EmbeddingModel
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "embed-anything is required for HuggingFace embeddings. "
             "Install via: uv add embed-anything"
-        ) from None
+        ) from e
 
     model = EmbeddingModel.from_pretrained_hf(model_id=model_id)
 
@@ -193,10 +193,10 @@ def _build_embed_fn_openai(
 
     try:
         from openai import OpenAI
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "openai is required for OpenAI embeddings. Install via: uv add openai"
-        ) from None
+        ) from e
 
     resolved_key = api_key or os.environ.get("OPENAI_API_KEY")
     if not resolved_key:
@@ -229,10 +229,10 @@ def _build_embed_fn_cohere(
 
     try:
         import cohere
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "cohere is required for Cohere embeddings. Install via: uv add cohere"
-        ) from None
+        ) from e
 
     resolved_key = (
         api_key or os.environ.get("COHERE_API_KEY") or os.environ.get("CO_API_KEY")
@@ -275,10 +275,10 @@ def _build_embed_fn_azure_openai(
 
     try:
         from openai import AzureOpenAI
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "openai is required for Azure OpenAI embeddings. Install via: uv add openai"
-        ) from None
+        ) from e
 
     endpoint = api_base or os.environ.get("AZURE_OPENAI_ENDPOINT")
     resolved_key = api_key or os.environ.get("AZURE_OPENAI_API_KEY")
@@ -319,11 +319,11 @@ def _build_embed_fn_azure_cohere(
     try:
         from azure.ai.inference import EmbeddingsClient
         from azure.core.credentials import AzureKeyCredential
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "azure-ai-inference is required for Azure Cohere embeddings. "
             "Install via: uv add azure-ai-inference"
-        ) from None
+        ) from e
 
     endpoint = api_base or os.environ.get("AZURE_COHERE_ENDPOINT")
     resolved_key = api_key or os.environ.get("AZURE_COHERE_API_KEY")

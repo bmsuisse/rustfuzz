@@ -213,8 +213,8 @@ class _BaseBM25:
         if isinstance(doc, str):
             try:
                 idx = self._corpus.index(doc)
-            except ValueError:
-                raise ValueError(f"Document not found in corpus: {doc!r}") from None
+            except ValueError as e:
+                raise ValueError(f"Document not found in corpus: {doc!r}") from e
         else:
             idx = doc
         breakdown = self._index.explain(query, idx)

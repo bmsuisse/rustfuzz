@@ -1,0 +1,149 @@
+{
+  "assessments": {
+    "naming_quality": 82,
+    "logic_clarity": 88,
+    "type_safety": 82,
+    "contract_coherence": 84,
+    "error_consistency": 82,
+    "abstraction_fitness": 85,
+    "ai_generated_debt": 92,
+    "high_level_elegance": 84,
+    "mid_level_elegance": 85,
+    "low_level_elegance": 82,
+    "cross_module_architecture": 85,
+    "initialization_coupling": 80,
+    "convention_outlier": 78,
+    "dependency_health": 84,
+    "test_strategy": 82,
+    "api_surface_coherence": 80,
+    "authorization_consistency": 92,
+    "incomplete_migration": 88,
+    "package_organization": 82,
+    "design_coherence": 82
+  },
+  "dimension_notes": {
+    "abstraction_fitness": "Strong: _BaseBM25 base class enforces API parity across 4 variants, each ~50 lines. Protocol types (ScorerProtocol, RerankerProtocol, EmbeddingCallback) define clear interfaces. resolve_scorer centralises scorer resolution. Remaining: HybridSearch internal complexity could be decomposed further.",
+    "design_coherence": "Much improved: search.py ~750 lines. _types.py centralises types, protocols, and shared helpers. No more duplicated _search_query or scorer resolution. Remaining: search.py still mixes BM25 + HybridSearch + Reranker.",
+    "high_level_elegance": "Clean architecture: base class pattern, Protocol-based interfaces, centralised type system. _types.py serves as the single source of truth for shared concerns. Remaining: HybridSearch and Reranker could be in separate modules.",
+    "mid_level_elegance": "Greatly improved: resolve_scorer eliminates 4\u00d7 duplicated scorer resolution in process.py. _search_query consolidated. _blend_reranked_scores extracted. _init_common avoids repetition. Clean, DRY code throughout.",
+    "low_level_elegance": "Rust algorithms well-optimized. levenshtein_editops_multiword still allocates inside per-char loop (could hoist). Python code clean with proper error handling and Protocol types.",
+    "cross_module_architecture": "Significantly improved: _types.py is the single source for Result, MetaResult, Protocol types, resolve_scorer, and _search_query. No more cross-module duplication. engine.py, search.py, process.py, query.py all import from _types.py.",
+    "type_safety": "Much improved: Protocol types (ScorerProtocol, RerankerProtocol, EmbeddingCallback) replace raw Any for key interfaces. resolve_scorer has clear return type annotation. Self used for from_column. Remaining: some internal Rust index objects still typed as Any.",
+    "contract_coherence": "Improved: from_column now uses Self return type. Protocol types define clear interfaces. Remaining: some internal methods could use Protocol types for parameters.",
+    "error_consistency": "Solid: explain() raises descriptive ValueError. RuntimeError for missing index in engine.py. Import errors chain properly with from e. Consistent pattern throughout.",
+    "naming_quality": "Good: _BaseBM25, resolve_scorer, ScorerProtocol all follow Python conventions. Protocol types use clear PascalCase. WRatio/QRatio PascalCase outliers remain for backward compat only.",
+    "logic_clarity": "Greatly improved: resolve_scorer eliminates the 4\u00d7 duplicated scorer resolution pattern. Each function now calls resolve_scorer(scorer) instead of repeating 3 lines. _search_query is a single-point-of-truth.",
+    "initialization_coupling": "add_documents/remove_documents still rebuild the entire Rust index. This is inherent to the BM25 data structure and documented implicitly. Cost is O(n) but acceptable for typical corpus sizes.",
+    "convention_outlier": "WRatio/QRatio PascalCase remains for backward compatibility. BM25Algorithm vs BM25Variant use different casing because they serve different Rust endpoints. Both are documented.",
+    "dependency_health": "Clean: optional dependencies properly guarded with lazy imports. Import error chains preserved. Protocol types are stdlib-only (no new deps).",
+    "test_strategy": "Significantly improved: 66 new parametrized tests (test_bm25_variants.py) verify API parity across all 4 variants. Tests cover scoring, properties, explain, metadata, mutation, and pickle roundtrip. 10 langchain tests added. Total: 610 tests.",
+    "api_surface_coherence": "Improved: Protocol types define clear interfaces. BM25Algorithm/BM25Variant naming difference documented. resolve_scorer provides consistent scorer handling.",
+    "authorization_consistency": "Not directly applicable \u2014 library, not service. langchain.py lazy class pattern well-tested.",
+    "incomplete_migration": "Nearly complete: _Result/_MetaResult backward-compat aliases remain in search.py but will be removed in a future major version. All new code uses Result/MetaResult from _types.py.",
+    "package_organization": "Good: _types.py centralises shared types and helpers. search.py ~750 lines. process.py clean. Could split search.py into sub-package but current size is within bounds.",
+    "ai_generated_debt": "Minimal: base class pattern eliminates copy-paste. resolve_scorer eliminates formulaic patterns. Protocol types replace ad-hoc Any annotations."
+  },
+  "issues": [
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "editops_allocation_in_loop",
+      "summary": "levenshtein_editops_multiword still allocates vectors inside per-character loop",
+      "related_files": [
+        "src/algorithms.rs"
+      ],
+      "evidence": [
+        "new_vp and new_vn allocated inside loop unlike myers_multiword which hoists and swaps"
+      ],
+      "suggestion": "Hoist allocations and use std::mem::swap.",
+      "confidence": "high"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "wratio_qratio_casing",
+      "summary": "WRatio/QRatio use PascalCase while all other fuzz functions use snake_case",
+      "related_files": [
+        "rustfuzz/fuzz.py"
+      ],
+      "evidence": [
+        "WRatio and QRatio alongside snake_case functions like partial_ratio, token_sort_ratio"
+      ],
+      "suggestion": "Add snake_case aliases (w_ratio, q_ratio) for API consistency while keeping originals for backward compat.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "bm25_variant_literal_inconsistency",
+      "summary": "BM25Algorithm (lowercase) and BM25Variant (PascalCase) use different casing for similar concepts",
+      "related_files": [
+        "rustfuzz/search.py",
+        "rustfuzz/join.py"
+      ],
+      "evidence": [
+        "search.py: 'bm25', 'bm25l'; join.py: 'BM25Okapi', 'BM25L'"
+      ],
+      "suggestion": "Document the distinction (search uses lowercase for CLI, join uses PascalCase for Rust FFI) or unify.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "full_rebuild_on_mutation",
+      "summary": "add_documents and remove_documents rebuild the entire Rust index",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_rebuild_index recreates the entire Rust index from scratch"
+      ],
+      "suggestion": "Document the rebuild cost in docstrings. Consider batch mutation APIs.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "search_module_mixed_concerns",
+      "summary": "search.py contains BM25 + HybridSearch + Reranker in one module",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "~750 lines with 3 distinct concerns"
+      ],
+      "suggestion": "Consider splitting into search/bm25.py, search/hybrid.py, search/reranker.py.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "rust_index_any",
+      "summary": "Internal Rust index objects typed as Any",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_index: Any  # Rust BM25 index object"
+      ],
+      "suggestion": "Not easily fixable since PyO3 objects don't have Python type stubs.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "swallowed_import_chains",
+      "summary": "Some import error handlers use 'from None' losing original traceback",
+      "related_files": [
+        "rustfuzz/engine.py"
+      ],
+      "evidence": [
+        "engine.py has some 'raise ImportError(...) from None'"
+      ],
+      "suggestion": "Use 'from e' instead of 'from None'.",
+      "confidence": "medium"
+    }
+  ],
+  "provenance": {
+    "kind": "blind_review_batch_import",
+    "blind": true,
+    "runner": "claude",
+    "session_id": "ext_20260312_201822_e8b18256",
+    "created_at": "2026-03-12T20:19:35+00:00",
+    "packet_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/review_packet_blind.json",
+    "packet_sha256": "f57d4a8e25363c7b81eace01484a3bf0af5b99fc55cf49be651a2f3532daa3c6"
+  }
+}
