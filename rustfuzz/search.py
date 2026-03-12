@@ -9,10 +9,10 @@ using Reciprocal Rank Fusion (RRF).
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, cast
+from typing import Any, Literal, Self, cast
 
 from . import _rustfuzz
-from ._types import MetaResult, Result
+from ._types import MetaResult, Result, _search_query
 from .compat import _coerce_to_strings, _extract_column, _extract_metadata
 from .document import Document  # noqa: F401 — re-export for backward compat
 
@@ -21,13 +21,6 @@ BM25Algorithm = Literal["bm25", "bm25okapi", "bm25l", "bm25+", "bm25plus", "bm25
 # Keep backward-compatible aliases
 _Result = Result
 _MetaResult = MetaResult
-
-
-# Lazy import to avoid circular dependency
-def _search_query(owner: Any) -> Any:
-    from .query import SearchQuery
-
-    return SearchQuery(owner)
 
 
 def _enrich(
@@ -124,7 +117,7 @@ class _BaseBM25:
         column: str,
         metadata_columns: list[str] | str | None = None,
         **kwargs: Any,
-    ) -> _BaseBM25:
+    ) -> Self:
         """Build a BM25 index from a DataFrame column (Spark, Polars, Pandas).
 
         Parameters

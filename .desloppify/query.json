@@ -1,23 +1,225 @@
 {
-  "command": "resolve",
-  "patterns": [
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
-  ],
-  "status": "fixed",
-  "resolved": [
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
-  ],
-  "count": 1,
-  "next_command": "desloppify next",
-  "overall_score": 83.1,
-  "objective_score": 94.5,
-  "strict_score": 83.1,
-  "verified_strict_score": 92.5,
-  "prev_overall_score": 83.0,
-  "prev_objective_score": 94.5,
-  "prev_strict_score": 83.0,
-  "prev_verified_strict_score": 92.5,
-  "attestation": "I have actually File is in excluded examples/ directory \u2014 not production code and I am not gaming the score.",
+  "command": "show",
+  "query": "review",
+  "status_filter": "open",
+  "total": 10,
+  "summary": {
+    "by_tier": {
+      "T1": 3,
+      "T2": 6,
+      "T3": 1
+    },
+    "by_detector": {
+      "review": 10
+    },
+    "files": 1
+  },
+  "by_file": {
+    ".": [
+      {
+        "id": "review::.::holistic::cross_module_architecture::search_query_helper_duplicate",
+        "tier": 1,
+        "confidence": "high",
+        "summary": "_search_query helper still duplicated in search.py and engine.py",
+        "detail": {
+          "holistic": true,
+          "dimension": "cross_module_architecture",
+          "related_files": [
+            "rustfuzz/search.py",
+            "rustfuzz/engine.py"
+          ],
+          "evidence": [
+            "Both files define identical _search_query(owner) helper functions"
+          ],
+          "suggestion": "Define _search_query once in search.py and import in engine.py, or move to a shared helpers module.",
+          "reasoning": "",
+          "summary_hash": "39e85eb2"
+        }
+      },
+      {
+        "id": "review::.::holistic::logic_clarity::process_scorer_duplication",
+        "tier": 1,
+        "confidence": "high",
+        "summary": "Scorer resolution logic repeated 4 times in process.py",
+        "detail": {
+          "holistic": true,
+          "dimension": "logic_clarity",
+          "related_files": [
+            "rustfuzz/process.py"
+          ],
+          "evidence": [
+            "Same scorer name/obj resolution pattern at lines 34-39, 82-84, 106-108, 139-141"
+          ],
+          "suggestion": "Extract _resolve_scorer() helper function.",
+          "reasoning": "",
+          "summary_hash": "c4907dcb"
+        }
+      },
+      {
+        "id": "review::.::holistic::low_level_elegance::editops_allocation_in_loop",
+        "tier": 1,
+        "confidence": "high",
+        "summary": "levenshtein_editops_multiword allocates vectors inside per-character loop",
+        "detail": {
+          "holistic": true,
+          "dimension": "low_level_elegance",
+          "related_files": [
+            "src/algorithms.rs"
+          ],
+          "evidence": [
+            "new_vp and new_vn allocated inside loop unlike myers_multiword which hoists and swaps"
+          ],
+          "suggestion": "Hoist allocations and use std::mem::swap.",
+          "reasoning": "",
+          "summary_hash": "414691b6"
+        }
+      },
+      {
+        "id": "review::.::holistic::api_surface_coherence::bm25_variant_literal_inconsistency",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "BM25Algorithm and BM25Variant literal types use different casing conventions",
+        "detail": {
+          "holistic": true,
+          "dimension": "api_surface_coherence",
+          "related_files": [
+            "rustfuzz/search.py",
+            "rustfuzz/join.py"
+          ],
+          "evidence": [
+            "search.py: lowercase literals; join.py: PascalCase literals for the same concept"
+          ],
+          "suggestion": "Consolidate into a single BM25Algorithm type with consistent casing.",
+          "reasoning": "",
+          "summary_hash": "3ccd8bf6"
+        }
+      },
+      {
+        "id": "review::.::holistic::contract_coherence::from_column_return_type",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "from_column uses _BaseBM25 return type instead of Self",
+        "detail": {
+          "holistic": true,
+          "dimension": "contract_coherence",
+          "related_files": [
+            "rustfuzz/search.py"
+          ],
+          "evidence": [
+            "_BaseBM25.from_column annotated as -> _BaseBM25 instead of -> Self"
+          ],
+          "suggestion": "Use typing.Self (Python 3.11+) for from_column return type.",
+          "reasoning": "",
+          "summary_hash": "29633c55"
+        }
+      },
+      {
+        "id": "review::.::holistic::dependency_health::swallowed_import_chains",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Some import error handlers use 'from None' losing original traceback",
+        "detail": {
+          "holistic": true,
+          "dimension": "dependency_health",
+          "related_files": [
+            "rustfuzz/engine.py"
+          ],
+          "evidence": [
+            "engine.py: 'raise ImportError(...) from None' discards original error context"
+          ],
+          "suggestion": "Use 'from e' instead of 'from None' to preserve causal chain.",
+          "reasoning": "",
+          "summary_hash": "4cd2d83f"
+        }
+      },
+      {
+        "id": "review::.::holistic::initialization_coupling::full_rebuild_on_mutation",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "add_documents and remove_documents still rebuild the entire Rust index",
+        "detail": {
+          "holistic": true,
+          "dimension": "initialization_coupling",
+          "related_files": [
+            "rustfuzz/search.py"
+          ],
+          "evidence": [
+            "_rebuild_index recreates the entire Rust index from scratch after each mutation"
+          ],
+          "suggestion": "Document the rebuild cost in docstrings. Consider batch mutation APIs.",
+          "reasoning": "",
+          "summary_hash": "74fc50aa"
+        }
+      },
+      {
+        "id": "review::.::holistic::test_strategy::no_parametrized_variant_tests",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "No parametrised test verifies API parity across BM25 variants",
+        "detail": {
+          "holistic": true,
+          "dimension": "test_strategy",
+          "related_files": [
+            "tests/"
+          ],
+          "evidence": [
+            "BM25, BM25L, BM25Plus, BM25T should all support the same methods via _BaseBM25 but no test parametrises across variants"
+          ],
+          "suggestion": "Add a parametrised test to verify all common methods exist and return correct results across variants.",
+          "reasoning": "",
+          "summary_hash": "50d78788"
+        }
+      },
+      {
+        "id": "review::.::holistic::type_safety::any_types_remaining",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "Some parameters still use Any where Protocol types would be more specific",
+        "detail": {
+          "holistic": true,
+          "dimension": "type_safety",
+          "related_files": [
+            "rustfuzz/search.py",
+            "rustfuzz/engine.py"
+          ],
+          "evidence": [
+            "_BaseBM25._index typed as Any, reranker parameter uses Any, embedding callbacks use Any"
+          ],
+          "suggestion": "Define Protocol classes for Scorer, Reranker, and EmbeddingCallback interfaces.",
+          "reasoning": "",
+          "summary_hash": "503da4ab"
+        }
+      },
+      {
+        "id": "review::.::holistic::abstraction_fitness::hybrid_search_corpus_coercion",
+        "tier": 3,
+        "confidence": "low",
+        "summary": "_coerce_corpus helper includes Document/LangChain handling that duplicates compat.py logic",
+        "detail": {
+          "holistic": true,
+          "dimension": "abstraction_fitness",
+          "related_files": [
+            "rustfuzz/search.py"
+          ],
+          "evidence": [
+            "_coerce_corpus handles Document, LangChain Document, and plain strings separately"
+          ],
+          "suggestion": "Consider merging with _coerce_to_strings or documenting the distinct purposes more clearly.",
+          "reasoning": "",
+          "summary_hash": "d02a8af9"
+        }
+      }
+    ]
+  },
+  "total_matching": 20,
+  "hidden": {
+    "by_detector": {
+      "review": 10
+    },
+    "total": 10
+  },
+  "noise_budget": 10,
+  "noise_global_budget": 0,
   "narrative": {
     "phase": "stagnation",
     "headline": "Score plateaued at 83.1 for 5 scans. Test strategy (65.0%) is where the breakthrough is. (20 review issues \u2014 run `desloppify show review --status open`)",
@@ -308,20 +510,6 @@
     },
     "reminders": [
       {
-        "type": "rereview_needed",
-        "message": "Subjective results may be stale after resolve. Re-run `desloppify review --prepare` to refresh, or reset with `desloppify scan --reset-subjective` before a clean rerun.",
-        "command": "desloppify review --prepare",
-        "priority": 1,
-        "severity": "high"
-      },
-      {
-        "type": "rescan_needed",
-        "message": "Rescan to verify \u2014 cascading effects may create new issues.",
-        "command": "desloppify scan",
-        "priority": 1,
-        "severity": "high"
-      },
-      {
         "type": "review_not_run",
         "message": "Mechanical checks look good! Run a subjective design review to catch issues linters miss: desloppify review --prepare",
         "command": "desloppify review --prepare",
@@ -335,9 +523,7 @@
       "review_issues_pending": 3,
       "feedback_nudge": 3,
       "review_not_run": 3,
-      "stagnant_nudge": 3,
-      "rereview_needed": 1,
-      "rescan_needed": 1
+      "stagnant_nudge": 3
     }
   },
   "config": {

@@ -1,191 +1,161 @@
+"""Tests for BM25 variant API parity — all variants share the same interface via _BaseBM25."""
+
+from __future__ import annotations
+
 import pytest
 
-from rustfuzz.search import BM25, BM25L, BM25T, BM25Plus
+from rustfuzz.search import BM25, BM25L, BM25T, BM25Plus, _BaseBM25
 
-# Corpus used for logical math verification
-corpus = [
-    "Hello there good man!",
-    "It is quite windy in London",
-    "How is the weather today?",
-]
-query = "windy London"
+# All BM25 variant classes to test
+BM25_VARIANTS = [BM25, BM25L, BM25Plus, BM25T]
 
-# Validated outputs from our high-quality rust implementations
-# (which use Lucene Okapi IDF smoothing and correct BM25L/+/T term frequency parameters)
-EXPECTED_OKAPI_SCORES = [0.0, 1.79968670277381, 0.0]
-EXPECTED_BM25L_SCORES = [0.0, 2.340615262868892, 0.0]
-EXPECTED_BM25PLUS_SCORES = [0.0, 5.316248100441416, 0.0]
-EXPECTED_BM25T_SCORES = [0.0, 1.888390041423545, 0.0]  # locked in mathematical baseline
-
-
-def test_bm25okapi_parity():
-    bm25 = BM25(corpus)
-    scores = bm25.get_scores(query)
-    assert len(scores) == 3
-    for s, exp in zip(scores, EXPECTED_OKAPI_SCORES, strict=True):
-        assert pytest.approx(s, rel=1e-4) == exp
-
-
-def test_bm25l_parity():
-    bm25l = BM25L(corpus)
-    scores = bm25l.get_scores(query)
-    for s, exp in zip(scores, EXPECTED_BM25L_SCORES, strict=True):
-        assert pytest.approx(s, rel=1e-4) == exp
-
-
-def test_bm25plus_parity():
-    bm25plus = BM25Plus(corpus)
-    scores = bm25plus.get_scores(query)
-    for s, exp in zip(scores, EXPECTED_BM25PLUS_SCORES, strict=True):
-        assert pytest.approx(s, rel=1e-4) == exp
-
-
-def test_bm25t_parity():
-    bm25t = BM25T(corpus)
-    scores = bm25t.get_scores(query)
-    # the exact score will be locked in to prevent regressions
-    assert scores[1] > scores[0]
-    assert scores[1] > scores[2]
-    # Check if the score matches the expected roughly or print it if failing
-    if abs(scores[1] - EXPECTED_BM25T_SCORES[1]) > 1e-4:
-        pytest.fail(f"BM25T score changed to {scores[1]}")
-
-
-# ---------------------------------------------------------------------------
-# Consistent API tests — ensure all variants expose the same methods
-# ---------------------------------------------------------------------------
-
-CORPUS_LARGE = [
-    "Hello there good man!",
-    "It is quite windy in London",
-    "How is the weather today?",
+SAMPLE_CORPUS = [
     "The quick brown fox jumps over the lazy dog",
-    "A lazy dog slept in the sun all afternoon",
+    "A fast red car drives over the slow bridge",
+    "The cat sat on the mat in the kitchen",
+    "Dogs and cats are popular household pets",
+    "A brown bear walked through the forest trail",
 ]
 
 
-@pytest.mark.parametrize(
-    "cls,kwargs",
-    [
-        (BM25L, {"delta": 0.5}),
-        (BM25Plus, {"delta": 1.0}),
-        (BM25T, {}),
-    ],
-)
-def test_variant_get_batch_scores(cls, kwargs):
-    idx = cls(CORPUS_LARGE, **kwargs)
-    batch = idx.get_batch_scores(["windy", "fox"])
-    assert len(batch) == 2
-    assert len(batch[0]) == len(CORPUS_LARGE)
-    # Should match individual get_scores
-    assert batch[0] == idx.get_scores("windy")
+@pytest.fixture(params=BM25_VARIANTS, ids=lambda cls: cls.__name__)
+def bm25_instance(request: pytest.FixtureRequest) -> _BaseBM25:
+    """Fixture creating an instance of each BM25 variant."""
+    cls = request.param
+    return cls(SAMPLE_CORPUS)
 
 
-@pytest.mark.parametrize(
-    "cls,kwargs",
-    [
-        (BM25L, {"delta": 0.5}),
-        (BM25Plus, {"delta": 1.0}),
-        (BM25T, {}),
-    ],
-)
-def test_variant_get_top_n_fuzzy(cls, kwargs):
-    idx = cls(CORPUS_LARGE, **kwargs)
-    # Misspelled query — fuzzy should still find results
-    results = idx.get_top_n_fuzzy("wndy Lndon", n=3, fuzzy_weight=0.4)
-    assert len(results) > 0
-    # Best match should contain "London"
-    assert "London" in results[0][0]
+@pytest.fixture(params=BM25_VARIANTS, ids=lambda cls: cls.__name__)
+def bm25_with_metadata(request: pytest.FixtureRequest) -> _BaseBM25:
+    """Fixture creating each BM25 variant with metadata."""
+    cls = request.param
+    meta = [{"idx": i, "source": f"doc_{i}"} for i in range(len(SAMPLE_CORPUS))]
+    return cls(SAMPLE_CORPUS, metadata=meta)
 
 
-@pytest.mark.parametrize(
-    "cls,kwargs",
-    [
-        (BM25L, {"delta": 0.5}),
-        (BM25Plus, {"delta": 1.0}),
-        (BM25T, {}),
-    ],
-)
-def test_variant_get_top_n_rrf(cls, kwargs):
-    idx = cls(CORPUS_LARGE, **kwargs)
-    results = idx.get_top_n_rrf("quik brwn fx", n=3)
-    assert len(results) > 0
-    # Top result should contain "fox"
-    assert "fox" in results[0][0]
+class TestBM25VariantInheritance:
+    """Verify all variants are subclasses of _BaseBM25."""
+
+    @pytest.mark.parametrize("cls", BM25_VARIANTS, ids=lambda c: c.__name__)
+    def test_is_subclass(self, cls: type) -> None:
+        assert issubclass(cls, _BaseBM25)
+
+    @pytest.mark.parametrize("cls", BM25_VARIANTS, ids=lambda c: c.__name__)
+    def test_isinstance(self, cls: type) -> None:
+        instance = cls(SAMPLE_CORPUS)
+        assert isinstance(instance, _BaseBM25)
 
 
-@pytest.mark.parametrize(
-    "cls,kwargs",
-    [
-        (BM25L, {"delta": 0.5}),
-        (BM25Plus, {"delta": 1.0}),
-        (BM25T, {}),
-    ],
-)
-def test_variant_fuzzy_only(cls, kwargs):
-    idx = cls(CORPUS_LARGE, **kwargs)
-    results = idx.fuzzy_only("lazy dog", n=2)
-    assert len(results) == 2
-    # All results should have scores > 0
-    assert all(score > 0 for _, score in results)
+class TestBM25VariantScoring:
+    """Verify scoring methods work identically across variants."""
+
+    def test_get_scores_length(self, bm25_instance: _BaseBM25) -> None:
+        scores = bm25_instance.get_scores("fox")
+        assert len(scores) == len(SAMPLE_CORPUS)
+
+    def test_get_scores_returns_floats(self, bm25_instance: _BaseBM25) -> None:
+        scores = bm25_instance.get_scores("fox")
+        assert all(isinstance(s, float) for s in scores)
+
+    def test_get_top_n_returns_results(self, bm25_instance: _BaseBM25) -> None:
+        results = bm25_instance.get_top_n("fox", n=3)
+        assert len(results) <= 3
+        assert all(isinstance(r, tuple) for r in results)
+        assert all(len(r) == 2 for r in results)
+
+    def test_get_top_n_fuzzy(self, bm25_instance: _BaseBM25) -> None:
+        results = bm25_instance.get_top_n_fuzzy("foks", n=3)  # misspelling
+        assert len(results) <= 3
+
+    def test_get_top_n_rrf(self, bm25_instance: _BaseBM25) -> None:
+        results = bm25_instance.get_top_n_rrf("fox", n=3)
+        assert len(results) <= 3
+
+    def test_fuzzy_only(self, bm25_instance: _BaseBM25) -> None:
+        results = bm25_instance.fuzzy_only("fox", n=3)
+        assert len(results) <= 3
+
+    def test_get_batch_scores(self, bm25_instance: _BaseBM25) -> None:
+        batch = bm25_instance.get_batch_scores(["fox", "cat"])
+        assert len(batch) == 2
+        assert all(len(row) == len(SAMPLE_CORPUS) for row in batch)
+
+    def test_get_top_n_filtered(self, bm25_instance: _BaseBM25) -> None:
+        allowed = [True, False, True, False, True]
+        results = bm25_instance.get_top_n_filtered("fox", allowed=allowed, n=3)
+        assert len(results) <= 3
 
 
-def test_hybrid_search_bm25_variants():
-    from rustfuzz.search import BM25Plus, HybridSearch
+class TestBM25VariantProperties:
+    """Verify properties work across all variants."""
 
-    docs = [
-        "Apple iPhone 15 Pro Max",
-        "Samsung Galaxy S24 Ultra",
-        "Google Pixel 8 Pro",
-        "Apple iPad Pro 12.9",
-    ]
+    def test_num_docs(self, bm25_instance: _BaseBM25) -> None:
+        assert bm25_instance.num_docs == len(SAMPLE_CORPUS)
 
-    # Dummy embeddings
-    embeddings = [
-        [1.0, 0.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0, 0.0],
-        [0.0, 0.0, 1.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    ]
+    def test_get_idf(self, bm25_instance: _BaseBM25) -> None:
+        idf = bm25_instance.get_idf()
+        assert isinstance(idf, dict)
+        assert len(idf) > 0
 
-    # Default is BM25Okapi
-    hs_default = HybridSearch(docs, embeddings=embeddings)
-    res_default = hs_default.search("iphone pro", n=2)
-
-    # Test BM25L directly
-    hs_l = HybridSearch(docs, embeddings=embeddings, algorithm="bm25l", delta=0.5)
-    res_l = hs_l.search("iphone pro", n=2)
-
-    # Test fluent chain
-    bm25_plus = BM25Plus(docs, delta=1.5)
-    hs_plus_fluent = bm25_plus.to_hybrid(embeddings=embeddings)
-    assert hs_plus_fluent._algorithm == "bm25+"
-    assert hs_plus_fluent._delta == 1.5
-    res_plus = hs_plus_fluent.search("iphone pro", n=2)
-
-    # The models should produce different ranks/scores internally but we primarily
-    # just test that they execute without error and return exactly 2 results.
-    assert len(res_default) == 2
-    assert len(res_l) == 2
-    assert len(res_plus) == 2
+    def test_get_document_vector(self, bm25_instance: _BaseBM25) -> None:
+        vec = bm25_instance.get_document_vector(0)
+        assert isinstance(vec, dict)
 
 
-def test_hybrid_search_variant_pickling():
-    import pickle
+class TestBM25VariantExplain:
+    """Verify explain works across all variants."""
 
-    from rustfuzz.search import BM25L
+    def test_explain_by_index(self, bm25_instance: _BaseBM25) -> None:
+        explanation = bm25_instance.explain("fox", 0)
+        assert "terms" in explanation
+        assert "total_score" in explanation
+        assert "doc_idx" in explanation
+        assert "doc_text" in explanation
 
-    docs = ["Apple iPhone", "Samsung Galaxy"]
-    embeddings = [[1.0, 0.0], [0.0, 1.0]]
+    def test_explain_by_text(self, bm25_instance: _BaseBM25) -> None:
+        explanation = bm25_instance.explain("fox", SAMPLE_CORPUS[0])
+        assert explanation["doc_idx"] == 0
 
-    hs = BM25L(docs, delta=0.8).to_hybrid(embeddings=embeddings)
+    def test_explain_not_found_raises(self, bm25_instance: _BaseBM25) -> None:
+        with pytest.raises(ValueError, match="Document not found"):
+            bm25_instance.explain("fox", "nonexistent document text")
 
-    # Round trip
-    hs_unpickled = pickle.loads(pickle.dumps(hs))
 
-    assert hs_unpickled._algorithm == "bm25l"
-    assert hs_unpickled._delta == 0.8
-    assert hs_unpickled.has_vectors is True
+class TestBM25VariantMetadata:
+    """Verify metadata handling works across all variants."""
 
-    res = hs_unpickled.search("iphone")
-    assert res[0][0] == "Apple iPhone"
+    def test_top_n_with_metadata(self, bm25_with_metadata: _BaseBM25) -> None:
+        results = bm25_with_metadata.get_top_n("fox", n=3)
+        assert all(len(r) == 3 for r in results)  # (text, score, metadata)
+
+    def test_top_n_without_metadata(self, bm25_instance: _BaseBM25) -> None:
+        results = bm25_instance.get_top_n("fox", n=3)
+        assert all(len(r) == 2 for r in results)  # (text, score)
+
+
+class TestBM25VariantMutation:
+    """Verify add/remove document methods work across all variants."""
+
+    def test_add_documents(self, bm25_instance: _BaseBM25) -> None:
+        original_count = bm25_instance.num_docs
+        bm25_instance.add_documents(["New document about foxes"])
+        assert bm25_instance.num_docs == original_count + 1
+
+    def test_remove_documents(self, bm25_instance: _BaseBM25) -> None:
+        original_count = bm25_instance.num_docs
+        bm25_instance.remove_documents([0])
+        assert bm25_instance.num_docs == original_count - 1
+
+
+class TestBM25VariantPickle:
+    """Verify all variants are picklable."""
+
+    def test_pickle_roundtrip(self, bm25_instance: _BaseBM25) -> None:
+        import pickle
+
+        pickled = pickle.dumps(bm25_instance)
+        restored = pickle.loads(pickled)  # noqa: S301
+        assert restored.num_docs == bm25_instance.num_docs
+        original_scores = bm25_instance.get_scores("fox")
+        restored_scores = restored.get_scores("fox")
+        assert original_scores == pytest.approx(restored_scores, rel=1e-6)

@@ -40,6 +40,7 @@ from typing import Any
 
 from ._types import MetaResult as _MetaResult
 from ._types import Result as _Result
+from ._types import _search_query
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
@@ -146,16 +147,6 @@ class RetrieverConfig:
     normalize: bool = True
     normalize_scores: bool = False
     rerank_top_k: int = 10
-
-
-# ── Internal helpers ─────────────────────────────────────────────────
-
-
-def _search_query(owner: Any) -> Any:
-    """Lazy import to avoid circular dependency."""
-    from .query import SearchQuery
-
-    return SearchQuery(owner)
 
 
 # ── Embedding factory functions ──────────────────────────────────────
