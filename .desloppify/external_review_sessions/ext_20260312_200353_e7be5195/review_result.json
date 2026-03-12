@@ -1,0 +1,232 @@
+{
+  "session": {
+    "id": "ext_20260312_200353_e7be5195",
+    "token": "2ab81654cd4cf56c72aad5112b167a9f"
+  },
+  "assessments": {
+    "naming_quality": 80,
+    "logic_clarity": 82,
+    "type_safety": 72,
+    "contract_coherence": 78,
+    "error_consistency": 80,
+    "abstraction_fitness": 82,
+    "ai_generated_debt": 90,
+    "high_level_elegance": 80,
+    "mid_level_elegance": 80,
+    "low_level_elegance": 82,
+    "cross_module_architecture": 78,
+    "initialization_coupling": 78,
+    "convention_outlier": 75,
+    "dependency_health": 82,
+    "test_strategy": 65,
+    "api_surface_coherence": 78,
+    "authorization_consistency": 92,
+    "incomplete_migration": 85,
+    "package_organization": 78,
+    "design_coherence": 78
+  },
+  "dimension_notes": {
+    "abstraction_fitness": "Significantly improved: _BaseBM25 base class now contains all 25 shared methods. BM25/BM25L/BM25Plus/BM25T are thin ~50-line subclasses overriding only __init__, to_hybrid, and __reduce__. Remaining concern: HybridSearch still has some internal complexity that could be further decomposed.",
+    "design_coherence": "Major improvement: search.py reduced from 1880 to ~750 lines. Type aliases consolidated into _types.py. search_query helper is properly shared. Remaining concern: search.py still contains BM25 classes + HybridSearch + Reranker together.",
+    "high_level_elegance": "Architecture is now much cleaner: base class pattern eliminates massive duplication. _types.py centralises shared types. Remaining concern: HybridSearch and Reranker could be in separate modules for clearer separation.",
+    "mid_level_elegance": "Greatly improved: duplicate _normalize_scores assignments fixed, _blend_reranked_scores extracted as standalone helper, no more copy-pasted methods across variants. _init_common helper avoids repetition.",
+    "low_level_elegance": "Rust algorithms are well-optimized. Minor improvement: editops_multiword could hoist allocations outside per-char loop. Python code is clean with proper error handling.",
+    "cross_module_architecture": "Improved: _types.py centralises Result/MetaResult (was duplicated 3 times). engine.py and query.py now import from _types.py. Remaining concern: _search_query helper still duplicated in engine.py and search.py.",
+    "type_safety": "Some improvement: consolidated type aliases reduce inconsistency. Still uses Any for scorer, reranker, and embedding parameters where Protocol types would be more appropriate.",
+    "contract_coherence": "Improved: from_column now consistently uses cls() pattern through base class. Still uses variant-specific return types instead of Self.",
+    "error_consistency": "Improved: explain() now raises descriptive ValueError when document not found. assert statements in engine.py replaced with RuntimeError. Pattern is more consistent now.",
+    "naming_quality": "Mostly consistent. WRatio/QRatio PascalCase outliers remain for backward compatibility. _BaseBM25 naming follows Python conventions.",
+    "logic_clarity": "Base class pattern makes control flow much clearer. Each variant's unique logic is easily identifiable in thin __init__. _blend_reranked_scores helper improves readability.",
+    "initialization_coupling": "add_documents/remove_documents rebuilds remain but are now in one place (_rebuild_index). Cost documented implicitly through the pattern.",
+    "convention_outlier": "WRatio/QRatio PascalCase and BM25Algorithm vs BM25Variant literal types remain. These are backward-compatibility concerns.",
+    "dependency_health": "Clean optional dependency separation maintained. Lazy imports work correctly. Some exception chains still use 'from None'.",
+    "test_strategy": "All 534 tests pass. Still lacks parametrised tests for BM25 variant API parity, though this is less critical now with base class enforcing it.",
+    "api_surface_coherence": "Improved with consolidated types. Document re-export from search.py maintained for backward compat. BM25Algorithm/BM25Variant literal inconsistency remains.",
+    "authorization_consistency": "Not directly applicable — library, not service. langchain.py lazy class pattern unchanged.",
+    "incomplete_migration": "Mostly resolved: _Result/_MetaResult consolidated into _types.py. query.py and engine.py now import from single source.",
+    "package_organization": "Improved: search.py halved in size. Could still benefit from splitting into search/ package but current size (~750 lines) is within bounds.",
+    "ai_generated_debt": "Reduced: the copy-paste pattern across BM25 variants (whether AI-generated or not) has been eliminated by the base class extraction."
+  },
+  "issues": [
+    {
+      "dimension": "type_safety",
+      "identifier": "any_types_remaining",
+      "summary": "Some parameters still use Any where Protocol types would be more specific",
+      "related_files": ["rustfuzz/search.py", "rustfuzz/engine.py"],
+      "evidence": ["_BaseBM25._index typed as Any, reranker parameter uses Any, embedding callbacks use Any"],
+      "suggestion": "Define Protocol classes for Scorer, Reranker, and EmbeddingCallback interfaces.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "wratio_qratio_casing",
+      "summary": "WRatio/QRatio use PascalCase while all other fuzz functions use snake_case",
+      "related_files": ["rustfuzz/fuzz.py"],
+      "evidence": ["WRatio and QRatio alongside snake_case functions like partial_ratio, token_sort_ratio"],
+      "suggestion": "Add snake_case aliases (w_ratio, q_ratio) for API consistency while keeping originals for backward compat.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "no_parametrized_variant_tests",
+      "summary": "No parametrised test verifies API parity across BM25 variants",
+      "related_files": ["tests/"],
+      "evidence": ["BM25, BM25L, BM25Plus, BM25T should all support the same methods via _BaseBM25 but no test parametrises across variants"],
+      "suggestion": "Add a parametrised test to verify all common methods exist and return correct results across variants.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "search_query_helper_duplicate",
+      "summary": "_search_query helper still duplicated in search.py and engine.py",
+      "related_files": ["rustfuzz/search.py", "rustfuzz/engine.py"],
+      "evidence": ["Both files define identical _search_query(owner) helper functions"],
+      "suggestion": "Define _search_query once in search.py and import in engine.py, or move to a shared helpers module.",
+      "confidence": "high"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "bm25_variant_literal_inconsistency",
+      "summary": "BM25Algorithm and BM25Variant literal types use different casing conventions",
+      "related_files": ["rustfuzz/search.py", "rustfuzz/join.py"],
+      "evidence": ["search.py: lowercase literals; join.py: PascalCase literals for the same concept"],
+      "suggestion": "Consolidate into a single BM25Algorithm type with consistent casing.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "module_underscore_prefix",
+      "summary": "_types.py uses underscore prefix which is correct but _BaseBM25 could use a cleaner public export",
+      "related_files": ["rustfuzz/_types.py"],
+      "evidence": ["Result and MetaResult are public names but _types.py is private module"],
+      "suggestion": "Consider whether Result/MetaResult should be in __all__ for public consumption.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "search_still_mixed",
+      "summary": "search.py still contains BM25 + HybridSearch + Reranker in one module",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["~750 lines with 3 distinct concerns: BM25 variants, HybridSearch, and Reranker"],
+      "suggestion": "Consider splitting into search/bm25.py, search/hybrid.py, search/reranker.py in a future refactoring pass.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "full_rebuild_on_mutation",
+      "summary": "add_documents and remove_documents still rebuild the entire Rust index",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["_rebuild_index recreates the entire Rust index from scratch after each mutation"],
+      "suggestion": "Document the rebuild cost in docstrings. Consider batch mutation APIs.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "from_column_return_type",
+      "summary": "from_column uses _BaseBM25 return type instead of Self",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["_BaseBM25.from_column annotated as -> _BaseBM25 instead of -> Self"],
+      "suggestion": "Use typing.Self (Python 3.11+) for from_column return type.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "swallowed_import_chains",
+      "summary": "Some import error handlers use 'from None' losing original traceback",
+      "related_files": ["rustfuzz/engine.py"],
+      "evidence": ["engine.py: 'raise ImportError(...) from None' discards original error context"],
+      "suggestion": "Use 'from e' instead of 'from None' to preserve causal chain.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "editops_allocation_in_loop",
+      "summary": "levenshtein_editops_multiword allocates vectors inside per-character loop",
+      "related_files": ["src/algorithms.rs"],
+      "evidence": ["new_vp and new_vn allocated inside loop unlike myers_multiword which hoists and swaps"],
+      "suggestion": "Hoist allocations and use std::mem::swap.",
+      "confidence": "high"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "process_scorer_duplication",
+      "summary": "Scorer resolution logic repeated 4 times in process.py",
+      "related_files": ["rustfuzz/process.py"],
+      "evidence": ["Same scorer name/obj resolution pattern at lines 34-39, 82-84, 106-108, 139-141"],
+      "suggestion": "Extract _resolve_scorer() helper function.",
+      "confidence": "high"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "engine_error_messages",
+      "summary": "RuntimeError messages in engine.py could be more specific about initialization state",
+      "related_files": ["rustfuzz/engine.py"],
+      "evidence": ["Generic 'Retriever has no index' message doesn't explain what went wrong"],
+      "suggestion": "Include more context about which initialization step failed.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "document_reexport",
+      "summary": "Document re-exported from search.py for backward compat when already exported from package",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["search.py line: 'from .document import Document  # noqa: F401'"],
+      "suggestion": "Remove re-export if no external code imports Document from search module directly.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "remaining_boilerplate",
+      "summary": "Minor remaining boilerplate in _init_common and __reduce__ methods",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["_init_common helper and __reduce__ contain somewhat formulaic code across variants"],
+      "suggestion": "This is inherent to the pattern and acceptable; no further refactoring needed.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "langchain_getattr",
+      "summary": "langchain.py uses module __getattr__ for lazy class construction",
+      "related_files": ["rustfuzz/langchain.py"],
+      "evidence": ["Module-level __getattr__ dynamically builds RustfuzzBM25Retriever class"],
+      "suggestion": "Document the pattern or use simpler lazy import approach.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "backward_compat_aliases",
+      "summary": "_Result and _MetaResult backward-compat aliases remain in search.py",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["search.py keeps _Result = Result and _MetaResult = MetaResult aliases"],
+      "suggestion": "Plan deprecation cycle for _Result/_MetaResult in favor of Result/MetaResult from _types.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "hybrid_reranker_same_module",
+      "summary": "HybridSearch and Reranker in same module as BM25 classes",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["BM25 variants, HybridSearch, and Reranker all in search.py despite different concerns"],
+      "suggestion": "Future split into sub-package would further improve architecture clarity.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "reranker_score_fn_detection",
+      "summary": "Reranker.__init__ has a chain of hasattr checks for auto-detecting score interface",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["Reranker checks predict, compute_scores, score, callable in sequence"],
+      "suggestion": "Consider using a Protocol/ABC for the scoring interface instead of duck-typing at runtime.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "hybrid_search_corpus_coercion",
+      "summary": "_coerce_corpus helper includes Document/LangChain handling that duplicates compat.py logic",
+      "related_files": ["rustfuzz/search.py"],
+      "evidence": ["_coerce_corpus handles Document, LangChain Document, and plain strings separately"],
+      "suggestion": "Consider merging with _coerce_to_strings or documenting the distinct purposes more clearly.",
+      "confidence": "low"
+    }
+  ]
+}

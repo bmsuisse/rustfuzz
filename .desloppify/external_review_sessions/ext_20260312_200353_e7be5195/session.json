@@ -1,0 +1,20 @@
+{
+  "session_id": "ext_20260312_200353_e7be5195",
+  "status": "submitted",
+  "runner": "claude",
+  "created_at": "2026-03-12T20:03:53+00:00",
+  "expires_at": "2026-03-13T20:03:53+00:00",
+  "ttl_hours": 24,
+  "token": "2ab81654cd4cf56c72aad5112b167a9f",
+  "attest": "I validated this review was completed without awareness of overall score and is unbiased.",
+  "packet_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/review_packets/holistic_packet_20260312_200353.json",
+  "blind_packet_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/review_packet_blind.json",
+  "packet_sha256": "9f946e81da89981b292bf1f2927fe94b84ea73afde4993e023dd15fe28db289c",
+  "template_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/review_result.template.json",
+  "launch_prompt_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/claude_launch_prompt.md",
+  "instructions_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/reviewer_instructions.md",
+  "expected_output_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/review_result.json",
+  "submitted_at": "2026-03-12T20:05:33+00:00",
+  "submitted_input_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/review_result.json",
+  "submitted_canonical_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_200353_e7be5195/canonical_import_20260312_200532.json"
+}
