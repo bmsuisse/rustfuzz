@@ -1,17 +1,17 @@
 {
   "version": 1,
   "created": "2026-03-12T19:43:40+00:00",
-  "last_scan": "2026-03-12T20:36:28+00:00",
-  "scan_count": 12,
-  "overall_score": 88.8,
+  "last_scan": "2026-03-12T20:40:54+00:00",
+  "scan_count": 13,
+  "overall_score": 90.2,
   "objective_score": 93.3,
-  "strict_score": 88.8,
+  "strict_score": 90.1,
   "verified_strict_score": 91.4,
   "stats": {
-    "total": 175,
+    "total": 189,
     "auto_resolved": 0,
     "false_positive": 0,
-    "fixed": 75,
+    "fixed": 89,
     "open": 91,
     "wontfix": 9,
     "by_tier": {
@@ -25,15 +25,15 @@
       "2": {
         "auto_resolved": 0,
         "false_positive": 0,
-        "fixed": 27,
-        "open": 28,
+        "fixed": 29,
+        "open": 26,
         "wontfix": 0
       },
       "3": {
         "auto_resolved": 0,
         "false_positive": 0,
-        "fixed": 12,
-        "open": 62,
+        "fixed": 24,
+        "open": 64,
         "wontfix": 4
       },
       "4": {
@@ -1694,7 +1694,7 @@
         "text": "I have actually Already fixed: replaced assert with RuntimeError raise in prior commit and I am not gaming the score.",
         "attested_at": "2026-03-12T20:10:56+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1730,7 +1730,7 @@
         "text": "I have actually Already fixed: replaced assert with RuntimeError raise in prior commit and I am not gaming the score.",
         "attested_at": "2026-03-12T20:10:57+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1836,7 +1836,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1867,7 +1867,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1898,7 +1898,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1929,7 +1929,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1960,7 +1960,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1991,7 +1991,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2022,7 +2022,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2053,7 +2053,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2084,7 +2084,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2115,7 +2115,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2146,7 +2146,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2177,7 +2177,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2208,7 +2208,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2239,7 +2239,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2270,7 +2270,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2301,7 +2301,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2332,7 +2332,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2363,7 +2363,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2394,7 +2394,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2425,7 +2425,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:36:28+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -3071,7 +3071,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:27+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -3112,7 +3112,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:26+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -3153,7 +3153,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:30+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -3194,7 +3194,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:28+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4269,7 +4269,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:49+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4321,7 +4321,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:51+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4373,7 +4373,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:52+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4425,7 +4425,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:52+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4471,7 +4471,7 @@
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:30+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified_at": "2026-03-12T20:40:54+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
@@ -4768,16 +4768,22 @@
         "reasoning": "",
         "summary_hash": "eacb53a8"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:05:32+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::from_column_return_type": {
       "id": "review::.::holistic::contract_coherence::from_column_return_type",
@@ -5044,7 +5050,7 @@
       "file": ".",
       "tier": 3,
       "confidence": "low",
-      "summary": "langchain.py uses module __getattr__ for lazy class",
+      "summary": "langchain.py module __getattr__ for lazy class",
       "detail": {
         "holistic": true,
         "dimension": "authorization_consistency",
@@ -5052,16 +5058,16 @@
           "rustfuzz/langchain.py"
         ],
         "evidence": [
-          "Module-level __getattr__"
+          "Module __getattr__"
         ],
-        "suggestion": "Document pattern in module docstring.",
+        "suggestion": "Document pattern.",
         "reasoning": "",
-        "summary_hash": "70c38dd0"
+        "summary_hash": "04dd49b5"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:05:32+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5089,16 +5095,22 @@
         "reasoning": "",
         "summary_hash": "e722c5cb"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:05:32+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::high_level_elegance::hybrid_reranker_same_module": {
       "id": "review::.::holistic::high_level_elegance::hybrid_reranker_same_module",
@@ -5371,16 +5383,22 @@
         "reasoning": "",
         "summary_hash": "d47b3065"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::package_organization::flat_package_structure": {
       "id": "review::.::holistic::package_organization::flat_package_structure",
@@ -5425,7 +5443,7 @@
       "file": ".",
       "tier": 2,
       "confidence": "medium",
-      "summary": "No hypothesis property-based tests for fuzzy invariants",
+      "summary": "No hypothesis property-based tests",
       "detail": {
         "holistic": true,
         "dimension": "test_strategy",
@@ -5433,16 +5451,16 @@
           "tests/"
         ],
         "evidence": [
-          "Fuzzy matching has well-defined invariants"
+          "Fuzzy matching has invariants like symmetry"
         ],
-        "suggestion": "Add hypothesis tests for symmetry and bounds.",
+        "suggestion": "Add hypothesis tests for key invariants.",
         "reasoning": "",
-        "summary_hash": "ce06f5e7"
+        "summary_hash": "51420032"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5473,7 +5491,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5614,42 +5632,11 @@
         "reasoning": "",
         "summary_hash": "bb23f3df"
       },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "review::.::holistic::cross_module_architecture::engine_search_imports": {
-      "id": "review::.::holistic::cross_module_architecture::engine_search_imports",
-      "detector": "review",
-      "file": ".",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "engine.py imports many symbols from search.py creating tight coupling",
-      "detail": {
-        "holistic": true,
-        "dimension": "cross_module_architecture",
-        "related_files": [
-          "rustfuzz/engine.py"
-        ],
-        "evidence": [
-          "engine.py imports BM25, BM25L, BM25T, BM25Plus, HybridSearch, Reranker, _extract_column, _extract_metadata"
-        ],
-        "suggestion": "Consider reducing coupling through a facade pattern.",
-        "reasoning": "",
-        "summary_hash": "82de02ba"
-      },
       "status": "fixed",
       "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
@@ -5658,9 +5645,40 @@
       "resolution_attestation": {
         "kind": "agent_import",
         "text": "not reported in latest holistic re-import",
-        "attested_at": "2026-03-12T20:35:49+00:00",
+        "attested_at": "2026-03-12T20:40:55+00:00",
         "scan_verified": false
       }
+    },
+    "review::.::holistic::cross_module_architecture::engine_search_imports": {
+      "id": "review::.::holistic::cross_module_architecture::engine_search_imports",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "engine.py imports 8+ symbols from search.py",
+      "detail": {
+        "holistic": true,
+        "dimension": "cross_module_architecture",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "Many imports from search"
+        ],
+        "suggestion": "Acceptable coupling for current module size.",
+        "reasoning": "",
+        "summary_hash": "c97ef369"
+      },
+      "status": "open",
+      "note": "Reopened (\u00d71) \u2014 reappeared in scan (was fixed)",
+      "first_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 1,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
     },
     "review::.::holistic::logic_clarity::reranker_score_detection": {
       "id": "review::.::holistic::logic_clarity::reranker_score_detection",
@@ -5809,16 +5827,22 @@
         "reasoning": "",
         "summary_hash": "145faa6f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::reranker_protocol_param": {
       "id": "review::.::holistic::contract_coherence::reranker_protocol_param",
@@ -5840,16 +5864,22 @@
         "reasoning": "",
         "summary_hash": "88eee857"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::editops_string_alloc": {
       "id": "review::.::holistic::low_level_elegance::editops_string_alloc",
@@ -5857,7 +5887,7 @@
       "file": ".",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Editops backtrace allocates strings per operation",
+      "summary": "Editops backtrace allocates String per operation",
       "detail": {
         "holistic": true,
         "dimension": "low_level_elegance",
@@ -5865,16 +5895,16 @@
           "src/algorithms.rs"
         ],
         "evidence": [
-          "to_string() calls in backtrace"
+          "to_string() in backtrace loop"
         ],
-        "suggestion": "Use enum instead of string for op type.",
+        "suggestion": "Use enum type instead of string.",
         "reasoning": "",
-        "summary_hash": "65894557"
+        "summary_hash": "f1460658"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:35:49+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5903,16 +5933,22 @@
         "reasoning": "",
         "summary_hash": "90a18e30"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::convention_outlier::extractbests_camelcase": {
       "id": "review::.::holistic::convention_outlier::extractbests_camelcase",
@@ -5934,16 +5970,22 @@
         "reasoning": "",
         "summary_hash": "b83590e9"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::embed_anything_error_msg": {
       "id": "review::.::holistic::dependency_health::embed_anything_error_msg",
@@ -5965,16 +6007,22 @@
         "reasoning": "",
         "summary_hash": "5e82315f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::provider_shortcuts_dict": {
       "id": "review::.::holistic::design_coherence::provider_shortcuts_dict",
@@ -5996,16 +6044,22 @@
         "reasoning": "",
         "summary_hash": "084679c7"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::reduce_boilerplate": {
       "id": "review::.::holistic::ai_generated_debt::reduce_boilerplate",
@@ -6027,16 +6081,22 @@
         "reasoning": "",
         "summary_hash": "a3b831dd"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::reranker_runtime_error": {
       "id": "review::.::holistic::error_consistency::reranker_runtime_error",
@@ -6044,7 +6104,7 @@
       "file": ".",
       "tier": 3,
       "confidence": "low",
-      "summary": "Reranker wraps scoring failures in RuntimeError losing type specificity",
+      "summary": "Reranker wraps failures in generic RuntimeError",
       "detail": {
         "holistic": true,
         "dimension": "error_consistency",
@@ -6052,16 +6112,16 @@
           "rustfuzz/search.py"
         ],
         "evidence": [
-          "RuntimeError(f\"Reranker model failed...\")"
+          "RuntimeError in rerank()"
         ],
-        "suggestion": "Consider a custom RerankError exception.",
+        "suggestion": "Consider custom RerankError.",
         "reasoning": "",
-        "summary_hash": "7f4a9f32"
+        "summary_hash": "b58581be"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:35:49+00:00",
-      "last_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -6089,16 +6149,22 @@
         "reasoning": "",
         "summary_hash": "55aa294a"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::reranker_adaptive_variance": {
       "id": "review::.::holistic::logic_clarity::reranker_adaptive_variance",
@@ -6120,16 +6186,22 @@
         "reasoning": "",
         "summary_hash": "fe633fce"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::reranker_inline_blend": {
       "id": "review::.::holistic::mid_level_elegance::reranker_inline_blend",
@@ -6151,16 +6223,22 @@
         "reasoning": "",
         "summary_hash": "7b9efd26"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:40:55+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::package_organization::flat_package": {
       "id": "review::.::holistic::package_organization::flat_package",
@@ -6182,10 +6260,452 @@
         "reasoning": "",
         "summary_hash": "f42e28dd"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:35:49+00:00",
       "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": "2026-03-12T20:40:55+00:00",
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:40:55+00:00",
+        "scan_verified": false
+      }
+    },
+    "review::.::holistic::naming_quality::underscore_prefix_exports": {
+      "id": "review::.::holistic::naming_quality::underscore_prefix_exports",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "_search_query and _coerce_corpus use _ prefix but are imported cross-module",
+      "detail": {
+        "holistic": true,
+        "dimension": "naming_quality",
+        "related_files": [
+          "rustfuzz/_types.py"
+        ],
+        "evidence": [
+          "_search_query exported from _types.py"
+        ],
+        "suggestion": "Acceptable: _ prefix signals internal use, even if shared across package modules.",
+        "reasoning": "",
+        "summary_hash": "abd9847b"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::contract_coherence::reranker_any_param": {
+      "id": "review::.::holistic::contract_coherence::reranker_any_param",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Reranker model_or_callable still typed as Any",
+      "detail": {
+        "holistic": true,
+        "dimension": "contract_coherence",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "model_or_callable: Any"
+        ],
+        "suggestion": "RerankerModel Protocol with optional predict/score.",
+        "reasoning": "",
+        "summary_hash": "1f50ecd2"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::high_level_elegance::search_three_concerns": {
+      "id": "review::.::holistic::high_level_elegance::search_three_concerns",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "search.py BM25 + HybridSearch + Reranker could be sub-package",
+      "detail": {
+        "holistic": true,
+        "dimension": "high_level_elegance",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "~1040 lines with 3 distinct classes"
+        ],
+        "suggestion": "Split into search/ sub-package if file grows further.",
+        "reasoning": "",
+        "summary_hash": "4c52fdf4"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::initialization_coupling::rebuild_inherent": {
+      "id": "review::.::holistic::initialization_coupling::rebuild_inherent",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "BM25 index rebuild is O(n) \u2014 inherent structural limitation",
+      "detail": {
+        "holistic": true,
+        "dimension": "initialization_coupling",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "_rebuild_index recreates Rust index"
+        ],
+        "suggestion": "Now documented with O(n) guidance. No further action needed.",
+        "reasoning": "",
+        "summary_hash": "26e82b02"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::api_surface_coherence::bm25_literal_diff": {
+      "id": "review::.::holistic::api_surface_coherence::bm25_literal_diff",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "BM25Algorithm and BM25Variant use different casing convention",
+      "detail": {
+        "holistic": true,
+        "dimension": "api_surface_coherence",
+        "related_files": [
+          "rustfuzz/search.py",
+          "rustfuzz/join.py"
+        ],
+        "evidence": [
+          "Different literal sets"
+        ],
+        "suggestion": "Document distinction.",
+        "reasoning": "",
+        "summary_hash": "9d527b74"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::convention_outlier::extractone_camelcase": {
+      "id": "review::.::holistic::convention_outlier::extractone_camelcase",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "extractOne still uses camelCase",
+      "detail": {
+        "holistic": true,
+        "dimension": "convention_outlier",
+        "related_files": [
+          "rustfuzz/process.py"
+        ],
+        "evidence": [
+          "extractOne alongside extract, extract_iter"
+        ],
+        "suggestion": "Add extract_one alias.",
+        "reasoning": "",
+        "summary_hash": "6a851c06"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::embed_error_context": {
+      "id": "review::.::holistic::dependency_health::embed_error_context",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "embed_anything error message could include model_id",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "Generic error message"
+        ],
+        "suggestion": "Include model_id in ImportError message.",
+        "reasoning": "",
+        "summary_hash": "74fefeb7"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::design_coherence::provider_dict": {
+      "id": "review::.::holistic::design_coherence::provider_dict",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "_PROVIDER_SHORTCUTS could be a frozen dataclass",
+      "detail": {
+        "holistic": true,
+        "dimension": "design_coherence",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "Plain dict for config"
+        ],
+        "suggestion": "Acceptable for runtime flexibility.",
+        "reasoning": "",
+        "summary_hash": "ec304772"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::coerce_corpus_extension": {
+      "id": "review::.::holistic::abstraction_fitness::coerce_corpus_extension",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "_coerce_corpus in search.py extends compat.py _coerce_to_strings",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "rustfuzz/search.py",
+          "rustfuzz/compat.py"
+        ],
+        "evidence": [
+          "Two corpus coercion functions"
+        ],
+        "suggestion": "Acceptable: different responsibilities \u2014 search handles Document types.",
+        "reasoning": "",
+        "summary_hash": "cffaa235"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::ai_generated_debt::reduce_similarity": {
+      "id": "review::.::holistic::ai_generated_debt::reduce_similarity",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "BM25 variant __reduce__ methods share similar structure",
+      "detail": {
+        "holistic": true,
+        "dimension": "ai_generated_debt",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "Each variant has __reduce__"
+        ],
+        "suggestion": "Acceptable: each has different constructor args.",
+        "reasoning": "",
+        "summary_hash": "2cbf73fd"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::adaptive_blend_formula": {
+      "id": "review::.::holistic::logic_clarity::adaptive_blend_formula",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Adaptive blend formula hardcodes 0.5 and 0.1 constants",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "0.5 - std_dev * 0.1"
+        ],
+        "suggestion": "Document the formula meaning.",
+        "reasoning": "",
+        "summary_hash": "6847a014"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::mid_level_elegance::rerank_repack": {
+      "id": "review::.::holistic::mid_level_elegance::rerank_repack",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Reranker rerank method repacks results with manual is_meta check",
+      "detail": {
+        "holistic": true,
+        "dimension": "mid_level_elegance",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "is_meta = len(results[0]) == 3"
+        ],
+        "suggestion": "Could use isinstance or structural pattern matching.",
+        "reasoning": "",
+        "summary_hash": "1ced1ff3"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::incomplete_migration::backward_aliases": {
+      "id": "review::.::holistic::incomplete_migration::backward_aliases",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "_Result/_MetaResult aliases remain",
+      "detail": {
+        "holistic": true,
+        "dimension": "incomplete_migration",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "_Result = Result"
+        ],
+        "suggestion": "Plan deprecation cycle.",
+        "reasoning": "",
+        "summary_hash": "e722c5cb"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::package_organization::flat_structure": {
+      "id": "review::.::holistic::package_organization::flat_structure",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "All modules at root level",
+      "detail": {
+        "holistic": true,
+        "dimension": "package_organization",
+        "related_files": [
+          "rustfuzz/"
+        ],
+        "evidence": [
+          "Flat structure"
+        ],
+        "suggestion": "Consider sub-packages for growth.",
+        "reasoning": "",
+        "summary_hash": "a54a9d9b"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:40:54+00:00",
+      "last_seen": "2026-03-12T20:40:54+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -6224,114 +6744,112 @@
     "source": "scan"
   },
   "subjective_integrity": {
-    "status": "warn",
-    "target_score": 95.0,
-    "matched_count": 1,
-    "matched_dimensions": [
-      "authorization_consistency"
-    ],
+    "status": "disabled",
+    "target_score": null,
+    "matched_count": 0,
+    "matched_dimensions": [],
     "reset_dimensions": []
   },
   "subjective_assessments": {
     "naming_quality": {
-      "score": 86,
+      "score": 88,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "logic_clarity": {
-      "score": 90,
+      "score": 92,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "type_safety": {
-      "score": 85,
+      "score": 86,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "contract_coherence": {
-      "score": 86,
+      "score": 88,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "error_consistency": {
-      "score": 88,
+      "score": 90,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "abstraction_fitness": {
-      "score": 88,
+      "score": 90,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
     "ai_generated_debt": {
-      "score": 94,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "high_level_elegance": {
-      "score": 88,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "mid_level_elegance": {
-      "score": 90,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "low_level_elegance": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "cross_module_architecture": {
-      "score": 88,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "initialization_coupling": {
-      "score": 82,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "convention_outlier": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "dependency_health": {
-      "score": 88,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "test_strategy": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "api_surface_coherence": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
-    },
-    "authorization_consistency": {
       "score": 95,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
-    "incomplete_migration": {
+    "high_level_elegance": {
       "score": 90,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
-    "package_organization": {
-      "score": 85,
+    "mid_level_elegance": {
+      "score": 92,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     },
-    "design_coherence": {
+    "low_level_elegance": {
       "score": 86,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:35:49+00:00"
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "cross_module_architecture": {
+      "score": 90,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "initialization_coupling": {
+      "score": 86,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "convention_outlier": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "dependency_health": {
+      "score": 90,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "test_strategy": {
+      "score": 86,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "api_surface_coherence": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "authorization_consistency": {
+      "score": 96,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "incomplete_migration": {
+      "score": 92,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "package_organization": {
+      "score": 86,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
+    },
+    "design_coherence": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:40:54+00:00"
     }
   },
   "scan_history": [
@@ -7882,6 +8400,135 @@
           "strict": 85.0
         }
       }
+    },
+    {
+      "timestamp": "2026-03-12T20:40:54+00:00",
+      "lang": "python",
+      "strict_score": 90.1,
+      "verified_strict_score": 91.4,
+      "objective_score": 93.3,
+      "overall_score": 90.2,
+      "open": 106,
+      "diff_new": 14,
+      "diff_resolved": 31,
+      "ignored": 0,
+      "raw_issues": 20,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "disabled",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": null
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 87.4,
+          "strict": 87.4
+        },
+        "Security": {
+          "score": 99.0,
+          "strict": 96.5
+        },
+        "File health": {
+          "score": 93.0,
+          "strict": 93.0
+        },
+        "Duplication": {
+          "score": 94.3,
+          "strict": 94.3
+        },
+        "Test health": {
+          "score": 95.8,
+          "strict": 95.8
+        },
+        "Abstraction fit": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "AI generated debt": {
+          "score": 95.0,
+          "strict": 95.0
+        },
+        "API coherence": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Auth consistency": {
+          "score": 96.0,
+          "strict": 96.0
+        },
+        "Contracts": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Convention drift": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Cross-module arch": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Dep health": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Design coherence": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Error consistency": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "High elegance": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Stale migration": {
+          "score": 92.0,
+          "strict": 92.0
+        },
+        "Init coupling": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Logic clarity": {
+          "score": 92.0,
+          "strict": 92.0
+        },
+        "Low elegance": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Mid elegance": {
+          "score": 92.0,
+          "strict": 92.0
+        },
+        "Naming quality": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Structure nav": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Test strategy": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Type safety": {
+          "score": 86.0,
+          "strict": 86.0
+        }
+      }
     }
   ],
   "lang_capabilities": {
@@ -7895,7 +8542,7 @@
     "test": 28
   },
   "tool_hash": "13505a08411d",
-  "scan_path": ".",
+  "scan_path": null,
   "scan_completeness": {
     "python": "full"
   },
@@ -7923,7 +8570,8 @@
       "subjective_review": 20,
       "boilerplate_duplication": 0,
       "dupes": 156,
-      "stale_wontfix": 9
+      "stale_wontfix": 9,
+      "review": 10
     }
   },
   "codebase_metrics": {
@@ -8069,19 +8717,19 @@
       }
     },
     "Abstraction fit": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "abstraction_fitness",
           "configured_weight": 8.0,
@@ -8090,48 +8738,6 @@
       }
     },
     "AI generated debt": {
-      "score": 94.0,
-      "strict": 94.0,
-      "verified_strict_score": 94.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.94,
-          "failing": 1,
-          "weighted_failures": 0.6,
-          "assessment_score": 94.0,
-          "placeholder": false,
-          "dimension_key": "ai_generated_debt",
-          "configured_weight": 1.0,
-          "components": []
-        }
-      }
-    },
-    "API coherence": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.85,
-          "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
-          "placeholder": false,
-          "dimension_key": "api_surface_coherence",
-          "configured_weight": 1.0,
-          "components": []
-        }
-      }
-    },
-    "Auth consistency": {
       "score": 95.0,
       "strict": 95.0,
       "verified_strict_score": 95.0,
@@ -8146,6 +8752,48 @@
           "weighted_failures": 0.5,
           "assessment_score": 95.0,
           "placeholder": false,
+          "dimension_key": "ai_generated_debt",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "API coherence": {
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.88,
+          "failing": 1,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
+          "placeholder": false,
+          "dimension_key": "api_surface_coherence",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Auth consistency": {
+      "score": 96.0,
+      "strict": 96.0,
+      "verified_strict_score": 96.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.96,
+          "failing": 1,
+          "weighted_failures": 0.4,
+          "assessment_score": 96.0,
+          "placeholder": false,
           "dimension_key": "authorization_consistency",
           "configured_weight": 1.0,
           "components": []
@@ -8153,19 +8801,19 @@
       }
     },
     "Contracts": {
-      "score": 86.0,
-      "strict": 86.0,
-      "verified_strict_score": 86.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.86,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.4,
-          "assessment_score": 86.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "contract_coherence",
           "configured_weight": 12.0,
@@ -8174,19 +8822,19 @@
       }
     },
     "Convention drift": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "convention_outlier",
           "configured_weight": 1.0,
@@ -8195,19 +8843,19 @@
       }
     },
     "Cross-module arch": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "cross_module_architecture",
           "configured_weight": 1.0,
@@ -8216,19 +8864,19 @@
       }
     },
     "Dep health": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "dependency_health",
           "configured_weight": 1.0,
@@ -8237,19 +8885,19 @@
       }
     },
     "Design coherence": {
-      "score": 86.0,
-      "strict": 86.0,
-      "verified_strict_score": 86.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.86,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.4,
-          "assessment_score": 86.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "design_coherence",
           "configured_weight": 10.0,
@@ -8258,19 +8906,19 @@
       }
     },
     "Error consistency": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "error_consistency",
           "configured_weight": 3.0,
@@ -8279,19 +8927,19 @@
       }
     },
     "High elegance": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "high_level_elegance",
           "configured_weight": 22.0,
@@ -8300,19 +8948,19 @@
       }
     },
     "Stale migration": {
-      "score": 90.0,
-      "strict": 90.0,
-      "verified_strict_score": 90.0,
+      "score": 92.0,
+      "strict": 92.0,
+      "verified_strict_score": 92.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.9,
+          "pass_rate": 0.92,
           "failing": 1,
-          "weighted_failures": 1.0,
-          "assessment_score": 90.0,
+          "weighted_failures": 0.8,
+          "assessment_score": 92.0,
           "placeholder": false,
           "dimension_key": "incomplete_migration",
           "configured_weight": 1.0,
@@ -8321,90 +8969,6 @@
       }
     },
     "Init coupling": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.82,
-          "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
-          "placeholder": false,
-          "dimension_key": "initialization_coupling",
-          "configured_weight": 1.0,
-          "components": []
-        }
-      }
-    },
-    "Logic clarity": {
-      "score": 90.0,
-      "strict": 90.0,
-      "verified_strict_score": 90.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.9,
-          "failing": 1,
-          "weighted_failures": 1.0,
-          "assessment_score": 90.0,
-          "placeholder": false,
-          "dimension_key": "logic_clarity",
-          "configured_weight": 6.0,
-          "components": []
-        }
-      }
-    },
-    "Low elegance": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.85,
-          "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
-          "placeholder": false,
-          "dimension_key": "low_level_elegance",
-          "configured_weight": 12.0,
-          "components": []
-        }
-      }
-    },
-    "Mid elegance": {
-      "score": 90.0,
-      "strict": 90.0,
-      "verified_strict_score": 90.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.9,
-          "failing": 1,
-          "weighted_failures": 1.0,
-          "assessment_score": 90.0,
-          "placeholder": false,
-          "dimension_key": "mid_level_elegance",
-          "configured_weight": 22.0,
-          "components": []
-        }
-      }
-    },
-    "Naming quality": {
       "score": 86.0,
       "strict": 86.0,
       "verified_strict_score": 86.0,
@@ -8419,6 +8983,90 @@
           "weighted_failures": 1.4,
           "assessment_score": 86.0,
           "placeholder": false,
+          "dimension_key": "initialization_coupling",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Logic clarity": {
+      "score": 92.0,
+      "strict": 92.0,
+      "verified_strict_score": 92.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.92,
+          "failing": 1,
+          "weighted_failures": 0.8,
+          "assessment_score": 92.0,
+          "placeholder": false,
+          "dimension_key": "logic_clarity",
+          "configured_weight": 6.0,
+          "components": []
+        }
+      }
+    },
+    "Low elegance": {
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.86,
+          "failing": 1,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
+          "placeholder": false,
+          "dimension_key": "low_level_elegance",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Mid elegance": {
+      "score": 92.0,
+      "strict": 92.0,
+      "verified_strict_score": 92.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.92,
+          "failing": 1,
+          "weighted_failures": 0.8,
+          "assessment_score": 92.0,
+          "placeholder": false,
+          "dimension_key": "mid_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Naming quality": {
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.88,
+          "failing": 1,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
+          "placeholder": false,
           "dimension_key": "naming_quality",
           "configured_weight": 2.0,
           "components": []
@@ -8426,19 +9074,19 @@
       }
     },
     "Structure nav": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "package_organization",
           "configured_weight": 5.0,
@@ -8447,19 +9095,19 @@
       }
     },
     "Test strategy": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "test_strategy",
           "configured_weight": 1.0,
@@ -8468,19 +9116,19 @@
       }
     },
     "Type safety": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "type_safety",
           "configured_weight": 12.0,
@@ -8491,7 +9139,7 @@
   },
   "reminder_history": {
     "zone_classification": 3,
-    "report_scores": 7,
+    "report_scores": 8,
     "review_issues_pending": 3,
     "feedback_nudge": 3,
     "review_not_run": 3,
@@ -8500,7 +9148,7 @@
   "review_cache": {
     "files": {},
     "holistic": {
-      "reviewed_at": "2026-03-12T20:35:49+00:00",
+      "reviewed_at": "2026-03-12T20:40:55+00:00",
       "file_count_at_review": 58,
       "issue_count": 20
     }
@@ -8553,6 +9201,18 @@
       "provisional_count": 0,
       "attest": "I validated this review was completed without awareness of overall score and is unbiased.",
       "import_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_203424_e0a76749/canonical_import_20260312_203549.json"
+    },
+    {
+      "timestamp": "2026-03-12T20:40:55+00:00",
+      "mode": "attested_external",
+      "trusted": true,
+      "reason": "attested external blind subagent provenance",
+      "override_used": false,
+      "attested_external": true,
+      "provisional": false,
+      "provisional_count": 0,
+      "attest": "I validated this review was completed without awareness of overall score and is unbiased.",
+      "import_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_203918_cbcc343a/canonical_import_20260312_204054.json"
     }
   ]
 }

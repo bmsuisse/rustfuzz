@@ -67,6 +67,10 @@ def extractOne(
     )
 
 
+# Snake-case alias for API consistency
+extract_one = extractOne
+
+
 def extract_iter(
     query: Any,
     choices: Iterable[Any],
@@ -135,6 +139,7 @@ __all__ = [
     "extractBests",
     "extract_bests",
     "extractOne",
+    "extract_one",
     "extract_iter",
     "cdist",
     "dedupe",

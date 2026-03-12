@@ -1,4 +1,9 @@
-"""LangChain retriever integration for rustfuzz.search.BM25."""
+"""LangChain retriever integration for rustfuzz.search.BM25.
+
+Uses a module-level ``__getattr__`` pattern to lazily construct
+``RustfuzzBM25Retriever`` on first access, avoiding a hard dependency
+on ``langchain-core`` and ``pydantic`` for users who don't need it.
+"""
 
 from __future__ import annotations
 
