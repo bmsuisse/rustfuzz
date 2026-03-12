@@ -246,7 +246,13 @@ class _BaseBM25:
     def add_documents(
         self, docs: Iterable[str], metadata: Iterable[Any] | None = None
     ) -> None:
-        """Add documents to the index (rebuilds internally)."""
+        """Add documents to the index.
+
+        .. note::
+
+           This method triggers a full index rebuild (O(n) where n is total
+           corpus size). For bulk additions, prefer constructing a new index.
+        """
         new_docs = list(docs)
         self._corpus.extend(new_docs)
         if metadata is not None:
@@ -263,7 +269,14 @@ class _BaseBM25:
             self._corpus_index = _build_corpus_index(self._corpus)
 
     def remove_documents(self, indices: list[int]) -> None:
-        """Remove documents by index (rebuilds internally)."""
+        """Remove documents by index.
+
+        .. note::
+
+           This method triggers a full index rebuild (O(n) where n is
+           remaining corpus size). For bulk removals, consider constructing
+           a new index from the surviving documents.
+        """
         to_remove = set(indices)
         self._corpus = [d for i, d in enumerate(self._corpus) if i not in to_remove]
         if self._metadata is not None:
@@ -993,17 +1006,8 @@ class Reranker:
             std_dev = variance**0.5
             alpha = max(0.0, min(1.0, 0.5 - std_dev * 0.1))
 
-        if alpha > 0.0 and len(new_scores) > 0:
-            orig_scores = {text: 1.0 / (rank + 1) for rank, text in enumerate(texts)}
-            min_s = min(new_scores)
-            max_s = max(new_scores)
-            rng = max_s - min_s + 1e-10
-            blended = []
-            for text, r_s in zip(texts, new_scores, strict=True):
-                b_s = orig_scores.get(text, 0.0)
-                norm_r = (r_s - min_s) / rng
-                blended.append(alpha * b_s + (1.0 - alpha) * norm_r)
-            new_scores = blended
+        if alpha > 0.0 and new_scores:
+            new_scores = _blend_reranked_scores(texts, results, new_scores, alpha)
 
         # Re-pack and sort
         reranked = []

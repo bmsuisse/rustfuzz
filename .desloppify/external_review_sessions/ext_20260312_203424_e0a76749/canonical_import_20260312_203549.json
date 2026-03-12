@@ -1,0 +1,318 @@
+{
+  "assessments": {
+    "naming_quality": 86,
+    "logic_clarity": 90,
+    "type_safety": 85,
+    "contract_coherence": 86,
+    "error_consistency": 88,
+    "abstraction_fitness": 88,
+    "ai_generated_debt": 94,
+    "high_level_elegance": 88,
+    "mid_level_elegance": 90,
+    "low_level_elegance": 85,
+    "cross_module_architecture": 88,
+    "initialization_coupling": 82,
+    "convention_outlier": 85,
+    "dependency_health": 88,
+    "test_strategy": 85,
+    "api_surface_coherence": 85,
+    "authorization_consistency": 95,
+    "incomplete_migration": 90,
+    "package_organization": 85,
+    "design_coherence": 86
+  },
+  "dimension_notes": {
+    "naming_quality": "Improved: w_ratio/q_ratio aliases follow snake_case convention. _resolve_score_fn, resolve_scorer, ScorerProtocol all Pythonic.",
+    "logic_clarity": "Greatly improved: resolve_scorer eliminates 4x duplication. Reranker _resolve_score_fn has documented dispatch with clear early returns.",
+    "type_safety": "Protocol types (ScorerProtocol, RerankerProtocol, EmbeddingCallback). resolve_scorer typed. Self for from_column. Remaining: PyO3 objects as Any.",
+    "contract_coherence": "Self return for from_column. Protocol types define interfaces. _resolve_score_fn documents dispatch contract.",
+    "error_consistency": "All from e chains preserved. RuntimeError for missing index. ValueError for explain misses. Consistent patterns.",
+    "abstraction_fitness": "_BaseBM25 with 25 methods. Protocol types define scorer/reranker/embedding interfaces. _coerce_corpus handles all input types.",
+    "ai_generated_debt": "Minimal: base class, resolve_scorer, Protocol types, _resolve_score_fn eliminate all formulaic patterns.",
+    "high_level_elegance": "Clean: base class pattern, Protocol interfaces, centralised _types.py. Reranker dispatch well-documented.",
+    "mid_level_elegance": "Strong: resolve_scorer dedup, _resolve_score_fn replaces hasattr chain, _blend_reranked_scores extracted. Clean DRY code.",
+    "low_level_elegance": "Rust editops hoisted. Python code clean. _resolve_score_fn uses early returns instead of elif chain.",
+    "cross_module_architecture": "_types.py single source for types, protocols, helpers. No cross-module duplication.",
+    "initialization_coupling": "add/remove_documents rebuild entire index. Inherent to BM25 structure. Documented.",
+    "convention_outlier": "Improved: w_ratio/q_ratio aliases added. BM25Algorithm vs BM25Variant differences documented.",
+    "dependency_health": "Clean: from e chains. Optional deps lazy-imported. Protocol types stdlib-only.",
+    "test_strategy": "66 parametrized BM25 variant tests + 10 langchain tests. Total 610. Strong coverage.",
+    "api_surface_coherence": "Protocol types define interfaces. w_ratio/q_ratio aliases. BM25Algorithm documented.",
+    "authorization_consistency": "N/A - library. langchain lazy class tested.",
+    "incomplete_migration": "_Result/_MetaResult aliases remain for backward compat. All new code imports from _types.",
+    "package_organization": "_types.py centralises shared concerns. Modules well-separated. Could split search.py into sub-package.",
+    "design_coherence": "Improved: _types.py central. Reranker dispatch documented. search.py ~1000 lines but well-structured."
+  },
+  "issues": [
+    {
+      "dimension": "naming_quality",
+      "identifier": "internal_underscore_prefixes",
+      "summary": "Internal helpers use _ prefix but some like _search_query could be module-private",
+      "related_files": [
+        "rustfuzz/_types.py"
+      ],
+      "evidence": [
+        "_search_query exported from _types.py"
+      ],
+      "suggestion": "Consider renaming or restructuring module-private helpers.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "rust_index_any",
+      "summary": "Internal Rust index objects typed as Any",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_index: Any"
+      ],
+      "suggestion": "Limited by PyO3 \u2014 consider TYPE_CHECKING guard with stub.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "reranker_protocol_param",
+      "summary": "Reranker model_or_callable still typed as Any instead of Protocol",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "model_or_callable: Any"
+      ],
+      "suggestion": "Define RerankerModel Protocol with optional predict/score methods.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "mixed_concerns_search",
+      "summary": "search.py contains BM25 + HybridSearch + Reranker",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "~1000 lines with 3 distinct concerns"
+      ],
+      "suggestion": "Split into search/ sub-package.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "editops_string_alloc",
+      "summary": "Editops backtrace allocates strings per operation",
+      "related_files": [
+        "src/algorithms.rs"
+      ],
+      "evidence": [
+        "to_string() calls in backtrace"
+      ],
+      "suggestion": "Use enum instead of string for op type.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "full_rebuild_on_mutation",
+      "summary": "add/remove_documents rebuild entire Rust index",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_rebuild_index recreates entire index"
+      ],
+      "suggestion": "Document rebuild cost in docstrings.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "no_property_tests",
+      "summary": "No hypothesis property-based tests for fuzzy invariants",
+      "related_files": [
+        "tests/"
+      ],
+      "evidence": [
+        "Fuzzy matching has well-defined invariants"
+      ],
+      "suggestion": "Add hypothesis tests for symmetry and bounds.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "bm25_literal_casing",
+      "summary": "BM25Algorithm and BM25Variant use different casing",
+      "related_files": [
+        "rustfuzz/search.py",
+        "rustfuzz/join.py"
+      ],
+      "evidence": [
+        "Different literals for similar concepts"
+      ],
+      "suggestion": "Document differences.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "extractbests_camelcase",
+      "summary": "extractBests uses camelCase while other process functions use snake_case",
+      "related_files": [
+        "rustfuzz/process.py"
+      ],
+      "evidence": [
+        "extractBests alongside extract, extract_iter"
+      ],
+      "suggestion": "Add extract_bests alias.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "embed_anything_error_msg",
+      "summary": "embed_anything error message could mention the specific model that failed",
+      "related_files": [
+        "rustfuzz/engine.py"
+      ],
+      "evidence": [
+        "Generic error message"
+      ],
+      "suggestion": "Include model_id in the error message.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "provider_shortcuts_dict",
+      "summary": "Provider shortcuts dict could be a frozen enum or NamedTuple",
+      "related_files": [
+        "rustfuzz/engine.py"
+      ],
+      "evidence": [
+        "_PROVIDER_SHORTCUTS plain dict"
+      ],
+      "suggestion": "Acceptable for now \u2014 dict is flexible for runtime additions.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "hybrid_corpus_coercion",
+      "summary": "HybridSearch _coerce_corpus duplicates some compat.py logic",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_coerce_corpus handles Document/LangChain separately"
+      ],
+      "suggestion": "Acceptable: _coerce_corpus extends compat.py with Document support.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "reduce_boilerplate",
+      "summary": "BM25 variant __reduce__ methods share similar pattern",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "Each variant has similar __reduce__"
+      ],
+      "suggestion": "Acceptable for pickle compat \u2014 each variant has different constructor args.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "reranker_runtime_error",
+      "summary": "Reranker wraps scoring failures in RuntimeError losing type specificity",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "RuntimeError(f\"Reranker model failed...\")"
+      ],
+      "suggestion": "Consider a custom RerankError exception.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "engine_search_coupling",
+      "summary": "engine.py imports many symbols from search.py",
+      "related_files": [
+        "rustfuzz/engine.py"
+      ],
+      "evidence": [
+        "8+ imports from search"
+      ],
+      "suggestion": "Could use facade but current coupling is acceptable for module size.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "reranker_adaptive_variance",
+      "summary": "Adaptive blend variance calculation could use statistics module",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "Manual variance calculation"
+      ],
+      "suggestion": "Consider statistics.variance for clarity.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "reranker_inline_blend",
+      "summary": "Reranker.rerank has inline blending that could use _blend_reranked_scores",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "Inline blending + existing helper function"
+      ],
+      "suggestion": "Consolidate blending logic into single helper.",
+      "confidence": "medium"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "backward_compat_aliases",
+      "summary": "_Result/_MetaResult aliases remain",
+      "related_files": [
+        "rustfuzz/search.py"
+      ],
+      "evidence": [
+        "_Result = Result"
+      ],
+      "suggestion": "Plan deprecation cycle.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "flat_package",
+      "summary": "All modules at package root",
+      "related_files": [
+        "rustfuzz/"
+      ],
+      "evidence": [
+        "search.py, engine.py, etc at root"
+      ],
+      "suggestion": "Could reorganize into sub-packages.",
+      "confidence": "low"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "langchain_getattr",
+      "summary": "langchain.py uses module __getattr__ for lazy class",
+      "related_files": [
+        "rustfuzz/langchain.py"
+      ],
+      "evidence": [
+        "Module-level __getattr__"
+      ],
+      "suggestion": "Document pattern in module docstring.",
+      "confidence": "low"
+    }
+  ],
+  "provenance": {
+    "kind": "blind_review_batch_import",
+    "blind": true,
+    "runner": "claude",
+    "session_id": "ext_20260312_203424_e0a76749",
+    "created_at": "2026-03-12T20:35:49+00:00",
+    "packet_path": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/review_packet_blind.json",
+    "packet_sha256": "4dcaf9936950c1052c9d6812169bab7b7ce912f49681cc2c9741885e10077f33"
+  }
+}

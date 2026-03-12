@@ -1,19 +1,19 @@
 {
   "version": 1,
   "created": "2026-03-12T19:43:40+00:00",
-  "last_scan": "2026-03-12T20:28:37+00:00",
-  "scan_count": 10,
-  "overall_score": 86.1,
+  "last_scan": "2026-03-12T20:36:28+00:00",
+  "scan_count": 12,
+  "overall_score": 88.8,
   "objective_score": 93.3,
-  "strict_score": 86.1,
+  "strict_score": 88.8,
   "verified_strict_score": 91.4,
   "stats": {
-    "total": 162,
+    "total": 175,
     "auto_resolved": 0,
     "false_positive": 0,
-    "fixed": 62,
-    "open": 92,
-    "wontfix": 8,
+    "fixed": 75,
+    "open": 91,
+    "wontfix": 9,
     "by_tier": {
       "1": {
         "auto_resolved": 0,
@@ -25,16 +25,16 @@
       "2": {
         "auto_resolved": 0,
         "false_positive": 0,
-        "fixed": 14,
-        "open": 43,
+        "fixed": 27,
+        "open": 28,
         "wontfix": 0
       },
       "3": {
         "auto_resolved": 0,
         "false_positive": 0,
         "fixed": 12,
-        "open": 48,
-        "wontfix": 3
+        "open": 62,
+        "wontfix": 4
       },
       "4": {
         "auto_resolved": 0,
@@ -52,14 +52,14 @@
       "file": "rustfuzz/search.py",
       "tier": 3,
       "confidence": "medium",
-      "summary": "Large file: large (1024 LOC)",
+      "summary": "Large file: large (1035 LOC)",
       "detail": {
-        "loc": 1024
+        "loc": 1035
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -86,7 +86,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -108,7 +108,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -136,7 +136,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -158,7 +158,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -188,7 +188,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -236,7 +236,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -357,7 +357,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -414,7 +414,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -446,7 +446,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:42+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -496,7 +496,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -524,7 +524,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -555,7 +555,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -586,7 +586,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -617,7 +617,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -650,7 +650,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -683,7 +683,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -716,7 +716,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -747,7 +747,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -778,7 +778,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -811,7 +811,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -842,7 +842,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -908,7 +908,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -931,7 +931,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -970,7 +970,7 @@
         "text": "I have actually Added comprehensive test_langchain.py with 10 tests covering lazy import, from_texts, from_documents, invoke with scoring, metadata, k parameter, and error handling and I am not gaming the score.",
         "attested_at": "2026-03-12T20:08:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -985,7 +985,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1005,7 +1005,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1025,7 +1025,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1053,7 +1053,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1083,7 +1083,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1110,7 +1110,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1138,7 +1138,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1167,7 +1167,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1201,7 +1201,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1228,7 +1228,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1255,7 +1255,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1284,7 +1284,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1311,7 +1311,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1338,7 +1338,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1365,7 +1365,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1392,7 +1392,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1419,7 +1419,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1446,7 +1446,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1477,7 +1477,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1508,7 +1508,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1536,7 +1536,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1563,7 +1563,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1594,7 +1594,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1621,7 +1621,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1653,7 +1653,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1694,7 +1694,7 @@
         "text": "I have actually Already fixed: replaced assert with RuntimeError raise in prior commit and I am not gaming the score.",
         "attested_at": "2026-03-12T20:10:56+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1730,7 +1730,7 @@
         "text": "I have actually Already fixed: replaced assert with RuntimeError raise in prior commit and I am not gaming the score.",
         "attested_at": "2026-03-12T20:10:57+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1750,7 +1750,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1775,7 +1775,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1800,7 +1800,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1836,7 +1836,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1867,7 +1867,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1898,7 +1898,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1929,7 +1929,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1960,7 +1960,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -1991,7 +1991,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2022,7 +2022,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2053,7 +2053,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2084,7 +2084,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2115,7 +2115,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2146,7 +2146,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2177,7 +2177,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2208,7 +2208,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2239,7 +2239,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2270,7 +2270,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2301,7 +2301,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2332,7 +2332,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2363,7 +2363,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2394,7 +2394,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2425,7 +2425,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-03-12T20:28:37+00:00",
+        "scan_verified_at": "2026-03-12T20:36:28+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -2470,7 +2470,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2886,7 +2886,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3036,7 +3036,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3057,9 +3057,9 @@
         "references": 0
       },
       "status": "wontfix",
-      "note": "I have reviewed this stale exclude \u2014 .cache contains ruff and pip caches, never referenced in production source",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:27+00:00",
       "reopen_count": 3,
       "lang": "python",
@@ -3070,7 +3070,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:27+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -3096,9 +3098,9 @@
         "references": 0
       },
       "status": "wontfix",
-      "note": "I have reviewed this stale exclude \u2014 .benchmarks is a valid pytest-benchmark baselines directory, never referenced in source",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:26+00:00",
       "reopen_count": 3,
       "lang": "python",
@@ -3109,7 +3111,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:26+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -3135,9 +3139,9 @@
         "references": 0
       },
       "status": "wontfix",
-      "note": "I have reviewed this stale exclude \u2014 .hypothesis is the property testing database, never referenced in source",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:30+00:00",
       "reopen_count": 3,
       "lang": "python",
@@ -3148,7 +3152,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:30+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -3174,9 +3180,9 @@
         "references": 0
       },
       "status": "wontfix",
-      "note": "I have reviewed this stale exclude \u2014 .cargo is the Rust build cache and registry, never referenced in Python source",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:28+00:00",
       "reopen_count": 3,
       "lang": "python",
@@ -3187,7 +3193,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:28+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -4155,7 +4163,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:55:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4184,7 +4192,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:55:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4220,7 +4228,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:55:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4246,9 +4254,9 @@
         "source": "bandit"
       },
       "status": "wontfix",
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:55:23+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:49+00:00",
       "reopen_count": 2,
       "zone": "production",
@@ -4260,7 +4268,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:49+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -4296,9 +4306,9 @@
         "source": "bandit"
       },
       "status": "wontfix",
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:55:23+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:51+00:00",
       "reopen_count": 2,
       "zone": "production",
@@ -4310,7 +4320,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:51+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -4346,9 +4358,9 @@
         "source": "bandit"
       },
       "status": "wontfix",
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:55:23+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:52+00:00",
       "reopen_count": 2,
       "zone": "production",
@@ -4360,7 +4372,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:52+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -4395,17 +4409,41 @@
         "test_name": "blacklist",
         "source": "bandit"
       },
-      "status": "open",
-      "note": "Reopened (\u00d72) \u2014 reappeared in scan (was fixed)",
+      "status": "wontfix",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:55:23+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
-      "resolved_at": null,
+      "last_seen": "2026-03-12T20:36:28+00:00",
+      "resolved_at": "2026-03-12T20:32:52+00:00",
       "reopen_count": 2,
       "zone": "production",
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+        "attested_at": "2026-03-12T20:32:52+00:00",
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
+      },
+      "wontfix_scan_count": 10,
+      "wontfix_snapshot": {
+        "captured_at": "2026-03-12T20:32:52+00:00",
+        "scan_count": 10,
+        "tier": 3,
+        "confidence": "low",
+        "detail": {
+          "kind": "B311",
+          "severity": "low",
+          "line": 50,
+          "content": "49     \"\"\"Generate deterministic dummy embeddings and L2-normalise them.\"\"\"\n50     rng = random.Random(seed)\n51     vecs: list[list[float]] = []\n",
+          "remediation": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
+          "test_name": "blacklist",
+          "source": "bandit"
+        }
+      }
     },
     "stale_exclude::examples::examples": {
       "id": "stale_exclude::examples::examples",
@@ -4419,9 +4457,9 @@
         "references": 0
       },
       "status": "wontfix",
-      "note": "I have reviewed this stale exclude \u2014 examples contains runnable demo scripts, intentionally excluded from scanning",
+      "note": "Still absent from scan after manual wontfix",
       "first_seen": "2026-03-12T19:55:27+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": "2026-03-12T20:32:30+00:00",
       "reopen_count": 3,
       "lang": "python",
@@ -4432,7 +4470,9 @@
         "kind": "manual",
         "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
         "attested_at": "2026-03-12T20:32:30+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T20:35:49+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       },
       "wontfix_scan_count": 10,
       "wontfix_snapshot": {
@@ -4714,7 +4754,7 @@
       "file": ".",
       "tier": 2,
       "confidence": "medium",
-      "summary": "add_documents/remove_documents rebuild entire Rust index",
+      "summary": "add/remove_documents rebuild entire Rust index",
       "detail": {
         "holistic": true,
         "dimension": "initialization_coupling",
@@ -4724,14 +4764,14 @@
         "evidence": [
           "_rebuild_index recreates entire index"
         ],
-        "suggestion": "Document cost in docstrings.",
+        "suggestion": "Document rebuild cost in docstrings.",
         "reasoning": "",
-        "summary_hash": "88229758"
+        "summary_hash": "eacb53a8"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:05:32+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4796,16 +4836,22 @@
         "reasoning": "",
         "summary_hash": "920d6c70"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:05:32+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::editops_allocation_in_loop": {
       "id": "review::.::holistic::low_level_elegance::editops_allocation_in_loop",
@@ -4827,16 +4873,22 @@
         "reasoning": "",
         "summary_hash": "414691b6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:05:32+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::process_scorer_duplication": {
       "id": "review::.::holistic::logic_clarity::process_scorer_duplication",
@@ -4969,24 +5021,30 @@
         "reasoning": "",
         "summary_hash": "367c5897"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:05:32+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::langchain_getattr": {
       "id": "review::.::holistic::authorization_consistency::langchain_getattr",
       "detector": "review",
       "file": ".",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "langchain.py uses module __getattr__ for lazy class construction",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "langchain.py uses module __getattr__ for lazy class",
       "detail": {
         "holistic": true,
         "dimension": "authorization_consistency",
@@ -4994,16 +5052,16 @@
           "rustfuzz/langchain.py"
         ],
         "evidence": [
-          "Module-level __getattr__ dynamically builds class"
+          "Module-level __getattr__"
         ],
-        "suggestion": "Document the pattern clearly in module docstring.",
+        "suggestion": "Document pattern in module docstring.",
         "reasoning": "",
-        "summary_hash": "84756413"
+        "summary_hash": "70c38dd0"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:05:32+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5015,9 +5073,9 @@
       "id": "review::.::holistic::incomplete_migration::backward_compat_aliases",
       "detector": "review",
       "file": ".",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "_Result/_MetaResult backward-compat aliases remain",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "_Result/_MetaResult aliases remain",
       "detail": {
         "holistic": true,
         "dimension": "incomplete_migration",
@@ -5025,16 +5083,16 @@
           "rustfuzz/search.py"
         ],
         "evidence": [
-          "_Result = Result, _MetaResult = MetaResult"
+          "_Result = Result"
         ],
-        "suggestion": "Plan deprecation cycle for next major version.",
+        "suggestion": "Plan deprecation cycle.",
         "reasoning": "",
-        "summary_hash": "9f45dbbe"
+        "summary_hash": "e722c5cb"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:05:32+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5172,7 +5230,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:09:21+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5201,16 +5259,22 @@
         "reasoning": "",
         "summary_hash": "e31fcef3"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::internal_protocol_usage": {
       "id": "review::.::holistic::contract_coherence::internal_protocol_usage",
@@ -5233,16 +5297,22 @@
         "reasoning": "",
         "summary_hash": "a87dcc7a"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::from_none_import": {
       "id": "review::.::holistic::error_consistency::from_none_import",
@@ -5264,24 +5334,30 @@
         "reasoning": "",
         "summary_hash": "74c83c37"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::high_level_elegance::mixed_concerns_search": {
       "id": "review::.::holistic::high_level_elegance::mixed_concerns_search",
       "detector": "review",
       "file": ".",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "search.py contains BM25 + HybridSearch + Reranker in one module",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "search.py contains BM25 + HybridSearch + Reranker",
       "detail": {
         "holistic": true,
         "dimension": "high_level_elegance",
@@ -5289,16 +5365,16 @@
           "rustfuzz/search.py"
         ],
         "evidence": [
-          "750 lines with 3 distinct concerns"
+          "~1000 lines with 3 distinct concerns"
         ],
-        "suggestion": "Split into search sub-package.",
+        "suggestion": "Split into search/ sub-package.",
         "reasoning": "",
-        "summary_hash": "9c7e7f41"
+        "summary_hash": "d47b3065"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5326,16 +5402,22 @@
         "reasoning": "",
         "summary_hash": "652159d5"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::no_property_tests": {
       "id": "review::.::holistic::test_strategy::no_property_tests",
@@ -5343,7 +5425,7 @@
       "file": ".",
       "tier": 2,
       "confidence": "medium",
-      "summary": "No property-based hypothesis tests for fuzzy matching invariants",
+      "summary": "No hypothesis property-based tests for fuzzy invariants",
       "detail": {
         "holistic": true,
         "dimension": "test_strategy",
@@ -5351,16 +5433,16 @@
           "tests/"
         ],
         "evidence": [
-          "Fuzzy matching has well-defined invariants but no property tests"
+          "Fuzzy matching has well-defined invariants"
         ],
-        "suggestion": "Add hypothesis tests for ratio symmetry and score bounds.",
+        "suggestion": "Add hypothesis tests for symmetry and bounds.",
         "reasoning": "",
-        "summary_hash": "bb254d57"
+        "summary_hash": "ce06f5e7"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5372,8 +5454,8 @@
       "id": "review::.::holistic::type_safety::rust_index_any",
       "detector": "review",
       "file": ".",
-      "tier": 2,
-      "confidence": "medium",
+      "tier": 3,
+      "confidence": "low",
       "summary": "Internal Rust index objects typed as Any",
       "detail": {
         "holistic": true,
@@ -5384,14 +5466,14 @@
         "evidence": [
           "_index: Any"
         ],
-        "suggestion": "Limited by PyO3, consider stub files or TYPE_CHECKING guard.",
+        "suggestion": "Limited by PyO3 \u2014 consider TYPE_CHECKING guard with stub.",
         "reasoning": "",
         "summary_hash": "80ffd157"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5420,16 +5502,22 @@
         "reasoning": "",
         "summary_hash": "90a18e30"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency": {
       "id": "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency",
@@ -5452,16 +5540,22 @@
         "reasoning": "",
         "summary_hash": "77078093"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::reexport_compat": {
       "id": "review::.::holistic::design_coherence::reexport_compat",
@@ -5483,23 +5577,29 @@
         "reasoning": "",
         "summary_hash": "febb0e4b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion": {
       "id": "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion",
       "detector": "review",
       "file": ".",
-      "tier": 2,
-      "confidence": "medium",
+      "tier": 3,
+      "confidence": "low",
       "summary": "HybridSearch _coerce_corpus duplicates some compat.py logic",
       "detail": {
         "holistic": true,
@@ -5508,16 +5608,16 @@
           "rustfuzz/search.py"
         ],
         "evidence": [
-          "_coerce_corpus handles Document and LangChain Document separately"
+          "_coerce_corpus handles Document/LangChain separately"
         ],
-        "suggestion": "Merge with _coerce_to_strings or document distinct purposes.",
+        "suggestion": "Acceptable: _coerce_corpus extends compat.py with Document support.",
         "reasoning": "",
         "summary_hash": "bb23f3df"
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:08+00:00",
-      "last_seen": "2026-03-12T20:22:08+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5545,16 +5645,22 @@
         "reasoning": "",
         "summary_hash": "82de02ba"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::reranker_score_detection": {
       "id": "review::.::holistic::logic_clarity::reranker_score_detection",
@@ -5576,16 +5682,22 @@
         "reasoning": "",
         "summary_hash": "ec275f5b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::reranker_fallback_chain": {
       "id": "review::.::holistic::mid_level_elegance::reranker_fallback_chain",
@@ -5607,16 +5719,22 @@
         "reasoning": "",
         "summary_hash": "30775705"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-03-12T20:22:08+00:00",
       "last_seen": "2026-03-12T20:22:08+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-03-12T20:35:49+00:00",
       "reopen_count": 0,
       "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-03-12T20:35:49+00:00",
+        "scan_verified": false
+      }
     },
     "test_coverage::rustfuzz/_types.py::transitive_only": {
       "id": "test_coverage::rustfuzz/_types.py::transitive_only",
@@ -5634,7 +5752,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:40+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5662,11 +5780,415 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T20:22:40+00:00",
-      "last_seen": "2026-03-12T20:28:37+00:00",
+      "last_seen": "2026-03-12T20:36:28+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
       "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::naming_quality::internal_underscore_prefixes": {
+      "id": "review::.::holistic::naming_quality::internal_underscore_prefixes",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Internal helpers use _ prefix but some like _search_query could be module-private",
+      "detail": {
+        "holistic": true,
+        "dimension": "naming_quality",
+        "related_files": [
+          "rustfuzz/_types.py"
+        ],
+        "evidence": [
+          "_search_query exported from _types.py"
+        ],
+        "suggestion": "Consider renaming or restructuring module-private helpers.",
+        "reasoning": "",
+        "summary_hash": "145faa6f"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::contract_coherence::reranker_protocol_param": {
+      "id": "review::.::holistic::contract_coherence::reranker_protocol_param",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Reranker model_or_callable still typed as Any instead of Protocol",
+      "detail": {
+        "holistic": true,
+        "dimension": "contract_coherence",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "model_or_callable: Any"
+        ],
+        "suggestion": "Define RerankerModel Protocol with optional predict/score methods.",
+        "reasoning": "",
+        "summary_hash": "88eee857"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::editops_string_alloc": {
+      "id": "review::.::holistic::low_level_elegance::editops_string_alloc",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Editops backtrace allocates strings per operation",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "src/algorithms.rs"
+        ],
+        "evidence": [
+          "to_string() calls in backtrace"
+        ],
+        "suggestion": "Use enum instead of string for op type.",
+        "reasoning": "",
+        "summary_hash": "65894557"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::api_surface_coherence::bm25_literal_casing": {
+      "id": "review::.::holistic::api_surface_coherence::bm25_literal_casing",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "BM25Algorithm and BM25Variant use different casing",
+      "detail": {
+        "holistic": true,
+        "dimension": "api_surface_coherence",
+        "related_files": [
+          "rustfuzz/search.py",
+          "rustfuzz/join.py"
+        ],
+        "evidence": [
+          "Different literals for similar concepts"
+        ],
+        "suggestion": "Document differences.",
+        "reasoning": "",
+        "summary_hash": "90a18e30"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::convention_outlier::extractbests_camelcase": {
+      "id": "review::.::holistic::convention_outlier::extractbests_camelcase",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "extractBests uses camelCase while other process functions use snake_case",
+      "detail": {
+        "holistic": true,
+        "dimension": "convention_outlier",
+        "related_files": [
+          "rustfuzz/process.py"
+        ],
+        "evidence": [
+          "extractBests alongside extract, extract_iter"
+        ],
+        "suggestion": "Add extract_bests alias.",
+        "reasoning": "",
+        "summary_hash": "b83590e9"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::embed_anything_error_msg": {
+      "id": "review::.::holistic::dependency_health::embed_anything_error_msg",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "embed_anything error message could mention the specific model that failed",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "Generic error message"
+        ],
+        "suggestion": "Include model_id in the error message.",
+        "reasoning": "",
+        "summary_hash": "5e82315f"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::design_coherence::provider_shortcuts_dict": {
+      "id": "review::.::holistic::design_coherence::provider_shortcuts_dict",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Provider shortcuts dict could be a frozen enum or NamedTuple",
+      "detail": {
+        "holistic": true,
+        "dimension": "design_coherence",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "_PROVIDER_SHORTCUTS plain dict"
+        ],
+        "suggestion": "Acceptable for now \u2014 dict is flexible for runtime additions.",
+        "reasoning": "",
+        "summary_hash": "084679c7"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::ai_generated_debt::reduce_boilerplate": {
+      "id": "review::.::holistic::ai_generated_debt::reduce_boilerplate",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "BM25 variant __reduce__ methods share similar pattern",
+      "detail": {
+        "holistic": true,
+        "dimension": "ai_generated_debt",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "Each variant has similar __reduce__"
+        ],
+        "suggestion": "Acceptable for pickle compat \u2014 each variant has different constructor args.",
+        "reasoning": "",
+        "summary_hash": "a3b831dd"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::error_consistency::reranker_runtime_error": {
+      "id": "review::.::holistic::error_consistency::reranker_runtime_error",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Reranker wraps scoring failures in RuntimeError losing type specificity",
+      "detail": {
+        "holistic": true,
+        "dimension": "error_consistency",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "RuntimeError(f\"Reranker model failed...\")"
+        ],
+        "suggestion": "Consider a custom RerankError exception.",
+        "reasoning": "",
+        "summary_hash": "7f4a9f32"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::cross_module_architecture::engine_search_coupling": {
+      "id": "review::.::holistic::cross_module_architecture::engine_search_coupling",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "engine.py imports many symbols from search.py",
+      "detail": {
+        "holistic": true,
+        "dimension": "cross_module_architecture",
+        "related_files": [
+          "rustfuzz/engine.py"
+        ],
+        "evidence": [
+          "8+ imports from search"
+        ],
+        "suggestion": "Could use facade but current coupling is acceptable for module size.",
+        "reasoning": "",
+        "summary_hash": "55aa294a"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::reranker_adaptive_variance": {
+      "id": "review::.::holistic::logic_clarity::reranker_adaptive_variance",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Adaptive blend variance calculation could use statistics module",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "Manual variance calculation"
+        ],
+        "suggestion": "Consider statistics.variance for clarity.",
+        "reasoning": "",
+        "summary_hash": "fe633fce"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::mid_level_elegance::reranker_inline_blend": {
+      "id": "review::.::holistic::mid_level_elegance::reranker_inline_blend",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Reranker.rerank has inline blending that could use _blend_reranked_scores",
+      "detail": {
+        "holistic": true,
+        "dimension": "mid_level_elegance",
+        "related_files": [
+          "rustfuzz/search.py"
+        ],
+        "evidence": [
+          "Inline blending + existing helper function"
+        ],
+        "suggestion": "Consolidate blending logic into single helper.",
+        "reasoning": "",
+        "summary_hash": "7b9efd26"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::package_organization::flat_package": {
+      "id": "review::.::holistic::package_organization::flat_package",
+      "detector": "review",
+      "file": ".",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "All modules at package root",
+      "detail": {
+        "holistic": true,
+        "dimension": "package_organization",
+        "related_files": [
+          "rustfuzz/"
+        ],
+        "evidence": [
+          "search.py, engine.py, etc at root"
+        ],
+        "suggestion": "Could reorganize into sub-packages.",
+        "reasoning": "",
+        "summary_hash": "f42e28dd"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T20:35:49+00:00",
+      "last_seen": "2026-03-12T20:35:49+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
@@ -5689,7 +6211,7 @@
         }
       },
       "warnings": [],
-      "updated_at": "2026-03-12T20:28:37+00:00"
+      "updated_at": "2026-03-12T20:36:28+00:00"
     }
   },
   "score_confidence": {
@@ -5702,121 +6224,114 @@
     "source": "scan"
   },
   "subjective_integrity": {
-    "status": "disabled",
-    "target_score": null,
-    "matched_count": 0,
-    "matched_dimensions": [],
+    "status": "warn",
+    "target_score": 95.0,
+    "matched_count": 1,
+    "matched_dimensions": [
+      "authorization_consistency"
+    ],
     "reset_dimensions": []
   },
   "subjective_assessments": {
     "naming_quality": {
-      "score": 82,
+      "score": 86,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "logic_clarity": {
-      "score": 88,
+      "score": 90,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-03-12T20:22:46+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "type_safety": {
-      "score": 82,
+      "score": 85,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "contract_coherence": {
-      "score": 84,
+      "score": 86,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "error_consistency": {
-      "score": 82,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-03-12T20:22:46+00:00"
-    },
-    "abstraction_fitness": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "ai_generated_debt": {
-      "score": 92,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "high_level_elegance": {
-      "score": 84,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "mid_level_elegance": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "low_level_elegance": {
-      "score": 82,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "cross_module_architecture": {
-      "score": 85,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "initialization_coupling": {
-      "score": 80,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "convention_outlier": {
-      "score": 78,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "dependency_health": {
-      "score": 84,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "test_strategy": {
-      "score": 82,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "api_surface_coherence": {
-      "score": 80,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "authorization_consistency": {
-      "score": 92,
-      "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
-    },
-    "incomplete_migration": {
       "score": 88,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "abstraction_fitness": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "ai_generated_debt": {
+      "score": 94,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "high_level_elegance": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "mid_level_elegance": {
+      "score": 90,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "low_level_elegance": {
+      "score": 85,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "cross_module_architecture": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "initialization_coupling": {
+      "score": 82,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "convention_outlier": {
+      "score": 85,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "dependency_health": {
+      "score": 88,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "test_strategy": {
+      "score": 85,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "api_surface_coherence": {
+      "score": 85,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "authorization_consistency": {
+      "score": 95,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
+    },
+    "incomplete_migration": {
+      "score": 90,
+      "source": "holistic",
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "package_organization": {
-      "score": 82,
+      "score": 85,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     },
     "design_coherence": {
-      "score": 82,
+      "score": 86,
       "source": "holistic",
-      "assessed_at": "2026-03-12T20:22:08+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-03-12T20:22:46+00:00"
+      "assessed_at": "2026-03-12T20:35:49+00:00"
     }
   },
   "scan_history": [
@@ -7109,6 +7624,264 @@
           "strict": 82.0
         }
       }
+    },
+    {
+      "timestamp": "2026-03-12T20:35:49+00:00",
+      "lang": "python",
+      "strict_score": 88.8,
+      "verified_strict_score": 91.4,
+      "objective_score": 93.3,
+      "overall_score": 88.8,
+      "open": 104,
+      "diff_new": 13,
+      "diff_resolved": 31,
+      "ignored": 0,
+      "raw_issues": 20,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "disabled",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": null
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 87.4,
+          "strict": 87.4
+        },
+        "Security": {
+          "score": 99.0,
+          "strict": 96.5
+        },
+        "File health": {
+          "score": 93.0,
+          "strict": 93.0
+        },
+        "Duplication": {
+          "score": 94.3,
+          "strict": 94.3
+        },
+        "Test health": {
+          "score": 95.8,
+          "strict": 95.8
+        },
+        "Abstraction fit": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "AI generated debt": {
+          "score": 94.0,
+          "strict": 94.0
+        },
+        "API coherence": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Auth consistency": {
+          "score": 95.0,
+          "strict": 95.0
+        },
+        "Contracts": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Convention drift": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Cross-module arch": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Dep health": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Design coherence": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Error consistency": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "High elegance": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Stale migration": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Init coupling": {
+          "score": 82.0,
+          "strict": 82.0
+        },
+        "Logic clarity": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Low elegance": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Mid elegance": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Naming quality": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Structure nav": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Test strategy": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Type safety": {
+          "score": 85.0,
+          "strict": 85.0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:36:28+00:00",
+      "lang": "python",
+      "strict_score": 88.8,
+      "verified_strict_score": 91.4,
+      "objective_score": 93.3,
+      "overall_score": 88.8,
+      "open": 91,
+      "diff_new": 0,
+      "diff_resolved": 23,
+      "ignored": 0,
+      "raw_issues": 70,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "warn",
+        "matched_count": 1,
+        "reset_count": 0,
+        "target_score": 95.0
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 87.4,
+          "strict": 87.4
+        },
+        "Security": {
+          "score": 99.0,
+          "strict": 96.5
+        },
+        "File health": {
+          "score": 93.0,
+          "strict": 93.0
+        },
+        "Duplication": {
+          "score": 94.3,
+          "strict": 94.3
+        },
+        "Test health": {
+          "score": 95.8,
+          "strict": 95.8
+        },
+        "Abstraction fit": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "AI generated debt": {
+          "score": 94.0,
+          "strict": 94.0
+        },
+        "API coherence": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Auth consistency": {
+          "score": 95.0,
+          "strict": 95.0
+        },
+        "Contracts": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Convention drift": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Cross-module arch": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Dep health": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Design coherence": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Error consistency": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "High elegance": {
+          "score": 88.0,
+          "strict": 88.0
+        },
+        "Stale migration": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Init coupling": {
+          "score": 82.0,
+          "strict": 82.0
+        },
+        "Logic clarity": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Low elegance": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Mid elegance": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Naming quality": {
+          "score": 86.0,
+          "strict": 86.0
+        },
+        "Structure nav": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Test strategy": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "Type safety": {
+          "score": 85.0,
+          "strict": 85.0
+        }
+      }
     }
   ],
   "lang_capabilities": {
@@ -7150,13 +7923,13 @@
       "subjective_review": 20,
       "boilerplate_duplication": 0,
       "dupes": 156,
-      "stale_wontfix": 0
+      "stale_wontfix": 9
     }
   },
   "codebase_metrics": {
     "python": {
       "total_files": 58,
-      "total_loc": 10591,
+      "total_loc": 10608,
       "total_directories": 4
     }
   },
@@ -7226,11 +7999,11 @@
       }
     },
     "Security": {
-      "score": 98.7,
+      "score": 99.0,
       "strict": 96.5,
       "verified_strict_score": 95.9,
       "checks": 97,
-      "failing": 2,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "cycles": {
@@ -7241,9 +8014,9 @@
         },
         "security": {
           "potential": 67,
-          "pass_rate": 0.9955223880597015,
-          "failing": 1,
-          "weighted_failures": 0.3
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
         }
       }
     },
@@ -7296,19 +8069,19 @@
       }
     },
     "Abstraction fit": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "abstraction_fitness",
           "configured_weight": 8.0,
@@ -7317,19 +8090,19 @@
       }
     },
     "AI generated debt": {
-      "score": 92.0,
-      "strict": 92.0,
-      "verified_strict_score": 92.0,
+      "score": 94.0,
+      "strict": 94.0,
+      "verified_strict_score": 94.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.92,
+          "pass_rate": 0.94,
           "failing": 1,
-          "weighted_failures": 0.8,
-          "assessment_score": 92.0,
+          "weighted_failures": 0.6,
+          "assessment_score": 94.0,
           "placeholder": false,
           "dimension_key": "ai_generated_debt",
           "configured_weight": 1.0,
@@ -7338,19 +8111,19 @@
       }
     },
     "API coherence": {
-      "score": 80.0,
-      "strict": 80.0,
-      "verified_strict_score": 80.0,
+      "score": 85.0,
+      "strict": 85.0,
+      "verified_strict_score": 85.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.8,
+          "pass_rate": 0.85,
           "failing": 1,
-          "weighted_failures": 2.0,
-          "assessment_score": 80.0,
+          "weighted_failures": 1.5,
+          "assessment_score": 85.0,
           "placeholder": false,
           "dimension_key": "api_surface_coherence",
           "configured_weight": 1.0,
@@ -7359,19 +8132,19 @@
       }
     },
     "Auth consistency": {
-      "score": 92.0,
-      "strict": 92.0,
-      "verified_strict_score": 92.0,
+      "score": 95.0,
+      "strict": 95.0,
+      "verified_strict_score": 95.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.92,
+          "pass_rate": 0.95,
           "failing": 1,
-          "weighted_failures": 0.8,
-          "assessment_score": 92.0,
+          "weighted_failures": 0.5,
+          "assessment_score": 95.0,
           "placeholder": false,
           "dimension_key": "authorization_consistency",
           "configured_weight": 1.0,
@@ -7380,19 +8153,19 @@
       }
     },
     "Contracts": {
-      "score": 84.0,
-      "strict": 84.0,
-      "verified_strict_score": 84.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.84,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.6,
-          "assessment_score": 84.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "contract_coherence",
           "configured_weight": 12.0,
@@ -7401,19 +8174,19 @@
       }
     },
     "Convention drift": {
-      "score": 78.0,
-      "strict": 78.0,
-      "verified_strict_score": 78.0,
+      "score": 85.0,
+      "strict": 85.0,
+      "verified_strict_score": 85.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.78,
+          "pass_rate": 0.85,
           "failing": 1,
-          "weighted_failures": 2.2,
-          "assessment_score": 78.0,
+          "weighted_failures": 1.5,
+          "assessment_score": 85.0,
           "placeholder": false,
           "dimension_key": "convention_outlier",
           "configured_weight": 1.0,
@@ -7422,19 +8195,19 @@
       }
     },
     "Cross-module arch": {
-      "score": 85.0,
-      "strict": 85.0,
-      "verified_strict_score": 85.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.85,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.5,
-          "assessment_score": 85.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "cross_module_architecture",
           "configured_weight": 1.0,
@@ -7443,19 +8216,19 @@
       }
     },
     "Dep health": {
-      "score": 84.0,
-      "strict": 84.0,
-      "verified_strict_score": 84.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.84,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.6,
-          "assessment_score": 84.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "dependency_health",
           "configured_weight": 1.0,
@@ -7464,19 +8237,19 @@
       }
     },
     "Design coherence": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "design_coherence",
           "configured_weight": 10.0,
@@ -7485,19 +8258,19 @@
       }
     },
     "Error consistency": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "error_consistency",
           "configured_weight": 3.0,
@@ -7506,19 +8279,19 @@
       }
     },
     "High elegance": {
-      "score": 84.0,
-      "strict": 84.0,
-      "verified_strict_score": 84.0,
+      "score": 88.0,
+      "strict": 88.0,
+      "verified_strict_score": 88.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.84,
+          "pass_rate": 0.88,
           "failing": 1,
-          "weighted_failures": 1.6,
-          "assessment_score": 84.0,
+          "weighted_failures": 1.2,
+          "assessment_score": 88.0,
           "placeholder": false,
           "dimension_key": "high_level_elegance",
           "configured_weight": 22.0,
@@ -7527,19 +8300,19 @@
       }
     },
     "Stale migration": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.88,
+          "pass_rate": 0.9,
           "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
           "placeholder": false,
           "dimension_key": "incomplete_migration",
           "configured_weight": 1.0,
@@ -7548,48 +8321,6 @@
       }
     },
     "Init coupling": {
-      "score": 80.0,
-      "strict": 80.0,
-      "verified_strict_score": 80.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.8,
-          "failing": 1,
-          "weighted_failures": 2.0,
-          "assessment_score": 80.0,
-          "placeholder": false,
-          "dimension_key": "initialization_coupling",
-          "configured_weight": 1.0,
-          "components": []
-        }
-      }
-    },
-    "Logic clarity": {
-      "score": 88.0,
-      "strict": 88.0,
-      "verified_strict_score": 88.0,
-      "checks": 10,
-      "failing": 1,
-      "tier": 4,
-      "detectors": {
-        "subjective_assessment": {
-          "potential": 10,
-          "pass_rate": 0.88,
-          "failing": 1,
-          "weighted_failures": 1.2,
-          "assessment_score": 88.0,
-          "placeholder": false,
-          "dimension_key": "logic_clarity",
-          "configured_weight": 6.0,
-          "components": []
-        }
-      }
-    },
-    "Low elegance": {
       "score": 82.0,
       "strict": 82.0,
       "verified_strict_score": 82.0,
@@ -7604,13 +8335,34 @@
           "weighted_failures": 1.8,
           "assessment_score": 82.0,
           "placeholder": false,
-          "dimension_key": "low_level_elegance",
-          "configured_weight": 12.0,
+          "dimension_key": "initialization_coupling",
+          "configured_weight": 1.0,
           "components": []
         }
       }
     },
-    "Mid elegance": {
+    "Logic clarity": {
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.9,
+          "failing": 1,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
+          "placeholder": false,
+          "dimension_key": "logic_clarity",
+          "configured_weight": 6.0,
+          "components": []
+        }
+      }
+    },
+    "Low elegance": {
       "score": 85.0,
       "strict": 85.0,
       "verified_strict_score": 85.0,
@@ -7625,6 +8377,27 @@
           "weighted_failures": 1.5,
           "assessment_score": 85.0,
           "placeholder": false,
+          "dimension_key": "low_level_elegance",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Mid elegance": {
+      "score": 90.0,
+      "strict": 90.0,
+      "verified_strict_score": 90.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.9,
+          "failing": 1,
+          "weighted_failures": 1.0,
+          "assessment_score": 90.0,
+          "placeholder": false,
           "dimension_key": "mid_level_elegance",
           "configured_weight": 22.0,
           "components": []
@@ -7632,19 +8405,19 @@
       }
     },
     "Naming quality": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 86.0,
+      "strict": 86.0,
+      "verified_strict_score": 86.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.86,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.4,
+          "assessment_score": 86.0,
           "placeholder": false,
           "dimension_key": "naming_quality",
           "configured_weight": 2.0,
@@ -7653,19 +8426,19 @@
       }
     },
     "Structure nav": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 85.0,
+      "strict": 85.0,
+      "verified_strict_score": 85.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.85,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.5,
+          "assessment_score": 85.0,
           "placeholder": false,
           "dimension_key": "package_organization",
           "configured_weight": 5.0,
@@ -7674,19 +8447,19 @@
       }
     },
     "Test strategy": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 85.0,
+      "strict": 85.0,
+      "verified_strict_score": 85.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.85,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.5,
+          "assessment_score": 85.0,
           "placeholder": false,
           "dimension_key": "test_strategy",
           "configured_weight": 1.0,
@@ -7695,19 +8468,19 @@
       }
     },
     "Type safety": {
-      "score": 82.0,
-      "strict": 82.0,
-      "verified_strict_score": 82.0,
+      "score": 85.0,
+      "strict": 85.0,
+      "verified_strict_score": 85.0,
       "checks": 10,
       "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.82,
+          "pass_rate": 0.85,
           "failing": 1,
-          "weighted_failures": 1.8,
-          "assessment_score": 82.0,
+          "weighted_failures": 1.5,
+          "assessment_score": 85.0,
           "placeholder": false,
           "dimension_key": "type_safety",
           "configured_weight": 12.0,
@@ -7727,7 +8500,7 @@
   "review_cache": {
     "files": {},
     "holistic": {
-      "reviewed_at": "2026-03-12T20:22:08+00:00",
+      "reviewed_at": "2026-03-12T20:35:49+00:00",
       "file_count_at_review": 58,
       "issue_count": 20
     }
@@ -7768,6 +8541,18 @@
       "provisional_count": 0,
       "attest": "I validated this review was completed without awareness of overall score and is unbiased.",
       "import_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_201822_e8b18256/canonical_import_20260312_202208.json"
+    },
+    {
+      "timestamp": "2026-03-12T20:35:49+00:00",
+      "mode": "attested_external",
+      "trusted": true,
+      "reason": "attested external blind subagent provenance",
+      "override_used": false,
+      "attested_external": true,
+      "provisional": false,
+      "provisional_count": 0,
+      "attest": "I validated this review was completed without awareness of overall score and is unbiased.",
+      "import_file": "/Users/dominikpeter/DevOps/RapidFuzz/.desloppify/external_review_sessions/ext_20260312_203424_e0a76749/canonical_import_20260312_203549.json"
     }
   ]
 }

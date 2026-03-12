@@ -1,34 +1,20 @@
 {
   "version": 8,
   "created": "2026-03-12T19:44:34+00:00",
-  "updated": "2026-03-12T20:32:52+00:00",
+  "updated": "2026-03-12T20:36:28+00:00",
   "queue_order": [
     "workflow::communicate-score",
     "workflow::create-plan",
-    "review::.::holistic::ai_generated_debt::remaining_boilerplate",
     "review::.::holistic::authorization_consistency::langchain_getattr",
-    "review::.::holistic::dependency_health::swallowed_import_chains",
     "review::.::holistic::incomplete_migration::backward_compat_aliases",
     "review::.::holistic::initialization_coupling::full_rebuild_on_mutation",
-    "review::.::holistic::low_level_elegance::editops_allocation_in_loop",
     "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion",
-    "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency",
-    "review::.::holistic::contract_coherence::internal_protocol_usage",
-    "review::.::holistic::convention_outlier::bm25_variant_casing",
-    "review::.::holistic::cross_module_architecture::engine_search_imports",
-    "review::.::holistic::design_coherence::reexport_compat",
-    "review::.::holistic::error_consistency::from_none_import",
     "review::.::holistic::high_level_elegance::mixed_concerns_search",
-    "review::.::holistic::logic_clarity::reranker_score_detection",
-    "review::.::holistic::mid_level_elegance::reranker_fallback_chain",
-    "review::.::holistic::naming_quality::wratio_pascal_case",
-    "review::.::holistic::package_organization::flat_package_structure",
     "review::.::holistic::test_strategy::no_property_tests",
     "review::.::holistic::type_safety::rust_index_any",
     "subjective::abstraction_fitness",
     "subjective::ai_generated_debt",
     "subjective::api_surface_coherence",
-    "subjective::authorization_consistency",
     "subjective::contract_coherence",
     "subjective::convention_outlier",
     "subjective::cross_module_architecture",
@@ -50,101 +36,23 @@
     "triage::organize",
     "triage::enrich",
     "triage::sense-check",
-    "triage::commit"
+    "triage::commit",
+    "review::.::holistic::ai_generated_debt::reduce_boilerplate",
+    "review::.::holistic::api_surface_coherence::bm25_literal_casing",
+    "review::.::holistic::contract_coherence::reranker_protocol_param",
+    "review::.::holistic::convention_outlier::extractbests_camelcase",
+    "review::.::holistic::cross_module_architecture::engine_search_coupling",
+    "review::.::holistic::dependency_health::embed_anything_error_msg",
+    "review::.::holistic::design_coherence::provider_shortcuts_dict",
+    "review::.::holistic::error_consistency::reranker_runtime_error",
+    "review::.::holistic::logic_clarity::reranker_adaptive_variance",
+    "review::.::holistic::low_level_elegance::editops_string_alloc",
+    "review::.::holistic::mid_level_elegance::reranker_inline_blend",
+    "review::.::holistic::naming_quality::internal_underscore_prefixes",
+    "review::.::holistic::package_organization::flat_package"
   ],
   "deferred": [],
-  "skipped": {
-    "stale_exclude::.benchmarks::.benchmarks": {
-      "issue_id": "stale_exclude::.benchmarks::.benchmarks",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this stale exclude \u2014 .benchmarks is a valid pytest-benchmark baselines directory, never referenced in source",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:26+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "stale_exclude::.cache::.cache": {
-      "issue_id": "stale_exclude::.cache::.cache",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this stale exclude \u2014 .cache contains ruff and pip caches, never referenced in production source",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:27+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "stale_exclude::.cargo::.cargo": {
-      "issue_id": "stale_exclude::.cargo::.cargo",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this stale exclude \u2014 .cargo is the Rust build cache and registry, never referenced in Python source",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:28+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "stale_exclude::.hypothesis::.hypothesis": {
-      "issue_id": "stale_exclude::.hypothesis::.hypothesis",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this stale exclude \u2014 .hypothesis is the property testing database, never referenced in source",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:30+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "stale_exclude::examples::examples": {
-      "issue_id": "stale_exclude::examples::examples",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this stale exclude \u2014 examples contains runnable demo scripts, intentionally excluded from scanning",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:30+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23": {
-      "issue_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:49+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
-      "issue_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:51+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
-      "issue_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:52+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    },
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
-      "issue_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
-      "kind": "permanent",
-      "reason": null,
-      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
-      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
-      "created_at": "2026-03-12T20:32:52+00:00",
-      "review_after": null,
-      "skipped_at_scan": 10
-    }
-  },
+  "skipped": {},
   "active_cluster": null,
   "overrides": {
     "unused::examples/azure_retriever_example.py::retriever_aoai:38": {
@@ -378,14 +286,14 @@
     "subjective::design_coherence": {
       "issue_id": "subjective::design_coherence",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/stale-review",
-      "updated_at": "2026-03-12T20:22:46+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T20:35:49+00:00"
     },
     "subjective::error_consistency": {
       "issue_id": "subjective::error_consistency",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/stale-review",
-      "updated_at": "2026-03-12T20:22:46+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T20:35:49+00:00"
     },
     "subjective::high_level_elegance": {
       "issue_id": "subjective::high_level_elegance",
@@ -408,8 +316,8 @@
     "subjective::logic_clarity": {
       "issue_id": "subjective::logic_clarity",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/stale-review",
-      "updated_at": "2026-03-12T20:22:46+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T20:35:49+00:00"
     },
     "subjective::low_level_elegance": {
       "issue_id": "subjective::low_level_elegance",
@@ -508,45 +416,7 @@
       "updated_at": "2026-03-12T20:23:37+00:00"
     }
   },
-  "clusters": {
-    "auto/stale_exclude": {
-      "name": "auto/stale_exclude",
-      "description": "Fix 5 stale exclude issues",
-      "issue_ids": [],
-      "created_at": "2026-03-12T20:22:46+00:00",
-      "updated_at": "2026-03-12T20:22:46+00:00",
-      "auto": true,
-      "cluster_key": "detector::stale_exclude",
-      "action": "remove stale exclusion or verify it's still needed",
-      "user_modified": false
-    },
-    "auto/security": {
-      "name": "auto/security",
-      "description": "Fix 4 security issues",
-      "issue_ids": [],
-      "created_at": "2026-03-12T20:22:46+00:00",
-      "updated_at": "2026-03-12T20:22:46+00:00",
-      "auto": true,
-      "cluster_key": "detector::security",
-      "action": "review and fix security issues \u2014 prioritize by severity",
-      "user_modified": false
-    },
-    "auto/stale-review": {
-      "name": "auto/stale-review",
-      "description": "Re-review 3 stale subjective dimensions",
-      "issue_ids": [
-        "subjective::design_coherence",
-        "subjective::error_consistency",
-        "subjective::logic_clarity"
-      ],
-      "created_at": "2026-03-12T20:22:46+00:00",
-      "updated_at": "2026-03-12T20:22:46+00:00",
-      "auto": true,
-      "cluster_key": "subjective::stale",
-      "action": "desloppify review --prepare --dimensions design_coherence,error_consistency,logic_clarity",
-      "user_modified": false
-    }
-  },
+  "clusters": {},
   "superseded": {
     "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
       "original_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
@@ -905,12 +775,108 @@
       "superseded_at": "2026-03-12T20:22:46+00:00",
       "remapped_to": null,
       "candidates": []
+    },
+    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23": {
+      "original_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
+      "original_detector": "security",
+      "original_file": "examples/bench_3stage_pipeline.py",
+      "original_summary": "[B113] Call to requests without timeout",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
+      "original_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+      "original_detector": "security",
+      "original_file": "examples/bench_crush_ndcg.py",
+      "original_summary": "[B113] Call to requests without timeout",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
+      "original_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+      "original_detector": "security",
+      "original_file": "examples/bench_retrieval.py",
+      "original_summary": "[B113] Call to requests without timeout",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
+      "original_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+      "original_detector": "security",
+      "original_file": "examples/multijoiner_examples.py",
+      "original_summary": "[B311] Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "stale_exclude::.benchmarks::.benchmarks": {
+      "original_id": "stale_exclude::.benchmarks::.benchmarks",
+      "original_detector": "stale_exclude",
+      "original_file": ".benchmarks",
+      "original_summary": "Excluded directory '.benchmarks' has 0 references from scanned code \u2014 may be stale",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "stale_exclude::.cache::.cache": {
+      "original_id": "stale_exclude::.cache::.cache",
+      "original_detector": "stale_exclude",
+      "original_file": ".cache",
+      "original_summary": "Excluded directory '.cache' has 0 references from scanned code \u2014 may be stale",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "stale_exclude::.cargo::.cargo": {
+      "original_id": "stale_exclude::.cargo::.cargo",
+      "original_detector": "stale_exclude",
+      "original_file": ".cargo",
+      "original_summary": "Excluded directory '.cargo' has 0 references from scanned code \u2014 may be stale",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "stale_exclude::.hypothesis::.hypothesis": {
+      "original_id": "stale_exclude::.hypothesis::.hypothesis",
+      "original_detector": "stale_exclude",
+      "original_file": ".hypothesis",
+      "original_summary": "Excluded directory '.hypothesis' has 0 references from scanned code \u2014 may be stale",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "stale_exclude::examples::examples": {
+      "original_id": "stale_exclude::examples::examples",
+      "original_detector": "stale_exclude",
+      "original_file": "examples",
+      "original_summary": "Excluded directory 'examples' has 0 references from scanned code \u2014 may be stale",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T20:36:28+00:00",
+      "remapped_to": null,
+      "candidates": []
     }
   },
   "promoted_ids": [],
-  "plan_start_scores": {},
+  "plan_start_scores": {
+    "strict": 88.8,
+    "overall": 88.8,
+    "objective": 93.3,
+    "verified": 91.4
+  },
   "refresh_state": {
-    "lifecycle_phase": "execute"
+    "lifecycle_phase": "execute",
+    "postflight_scan_completed_at_scan_count": 12
   },
   "execution_log": [
     {
@@ -2715,6 +2681,147 @@
         "kind": "permanent",
         "reason": null
       }
+    },
+    {
+      "timestamp": "2026-03-12T20:35:49+00:00",
+      "action": "review_import_sync",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "new_ids": [
+          "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion",
+          "review::.::holistic::ai_generated_debt::reduce_boilerplate",
+          "review::.::holistic::api_surface_coherence::bm25_literal_casing",
+          "review::.::holistic::authorization_consistency::langchain_getattr",
+          "review::.::holistic::contract_coherence::reranker_protocol_param",
+          "review::.::holistic::convention_outlier::extractbests_camelcase",
+          "review::.::holistic::cross_module_architecture::engine_search_coupling",
+          "review::.::holistic::dependency_health::embed_anything_error_msg",
+          "review::.::holistic::design_coherence::provider_shortcuts_dict",
+          "review::.::holistic::error_consistency::reranker_runtime_error",
+          "review::.::holistic::high_level_elegance::mixed_concerns_search",
+          "review::.::holistic::incomplete_migration::backward_compat_aliases",
+          "review::.::holistic::initialization_coupling::full_rebuild_on_mutation",
+          "review::.::holistic::logic_clarity::reranker_adaptive_variance",
+          "review::.::holistic::low_level_elegance::editops_string_alloc",
+          "review::.::holistic::mid_level_elegance::reranker_inline_blend",
+          "review::.::holistic::naming_quality::internal_underscore_prefixes",
+          "review::.::holistic::package_organization::flat_package",
+          "review::.::holistic::test_strategy::no_property_tests",
+          "review::.::holistic::type_safety::rust_index_any"
+        ],
+        "added_to_queue": [
+          "review::.::holistic::ai_generated_debt::reduce_boilerplate",
+          "review::.::holistic::api_surface_coherence::bm25_literal_casing",
+          "review::.::holistic::contract_coherence::reranker_protocol_param",
+          "review::.::holistic::convention_outlier::extractbests_camelcase",
+          "review::.::holistic::cross_module_architecture::engine_search_coupling",
+          "review::.::holistic::dependency_health::embed_anything_error_msg",
+          "review::.::holistic::design_coherence::provider_shortcuts_dict",
+          "review::.::holistic::error_consistency::reranker_runtime_error",
+          "review::.::holistic::logic_clarity::reranker_adaptive_variance",
+          "review::.::holistic::low_level_elegance::editops_string_alloc",
+          "review::.::holistic::mid_level_elegance::reranker_inline_blend",
+          "review::.::holistic::naming_quality::internal_underscore_prefixes",
+          "review::.::holistic::package_organization::flat_package"
+        ],
+        "workflow_injected_ids": [],
+        "triage_injected": false,
+        "triage_injected_ids": [],
+        "triage_deferred": false,
+        "diff_new": 13,
+        "diff_reopened": 0,
+        "diff_auto_resolved": 44,
+        "stale_pruned_from_queue": [
+          "review::.::holistic::ai_generated_debt::remaining_boilerplate",
+          "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency",
+          "review::.::holistic::contract_coherence::internal_protocol_usage",
+          "review::.::holistic::convention_outlier::bm25_variant_casing",
+          "review::.::holistic::cross_module_architecture::engine_search_imports",
+          "review::.::holistic::dependency_health::swallowed_import_chains",
+          "review::.::holistic::design_coherence::reexport_compat",
+          "review::.::holistic::error_consistency::from_none_import",
+          "review::.::holistic::logic_clarity::reranker_score_detection",
+          "review::.::holistic::low_level_elegance::editops_allocation_in_loop",
+          "review::.::holistic::mid_level_elegance::reranker_fallback_chain",
+          "review::.::holistic::naming_quality::wratio_pascal_case",
+          "review::.::holistic::package_organization::flat_package_structure"
+        ],
+        "covered_subjective": [
+          "subjective::abstraction_fitness",
+          "subjective::ai_generated_debt",
+          "subjective::api_surface_coherence",
+          "subjective::authorization_consistency",
+          "subjective::contract_coherence",
+          "subjective::convention_outlier",
+          "subjective::cross_module_architecture",
+          "subjective::dependency_health",
+          "subjective::design_coherence",
+          "subjective::error_consistency",
+          "subjective::high_level_elegance",
+          "subjective::incomplete_migration",
+          "subjective::initialization_coupling",
+          "subjective::logic_clarity",
+          "subjective::low_level_elegance",
+          "subjective::mid_level_elegance",
+          "subjective::naming_quality",
+          "subjective::package_organization",
+          "subjective::test_strategy",
+          "subjective::type_safety"
+        ],
+        "stale_sync_injected": [],
+        "stale_sync_pruned": [
+          "subjective::authorization_consistency"
+        ],
+        "auto_cluster_changes": 3
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:36:28+00:00",
+      "action": "reconcile",
+      "issue_ids": [
+        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
+        "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+        "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+        "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+        "stale_exclude::.benchmarks::.benchmarks",
+        "stale_exclude::.cache::.cache",
+        "stale_exclude::.cargo::.cargo",
+        "stale_exclude::.hypothesis::.hypothesis",
+        "stale_exclude::examples::examples"
+      ],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "superseded_count": 9,
+        "pruned_count": 0,
+        "resurfaced_count": 0,
+        "clusters_completed_count": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:36:28+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T20:36:28+00:00",
+      "action": "complete_postflight_scan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "scan_count": 12
+      }
     }
   ],
   "epic_triage_meta": {
@@ -2769,5 +2876,5 @@
     "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
   ],
   "commit_tracking_branch": null,
-  "previous_plan_start_scores": {}
+  "scan_count_at_plan_start": 12
 }

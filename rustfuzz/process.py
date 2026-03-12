@@ -47,6 +47,10 @@ def extractBests(
     )
 
 
+# Snake-case alias for API consistency
+extract_bests = extractBests
+
+
 def extractOne(
     query: Any,
     choices: Iterable[Any],
@@ -126,4 +130,12 @@ def dedupe(
     return bktree.dedupe(list(choices), threshold)
 
 
-__all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]
+__all__ = [
+    "extract",
+    "extractBests",
+    "extract_bests",
+    "extractOne",
+    "extract_iter",
+    "cdist",
+    "dedupe",
+]
