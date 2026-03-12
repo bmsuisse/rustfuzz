@@ -7,19 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Iterator
 from typing import Any
 
-# Scorers implemented natively in Rust — pass scorer_obj=None to activate the native fast path.
-_NATIVE_SCORER_NAMES = {
-    "ratio",
-    "qratio",
-    "wratio",
-    "partial_ratio",
-    "token_sort_ratio",
-    "partial_token_sort_ratio",
-    "token_set_ratio",
-    "partial_token_set_ratio",
-    "token_ratio",
-    "partial_token_ratio",
-}
+from ._types import resolve_scorer
 
 
 def extract(
@@ -31,21 +19,11 @@ def extract(
     limit: int | None = 5,
     score_cutoff: float | None = None,
 ) -> list[tuple[Any, float, int]]:
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    # For built-in scorers pass None so Rust can use the native zero-overhead path
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
-
+    scorer_name, scorer_obj = resolve_scorer(scorer)
     return _rustfuzz.extract(
-        query,
-        choices,
-        scorer_name,
-        scorer_obj,
-        processor,
-        limit,
-        score_cutoff,
+        query, choices, scorer_name, scorer_obj, processor, limit, score_cutoff
     )
 
 
@@ -69,6 +47,10 @@ def extractBests(
     )
 
 
+# Snake-case alias for API consistency
+extract_bests = extractBests
+
+
 def extractOne(
     query: Any,
     choices: Iterable[Any],
@@ -77,20 +59,16 @@ def extractOne(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> tuple[Any, float, int] | None:
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
-
+    scorer_name, scorer_obj = resolve_scorer(scorer)
     return _rustfuzz.extract_one(
-        query,
-        choices,
-        scorer_name,
-        scorer_obj,
-        processor,
-        score_cutoff,
+        query, choices, scorer_name, scorer_obj, processor, score_cutoff
     )
+
+
+# Snake-case alias for API consistency
+extract_one = extractOne
 
 
 def extract_iter(
@@ -101,19 +79,11 @@ def extract_iter(
     processor: Callable[..., Any] | None = None,
     score_cutoff: float | None = None,
 ) -> Iterator[tuple[Any, float, int]]:
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
-
+    scorer_name, scorer_obj = resolve_scorer(scorer)
     yield from _rustfuzz.extract_iter(
-        query,
-        choices,
-        scorer_name,
-        scorer_obj,
-        processor,
-        score_cutoff,
+        query, choices, scorer_name, scorer_obj, processor, score_cutoff
     )
 
 
@@ -134,19 +104,11 @@ def cdist(
         msg = "cdist requires numpy: pip install rustfuzz[all]"
         raise ImportError(msg) from e
 
-    from . import _rustfuzz, fuzz
+    from . import _rustfuzz
 
-    _scorer = scorer if scorer is not None else fuzz.WRatio
-    scorer_name = getattr(_scorer, "__name__", "unknown").lower()
-    scorer_obj = None if scorer_name in _NATIVE_SCORER_NAMES else _scorer
-
+    scorer_name, scorer_obj = resolve_scorer(scorer)
     flat_array, rows, cols = _rustfuzz.cdist(
-        queries,
-        choices,
-        scorer_name,
-        scorer_obj,
-        processor,
-        score_cutoff,
+        queries, choices, scorer_name, scorer_obj, processor, score_cutoff
     )
 
     # Reshape the flat array returned from Rust into a 2D numpy matrix
@@ -172,4 +134,13 @@ def dedupe(
     return bktree.dedupe(list(choices), threshold)
 
 
-__all__ = ["extract", "extractBests", "extractOne", "extract_iter", "cdist", "dedupe"]
+__all__ = [
+    "extract",
+    "extractBests",
+    "extract_bests",
+    "extractOne",
+    "extract_one",
+    "extract_iter",
+    "cdist",
+    "dedupe",
+]

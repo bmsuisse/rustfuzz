@@ -388,13 +388,19 @@ fn levenshtein_editops_multiword<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize
     let mut matrix_vp: Vec<Vec<u64>> = Vec::with_capacity(n);
     let mut matrix_vn: Vec<Vec<u64>> = Vec::with_capacity(n);
 
+    let mut new_vp = vec![0u64; words];
+    let mut new_vn = vec![0u64; words];
+
     for &c in s2 {
         let pm_c = pm.get(c);
         let mut add_carry: u64 = 0;
         let mut hp_carry: u64 = 1;
         let mut hn_carry: u64 = 0;
-        let mut new_vp = vec![0u64; words];
-        let mut new_vn = vec![0u64; words];
+
+        for w in 0..words {
+            new_vp[w] = 0;
+            new_vn[w] = 0;
+        }
 
         for w in 0..words {
             let pm_j = pm_c[w];
@@ -416,10 +422,10 @@ fn levenshtein_editops_multiword<T: HashableChar>(s1: &[T], s2: &[T], pfx: usize
         }
         new_vp[words - 1] &= last_valid_mask;
         new_vn[words - 1] &= last_valid_mask;
-        vp = new_vp.clone();
-        vn = new_vn.clone();
-        matrix_vp.push(new_vp);
-        matrix_vn.push(new_vn);
+        matrix_vp.push(new_vp.clone());
+        matrix_vn.push(new_vn.clone());
+        std::mem::swap(&mut vp, &mut new_vp);
+        std::mem::swap(&mut vn, &mut new_vn);
     }
 
     let mut ops: Vec<(String, usize, usize)> = Vec::new();

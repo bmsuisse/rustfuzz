@@ -40,6 +40,10 @@ from ._rustfuzz import (
     fuzz_wratio as WRatio,
 )
 
+# Snake-case aliases for API consistency
+w_ratio = WRatio
+q_ratio = QRatio
+
 __all__ = [
     "ratio",
     "partial_ratio",
@@ -52,4 +56,6 @@ __all__ = [
     "partial_token_ratio",
     "WRatio",
     "QRatio",
+    "w_ratio",
+    "q_ratio",
 ]

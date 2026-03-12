@@ -14,6 +14,7 @@ import os
 
 from rustfuzz import Retriever
 
+
 def main() -> None:
     # A tiny corpus for demonstration
     docs = [
@@ -31,13 +32,15 @@ def main() -> None:
     # We use a dummy key here just to show the initialization syntax.
     os.environ["AZURE_OPENAI_ENDPOINT"] = "https://your-resource-name.openai.azure.com/"
     os.environ["AZURE_OPENAI_API_KEY"] = "your-azure-openai-key"
-    
+
     try:
         # "azure-openai" defaults to "text-embedding-3-small".
         # You can also use "azure-openai-large" for "text-embedding-3-large".
         retriever_aoai = Retriever(docs, embeddings="azure-openai")
-        print("Initialized Azure OpenAI Retriever!")
-        
+        print(
+            f"Initialized Azure OpenAI Retriever with {retriever_aoai.num_docs} documents!"
+        )
+
         # In a real environment with a valid key, you could run:
         # results = retriever_aoai.search("gaming console", n=2)
         # print("Results:", results)
@@ -47,20 +50,25 @@ def main() -> None:
     print("\n--- 2. Azure Cohere ---")
     # To run this, you need AZURE_COHERE_ENDPOINT and AZURE_COHERE_API_KEY.
     # This refers to models deployed on Azure AI serverless endpoints natively.
-    os.environ["AZURE_COHERE_ENDPOINT"] = "https://your-cohere-endpoint.azureresources.com"
+    os.environ["AZURE_COHERE_ENDPOINT"] = (
+        "https://your-cohere-endpoint.azureresources.com"
+    )
     os.environ["AZURE_COHERE_API_KEY"] = "your-azure-cohere-key"
 
     try:
         # "azure-cohere" defaults to "embed-english-v3.0".
         # You can also use "azure-cohere-multilingual" for the multilingual version.
         retriever_acohere = Retriever(docs, embeddings="azure-cohere")
-        print("Initialized Azure Cohere Retriever!")
-        
+        print(
+            f"Initialized Azure Cohere Retriever with {retriever_acohere.num_docs} documents!"
+        )
+
         # In a real environment with a valid key, you could run:
         # results = retriever_acohere.search("gaming console", n=2)
         # print("Results:", results)
     except Exception as e:
         print(f"Failed or skipped Azure Cohere initialization: {e}")
+
 
 if __name__ == "__main__":
     main()

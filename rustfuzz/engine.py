@@ -38,6 +38,9 @@ import dataclasses
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from ._types import MetaResult as _MetaResult
+from ._types import Result as _Result
+from ._types import _search_query
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
@@ -50,10 +53,6 @@ from .search import (
     _extract_column,
     _extract_metadata,
 )
-
-# Type aliases
-_Result = tuple[str, float]
-_MetaResult = tuple[str, float, Any]
 
 # Default HuggingFace embedding model — small, fast, no PyTorch
 _DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -150,16 +149,6 @@ class RetrieverConfig:
     rerank_top_k: int = 10
 
 
-# ── Internal helpers ─────────────────────────────────────────────────
-
-
-def _search_query(owner: Any) -> Any:
-    """Lazy import to avoid circular dependency."""
-    from .query import SearchQuery
-
-    return SearchQuery(owner)
-
-
 # ── Embedding factory functions ──────────────────────────────────────
 
 
@@ -174,11 +163,11 @@ def _build_embed_fn_hf(
     try:
         import embed_anything
         from embed_anything import EmbeddingModel
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "embed-anything is required for HuggingFace embeddings. "
             "Install via: uv add embed-anything"
-        ) from None
+        ) from e
 
     model = EmbeddingModel.from_pretrained_hf(model_id=model_id)
 
@@ -204,10 +193,10 @@ def _build_embed_fn_openai(
 
     try:
         from openai import OpenAI
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "openai is required for OpenAI embeddings. Install via: uv add openai"
-        ) from None
+        ) from e
 
     resolved_key = api_key or os.environ.get("OPENAI_API_KEY")
     if not resolved_key:
@@ -240,10 +229,10 @@ def _build_embed_fn_cohere(
 
     try:
         import cohere
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "cohere is required for Cohere embeddings. Install via: uv add cohere"
-        ) from None
+        ) from e
 
     resolved_key = (
         api_key or os.environ.get("COHERE_API_KEY") or os.environ.get("CO_API_KEY")
@@ -286,10 +275,10 @@ def _build_embed_fn_azure_openai(
 
     try:
         from openai import AzureOpenAI
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "openai is required for Azure OpenAI embeddings. Install via: uv add openai"
-        ) from None
+        ) from e
 
     endpoint = api_base or os.environ.get("AZURE_OPENAI_ENDPOINT")
     resolved_key = api_key or os.environ.get("AZURE_OPENAI_API_KEY")
@@ -330,11 +319,11 @@ def _build_embed_fn_azure_cohere(
     try:
         from azure.ai.inference import EmbeddingsClient
         from azure.core.credentials import AzureKeyCredential
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "azure-ai-inference is required for Azure Cohere embeddings. "
             "Install via: uv add azure-ai-inference"
-        ) from None
+        ) from e
 
     endpoint = api_base or os.environ.get("AZURE_COHERE_ENDPOINT")
     resolved_key = api_key or os.environ.get("AZURE_COHERE_API_KEY")
@@ -608,7 +597,10 @@ class Retriever:
         """Number of documents in the index."""
         if self._hybrid is not None:
             return self._hybrid.num_docs
-        assert self._bm25 is not None
+        if self._bm25 is None:
+            raise RuntimeError(
+                "Retriever has no index — call search after initialization"
+            )
         return self._bm25.num_docs
 
     @property
@@ -660,7 +652,10 @@ class Retriever:
                 bm25_candidates=max(retrieve_n * 2, 200),
             )
         else:
-            assert self._bm25 is not None
+            if self._bm25 is None:
+                raise RuntimeError(
+                    "Retriever has no index — call search after initialization"
+                )
             results = self._bm25.get_top_n_rrf(
                 query,
                 n=retrieve_n,
