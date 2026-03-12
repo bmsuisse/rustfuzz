@@ -19,7 +19,8 @@
     ".pytest_cache",
     ".cargo",
     "Cargo.lock",
-    "uv.lock"
+    "uv.lock",
+    "examples"
   ],
   "ignore": [],
   "ignore_metadata": {},

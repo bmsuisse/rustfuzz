@@ -1,7 +1,7 @@
 {
   "version": 8,
   "created": "2026-03-12T19:44:34+00:00",
-  "updated": "2026-03-12T19:53:33+00:00",
+  "updated": "2026-03-12T19:54:23+00:00",
   "queue_order": [
     "workflow::communicate-score",
     "workflow::create-plan",
@@ -11,7 +11,6 @@
     "triage::enrich",
     "triage::sense-check",
     "triage::commit",
-    "unused::examples/bench_retrieval.py::typing.Tuple:8",
     "review::.::holistic::abstraction_fitness::bm25_class_duplication",
     "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
     "review::.::holistic::api_surface_coherence::document_reexport_from_search",
@@ -75,50 +74,50 @@
     "unused::examples/bench_retrieval.py::typing.Tuple:8": {
       "issue_id": "unused::examples/bench_retrieval.py::typing.Tuple:8",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/unused",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:33+00:00"
     },
     "test_coverage::examples/embed_anything_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/embed_anything_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/multijoiner_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/multijoiner_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/azure_retriever_example.py::untested_module": {
       "issue_id": "test_coverage::examples/azure_retriever_example.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_crush_ndcg.py::untested_critical": {
       "issue_id": "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_3stage_pipeline.py::untested_module": {
       "issue_id": "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/filter_sort_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/filter_sort_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_retrieval.py::untested_module": {
       "issue_id": "test_coverage::examples/bench_retrieval.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::rustfuzz/langchain.py::untested_critical": {
       "issue_id": "test_coverage::rustfuzz/langchain.py::untested_critical",
@@ -129,62 +128,62 @@
     "test_coverage::examples/blazing_fast_pipeline.py::untested_module": {
       "issue_id": "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/quickstart.py::untested_module": {
       "issue_id": "test_coverage::examples/quickstart.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
       "issue_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
       "issue_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
       "issue_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30": {
       "issue_id": "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
       "issue_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611": {
       "issue_id": "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
@@ -395,9 +394,7 @@
     "auto/unused": {
       "name": "auto/unused",
       "description": "Remove 6 unused issues",
-      "issue_ids": [
-        "unused::examples/bench_retrieval.py::typing.Tuple:8"
-      ],
+      "issue_ids": [],
       "created_at": "2026-03-12T19:44:34+00:00",
       "updated_at": "2026-03-12T19:44:34+00:00",
       "auto": true,
@@ -409,16 +406,7 @@
       "name": "auto/test_coverage",
       "description": "Fix 10 test coverage issues",
       "issue_ids": [
-        "test_coverage::examples/embed_anything_examples.py::untested_module",
-        "test_coverage::examples/multijoiner_examples.py::untested_module",
-        "test_coverage::examples/azure_retriever_example.py::untested_module",
-        "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
-        "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
-        "test_coverage::examples/filter_sort_examples.py::untested_module",
-        "test_coverage::examples/bench_retrieval.py::untested_module",
-        "test_coverage::rustfuzz/langchain.py::untested_critical",
-        "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
-        "test_coverage::examples/quickstart.py::untested_module"
+        "test_coverage::rustfuzz/langchain.py::untested_critical"
       ],
       "created_at": "2026-03-12T19:44:34+00:00",
       "updated_at": "2026-03-12T19:44:34+00:00",
@@ -431,14 +419,6 @@
       "name": "auto/security",
       "description": "Fix 10 security issues",
       "issue_ids": [
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
-        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
-        "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
-        "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
-        "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
-        "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
         "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
         "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::663"
       ],
@@ -511,9 +491,7 @@
     }
   },
   "superseded": {},
-  "promoted_ids": [
-    "unused::examples/bench_retrieval.py::typing.Tuple:8"
-  ],
+  "promoted_ids": [],
   "plan_start_scores": {
     "strict": 67.6,
     "overall": 67.6,
@@ -974,6 +952,31 @@
       "actor": "user",
       "note": "Removed the unused Tuple import from typing module since no function signatures use it",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:33+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Tuple import from typing module since no function signatures use it",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Removed the unused Tuple import from typing module since no function signatures use it and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:33+00:00",
+      "action": "cluster_done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": "auto/unused",
+      "actor": "user",
+      "note": null,
+      "detail": {}
     }
   ],
   "epic_triage_meta": {
@@ -1047,7 +1050,8 @@
     "unused::examples/azure_retriever_example.py::retriever_acohere:56",
     "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
     "unused::examples/bench_retrieval.py::tarfile:3",
-    "unused::examples/bench_retrieval.py::numpy:7"
+    "unused::examples/bench_retrieval.py::numpy:7",
+    "unused::examples/bench_retrieval.py::typing.Tuple:8"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 1,

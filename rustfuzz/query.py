@@ -32,9 +32,8 @@ from .sort import apply_sort
 if TYPE_CHECKING:
     from .filter import FilterNode
 
-# Type aliases for result tuples
-_Result = tuple[str, float]
-_MetaResult = tuple[str, float, Any]
+from ._types import MetaResult as _MetaResult
+from ._types import Result as _Result
 
 
 class SearchQuery:

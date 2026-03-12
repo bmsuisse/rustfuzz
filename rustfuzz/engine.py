@@ -38,6 +38,8 @@ import dataclasses
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from ._types import MetaResult as _MetaResult
+from ._types import Result as _Result
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
@@ -50,10 +52,6 @@ from .search import (
     _extract_column,
     _extract_metadata,
 )
-
-# Type aliases
-_Result = tuple[str, float]
-_MetaResult = tuple[str, float, Any]
 
 # Default HuggingFace embedding model — small, fast, no PyTorch
 _DEFAULT_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
@@ -608,7 +606,10 @@ class Retriever:
         """Number of documents in the index."""
         if self._hybrid is not None:
             return self._hybrid.num_docs
-        assert self._bm25 is not None
+        if self._bm25 is None:
+            raise RuntimeError(
+                "Retriever has no index — call search after initialization"
+            )
         return self._bm25.num_docs
 
     @property
@@ -660,7 +661,10 @@ class Retriever:
                 bm25_candidates=max(retrieve_n * 2, 200),
             )
         else:
-            assert self._bm25 is not None
+            if self._bm25 is None:
+                raise RuntimeError(
+                    "Retriever has no index — call search after initialization"
+                )
             results = self._bm25.get_top_n_rrf(
                 query,
                 n=retrieve_n,

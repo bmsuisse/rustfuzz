@@ -1,16 +1,10 @@
 {
   "version": 8,
   "created": "2026-03-12T19:44:34+00:00",
-  "updated": "2026-03-12T19:53:33+00:00",
+  "updated": "2026-03-12T19:55:28+00:00",
   "queue_order": [
     "workflow::communicate-score",
     "workflow::create-plan",
-    "triage::observe",
-    "triage::reflect",
-    "triage::organize",
-    "triage::enrich",
-    "triage::sense-check",
-    "triage::commit",
     "review::.::holistic::abstraction_fitness::bm25_class_duplication",
     "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
     "review::.::holistic::api_surface_coherence::document_reexport_from_search",
@@ -35,7 +29,33 @@
     "review::.::holistic::naming_quality::inconsistent_function_casing",
     "review::.::holistic::package_organization::search_py_should_be_package",
     "review::.::holistic::test_strategy::no_base_class_tests",
-    "review::.::holistic::type_safety::overuse_of_any_types"
+    "review::.::holistic::type_safety::overuse_of_any_types",
+    "subjective::abstraction_fitness",
+    "subjective::ai_generated_debt",
+    "subjective::api_surface_coherence",
+    "subjective::authorization_consistency",
+    "subjective::contract_coherence",
+    "subjective::convention_outlier",
+    "subjective::cross_module_architecture",
+    "subjective::dependency_health",
+    "subjective::design_coherence",
+    "subjective::error_consistency",
+    "subjective::high_level_elegance",
+    "subjective::incomplete_migration",
+    "subjective::initialization_coupling",
+    "subjective::logic_clarity",
+    "subjective::low_level_elegance",
+    "subjective::mid_level_elegance",
+    "subjective::naming_quality",
+    "subjective::package_organization",
+    "subjective::test_strategy",
+    "subjective::type_safety",
+    "triage::observe",
+    "triage::reflect",
+    "triage::organize",
+    "triage::enrich",
+    "triage::sense-check",
+    "triage::commit"
   ],
   "deferred": [],
   "skipped": {},
@@ -80,44 +100,44 @@
     "test_coverage::examples/embed_anything_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/embed_anything_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/multijoiner_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/multijoiner_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/azure_retriever_example.py::untested_module": {
       "issue_id": "test_coverage::examples/azure_retriever_example.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_crush_ndcg.py::untested_critical": {
       "issue_id": "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_3stage_pipeline.py::untested_module": {
       "issue_id": "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/filter_sort_examples.py::untested_module": {
       "issue_id": "test_coverage::examples/filter_sort_examples.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/bench_retrieval.py::untested_module": {
       "issue_id": "test_coverage::examples/bench_retrieval.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::rustfuzz/langchain.py::untested_critical": {
       "issue_id": "test_coverage::rustfuzz/langchain.py::untested_critical",
@@ -128,62 +148,62 @@
     "test_coverage::examples/blazing_fast_pipeline.py::untested_module": {
       "issue_id": "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "test_coverage::examples/quickstart.py::untested_module": {
       "issue_id": "test_coverage::examples/quickstart.py::untested_module",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/test_coverage",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80": {
       "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
       "issue_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
       "issue_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
       "issue_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30": {
       "issue_id": "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
       "issue_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
       "created_at": "2026-03-12T19:44:34+00:00",
-      "cluster": "auto/security",
-      "updated_at": "2026-03-12T19:50:25+00:00"
+      "cluster": null,
+      "updated_at": "2026-03-12T19:54:23+00:00"
     },
     "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611": {
       "issue_id": "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
@@ -406,16 +426,7 @@
       "name": "auto/test_coverage",
       "description": "Fix 10 test coverage issues",
       "issue_ids": [
-        "test_coverage::examples/embed_anything_examples.py::untested_module",
-        "test_coverage::examples/multijoiner_examples.py::untested_module",
-        "test_coverage::examples/azure_retriever_example.py::untested_module",
-        "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
-        "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
-        "test_coverage::examples/filter_sort_examples.py::untested_module",
-        "test_coverage::examples/bench_retrieval.py::untested_module",
-        "test_coverage::rustfuzz/langchain.py::untested_critical",
-        "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
-        "test_coverage::examples/quickstart.py::untested_module"
+        "test_coverage::rustfuzz/langchain.py::untested_critical"
       ],
       "created_at": "2026-03-12T19:44:34+00:00",
       "updated_at": "2026-03-12T19:44:34+00:00",
@@ -428,14 +439,6 @@
       "name": "auto/security",
       "description": "Fix 10 security issues",
       "issue_ids": [
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
-        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
-        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
-        "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
-        "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
-        "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
-        "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
         "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
         "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::663"
       ],
@@ -507,14 +510,210 @@
       "user_modified": false
     }
   },
-  "superseded": {},
-  "promoted_ids": [],
-  "plan_start_scores": {
-    "strict": 67.6,
-    "overall": 67.6,
-    "objective": 81.4,
-    "verified": 81.4
+  "superseded": {
+    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
+      "original_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30": {
+      "original_id": "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36": {
+      "original_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37": {
+      "original_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80": {
+      "original_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/azure_retriever_example.py::untested_module": {
+      "original_id": "test_coverage::examples/azure_retriever_example.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/bench_3stage_pipeline.py::untested_module": {
+      "original_id": "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/bench_crush_ndcg.py::untested_critical": {
+      "original_id": "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/bench_retrieval.py::untested_module": {
+      "original_id": "test_coverage::examples/bench_retrieval.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/blazing_fast_pipeline.py::untested_module": {
+      "original_id": "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/embed_anything_examples.py::untested_module": {
+      "original_id": "test_coverage::examples/embed_anything_examples.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/filter_sort_examples.py::untested_module": {
+      "original_id": "test_coverage::examples/filter_sort_examples.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/multijoiner_examples.py::untested_module": {
+      "original_id": "test_coverage::examples/multijoiner_examples.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "test_coverage::examples/quickstart.py::untested_module": {
+      "original_id": "test_coverage::examples/quickstart.py::untested_module",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/azure_retriever_example.py::retriever_acohere:56": {
+      "original_id": "unused::examples/azure_retriever_example.py::retriever_acohere:56",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/azure_retriever_example.py::retriever_aoai:38": {
+      "original_id": "unused::examples/azure_retriever_example.py::retriever_aoai:38",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9": {
+      "original_id": "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/bench_retrieval.py::numpy:7": {
+      "original_id": "unused::examples/bench_retrieval.py::numpy:7",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/bench_retrieval.py::tarfile:3": {
+      "original_id": "unused::examples/bench_retrieval.py::tarfile:3",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    },
+    "unused::examples/bench_retrieval.py::typing.Tuple:8": {
+      "original_id": "unused::examples/bench_retrieval.py::typing.Tuple:8",
+      "original_detector": "",
+      "original_file": "",
+      "original_summary": "",
+      "status": "superseded",
+      "superseded_at": "2026-03-12T19:55:28+00:00",
+      "remapped_to": null,
+      "candidates": []
+    }
   },
+  "promoted_ids": [],
+  "plan_start_scores": {},
   "refresh_state": {
     "lifecycle_phase": "execute"
   },
@@ -994,44 +1193,88 @@
       "actor": "user",
       "note": null,
       "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:55:28+00:00",
+      "action": "reconcile",
+      "issue_ids": [
+        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
+        "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
+        "test_coverage::examples/azure_retriever_example.py::untested_module",
+        "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
+        "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
+        "test_coverage::examples/bench_retrieval.py::untested_module",
+        "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
+        "test_coverage::examples/embed_anything_examples.py::untested_module",
+        "test_coverage::examples/filter_sort_examples.py::untested_module",
+        "test_coverage::examples/multijoiner_examples.py::untested_module",
+        "test_coverage::examples/quickstart.py::untested_module",
+        "unused::examples/azure_retriever_example.py::retriever_acohere:56",
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38",
+        "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
+        "unused::examples/bench_retrieval.py::numpy:7",
+        "unused::examples/bench_retrieval.py::tarfile:3",
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "superseded_count": 20,
+        "pruned_count": 0,
+        "resurfaced_count": 0,
+        "clusters_completed_count": 0
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:55:28+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:55:28+00:00",
+      "action": "sync_communicate_score",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:55:28+00:00",
+      "action": "sync_create_plan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:55:28+00:00",
+      "action": "sync_triage",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
     }
   ],
   "epic_triage_meta": {
-    "triage_defer_state": {
-      "deferred_review_ids": [
-        "review::.::holistic::abstraction_fitness::bm25_class_duplication",
-        "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
-        "review::.::holistic::api_surface_coherence::document_reexport_from_search",
-        "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
-        "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
-        "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
-        "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
-        "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
-        "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
-        "review::.::holistic::cross_module_architecture::private_attribute_access",
-        "review::.::holistic::dependency_health::swallowed_import_exception_chains",
-        "review::.::holistic::design_coherence::search_module_too_large",
-        "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
-        "review::.::holistic::high_level_elegance::monolithic_search_module",
-        "review::.::holistic::incomplete_migration::result_types_not_consolidated",
-        "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
-        "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
-        "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
-        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
-        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
-        "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
-        "review::.::holistic::naming_quality::inconsistent_function_casing",
-        "review::.::holistic::package_organization::search_py_should_be_package",
-        "review::.::holistic::test_strategy::no_base_class_tests",
-        "review::.::holistic::type_safety::overuse_of_any_types"
-      ],
-      "last_deferred_scan": 2,
-      "last_deferred_at": "2026-03-12T19:50:25+00:00",
-      "defer_count": 1,
-      "first_deferred_scan": 2,
-      "first_deferred_at": "2026-03-12T19:50:25+00:00"
-    },
-    "triage_recommended": true,
     "triage_stages": {},
     "active_triage_issue_ids": [
       "review::.::holistic::abstraction_fitness::bm25_class_duplication",
@@ -1071,64 +1314,5 @@
     "unused::examples/bench_retrieval.py::typing.Tuple:8"
   ],
   "commit_tracking_branch": null,
-  "scan_count_at_plan_start": 1,
-  "previous_plan_start_scores": {
-    "strict": 20.3,
-    "overall": 20.3,
-    "objective": 81.4,
-    "verified": 81.4
-  },
-  "subjective_defer_meta": {
-    "deferred_review_ids": [
-      "subjective::abstraction_fitness",
-      "subjective::ai_generated_debt",
-      "subjective::api_surface_coherence",
-      "subjective::authorization_consistency",
-      "subjective::contract_coherence",
-      "subjective::convention_outlier",
-      "subjective::cross_module_architecture",
-      "subjective::dependency_health",
-      "subjective::design_coherence",
-      "subjective::error_consistency",
-      "subjective::high_level_elegance",
-      "subjective::incomplete_migration",
-      "subjective::initialization_coupling",
-      "subjective::logic_clarity",
-      "subjective::low_level_elegance",
-      "subjective::mid_level_elegance",
-      "subjective::naming_quality",
-      "subjective::package_organization",
-      "subjective::test_strategy",
-      "subjective::type_safety"
-    ],
-    "last_deferred_scan": 2,
-    "last_deferred_at": "2026-03-12T19:50:25+00:00",
-    "defer_count": 1,
-    "first_deferred_scan": 2,
-    "first_deferred_at": "2026-03-12T19:50:25+00:00",
-    "deferred_stale_ids": [],
-    "deferred_under_target_ids": [
-      "subjective::abstraction_fitness",
-      "subjective::ai_generated_debt",
-      "subjective::api_surface_coherence",
-      "subjective::authorization_consistency",
-      "subjective::contract_coherence",
-      "subjective::convention_outlier",
-      "subjective::cross_module_architecture",
-      "subjective::dependency_health",
-      "subjective::design_coherence",
-      "subjective::error_consistency",
-      "subjective::high_level_elegance",
-      "subjective::incomplete_migration",
-      "subjective::initialization_coupling",
-      "subjective::logic_clarity",
-      "subjective::low_level_elegance",
-      "subjective::mid_level_elegance",
-      "subjective::naming_quality",
-      "subjective::package_organization",
-      "subjective::test_strategy",
-      "subjective::type_safety"
-    ],
-    "force_visible_ids": []
-  }
+  "previous_plan_start_scores": {}
 }

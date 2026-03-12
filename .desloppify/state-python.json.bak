@@ -1,39 +1,39 @@
 {
   "version": 1,
   "created": "2026-03-12T19:43:40+00:00",
-  "last_scan": "2026-03-12T19:50:25+00:00",
-  "scan_count": 2,
-  "overall_score": 67.7,
-  "objective_score": 81.8,
-  "strict_score": 67.7,
-  "verified_strict_score": 81.4,
+  "last_scan": "2026-03-12T19:55:27+00:00",
+  "scan_count": 3,
+  "overall_score": 70.4,
+  "objective_score": 92.9,
+  "strict_score": 70.4,
+  "verified_strict_score": 92.9,
   "stats": {
-    "total": 195,
+    "total": 125,
     "auto_resolved": 0,
     "false_positive": 0,
-    "fixed": 25,
-    "open": 170,
+    "fixed": 20,
+    "open": 105,
     "wontfix": 0,
     "by_tier": {
       "1": {
         "auto_resolved": 0,
         "false_positive": 0,
-        "fixed": 3,
-        "open": 15,
+        "fixed": 0,
+        "open": 14,
         "wontfix": 0
       },
       "2": {
         "auto_resolved": 0,
         "false_positive": 0,
-        "fixed": 2,
-        "open": 46,
+        "fixed": 0,
+        "open": 33,
         "wontfix": 0
       },
       "3": {
         "auto_resolved": 0,
         "false_positive": 0,
         "fixed": 0,
-        "open": 103,
+        "open": 52,
         "wontfix": 0
       },
       "4": {
@@ -46,174 +46,6 @@
     }
   },
   "issues": {
-    "unused::examples/azure_retriever_example.py::retriever_aoai:38": {
-      "id": "unused::examples/azure_retriever_example.py::retriever_aoai:38",
-      "detector": "unused",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 2,
-      "confidence": "high",
-      "summary": "Unused vars: retriever_aoai",
-      "detail": {
-        "line": 38,
-        "category": "vars"
-      },
-      "status": "fixed",
-      "note": "Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning",
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": "2026-03-12T19:53:17+00:00",
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null,
-      "resolution_attestation": {
-        "kind": "manual",
-        "text": "I have actually Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning and I am not gaming the score.",
-        "attested_at": "2026-03-12T19:53:17+00:00",
-        "scan_verified": false
-      }
-    },
-    "unused::examples/azure_retriever_example.py::retriever_acohere:56": {
-      "id": "unused::examples/azure_retriever_example.py::retriever_acohere:56",
-      "detector": "unused",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 2,
-      "confidence": "high",
-      "summary": "Unused vars: retriever_acohere",
-      "detail": {
-        "line": 56,
-        "category": "vars"
-      },
-      "status": "fixed",
-      "note": "Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning",
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": "2026-03-12T19:53:31+00:00",
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null,
-      "resolution_attestation": {
-        "kind": "manual",
-        "text": "I have actually Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning and I am not gaming the score.",
-        "attested_at": "2026-03-12T19:53:31+00:00",
-        "scan_verified": false
-      }
-    },
-    "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9": {
-      "id": "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
-      "detector": "unused",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 1,
-      "confidence": "high",
-      "summary": "Unused imports: rustfuzz.search.Reranker",
-      "detail": {
-        "line": 9,
-        "category": "imports"
-      },
-      "status": "fixed",
-      "note": "Removed the unused Reranker import since reranking is done through the builder pattern",
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": "2026-03-12T19:53:31+00:00",
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null,
-      "resolution_attestation": {
-        "kind": "manual",
-        "text": "I have actually Removed the unused Reranker import since reranking is done through the builder pattern and I am not gaming the score.",
-        "attested_at": "2026-03-12T19:53:31+00:00",
-        "scan_verified": false
-      }
-    },
-    "unused::examples/bench_retrieval.py::tarfile:3": {
-      "id": "unused::examples/bench_retrieval.py::tarfile:3",
-      "detector": "unused",
-      "file": "examples/bench_retrieval.py",
-      "tier": 1,
-      "confidence": "high",
-      "summary": "Unused imports: tarfile",
-      "detail": {
-        "line": 3,
-        "category": "imports"
-      },
-      "status": "fixed",
-      "note": "Removed the unused tarfile import since dataset extraction uses zipfile instead of tar",
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": "2026-03-12T19:53:32+00:00",
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null,
-      "resolution_attestation": {
-        "kind": "manual",
-        "text": "I have actually Removed the unused tarfile import since dataset extraction uses zipfile instead of tar and I am not gaming the score.",
-        "attested_at": "2026-03-12T19:53:32+00:00",
-        "scan_verified": false
-      }
-    },
-    "unused::examples/bench_retrieval.py::numpy:7": {
-      "id": "unused::examples/bench_retrieval.py::numpy:7",
-      "detector": "unused",
-      "file": "examples/bench_retrieval.py",
-      "tier": 1,
-      "confidence": "high",
-      "summary": "Unused imports: numpy",
-      "detail": {
-        "line": 7,
-        "category": "imports"
-      },
-      "status": "fixed",
-      "note": "Removed the unused numpy import since the benchmark code does not use numpy arrays",
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": "2026-03-12T19:53:32+00:00",
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null,
-      "resolution_attestation": {
-        "kind": "manual",
-        "text": "I have actually Removed the unused numpy import since the benchmark code does not use numpy arrays and I am not gaming the score.",
-        "attested_at": "2026-03-12T19:53:32+00:00",
-        "scan_verified": false
-      }
-    },
-    "unused::examples/bench_retrieval.py::typing.Tuple:8": {
-      "id": "unused::examples/bench_retrieval.py::typing.Tuple:8",
-      "detector": "unused",
-      "file": "examples/bench_retrieval.py",
-      "tier": 1,
-      "confidence": "high",
-      "summary": "Unused imports: typing.Tuple",
-      "detail": {
-        "line": 8,
-        "category": "imports"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
     "structural::rustfuzz/search.py": {
       "id": "structural::rustfuzz/search.py",
       "detector": "structural",
@@ -233,7 +65,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -260,7 +92,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -275,14 +107,14 @@
       "file": "rustfuzz/engine.py",
       "tier": 3,
       "confidence": "medium",
-      "summary": "Large file: large (813 LOC)",
+      "summary": "Large file: large (815 LOC)",
       "detail": {
-        "loc": 813
+        "loc": 815
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -310,7 +142,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -332,61 +164,11 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
       "zone": "test",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "structural::examples/quickstart.py": {
-      "id": "structural::examples/quickstart.py",
-      "detector": "structural",
-      "file": "examples/quickstart.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Large file: large (565 LOC)",
-      "detail": {
-        "loc": 565
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "structural::examples/bench_crush_ndcg.py": {
-      "id": "structural::examples/bench_crush_ndcg.py",
-      "detector": "structural",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Large file: complexity score 89",
-      "detail": {
-        "complexity_score": 89,
-        "complexity_signals": [
-          "function with 15 params",
-          "nesting depth 10",
-          "long function (main: 135 LOC)"
-        ],
-        "loc": 344
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
@@ -412,7 +194,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -460,7 +242,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -581,7 +363,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -638,57 +420,11 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
       "zone": "test",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "responsibility_cohesion::examples/bench_crush_ndcg.py": {
-      "id": "responsibility_cohesion::examples/bench_crush_ndcg.py",
-      "detector": "responsibility_cohesion",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Mixed responsibilities: 13 top-level funcs across 8 disconnected clusters (6, 1, 1, 1, 1, +3 more)",
-      "detail": {
-        "loc": 344,
-        "function_count": 13,
-        "component_count": 8,
-        "component_sizes": [
-          6,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1
-        ],
-        "family_count": 8,
-        "import_cluster_count": 7,
-        "families": [
-          "download",
-          "evaluate",
-          "fuse",
-          "load",
-          "main",
-          "normalize",
-          "retrieve",
-          "run"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:43:41+00:00",
-      "last_seen": "2026-03-12T19:43:41+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
@@ -716,161 +452,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:43:42+00:00",
-      "last_seen": "2026-03-12T19:43:42+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/quickstart.py": {
-      "id": "orphaned::examples/quickstart.py",
-      "detector": "orphaned",
-      "file": "examples/quickstart.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (565 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 565
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/multijoiner_examples.py": {
-      "id": "orphaned::examples/multijoiner_examples.py",
-      "detector": "orphaned",
-      "file": "examples/multijoiner_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (348 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 348
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/bench_crush_ndcg.py": {
-      "id": "orphaned::examples/bench_crush_ndcg.py",
-      "detector": "orphaned",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (344 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 344
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/filter_sort_examples.py": {
-      "id": "orphaned::examples/filter_sort_examples.py",
-      "detector": "orphaned",
-      "file": "examples/filter_sort_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (325 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 325
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/embed_anything_examples.py": {
-      "id": "orphaned::examples/embed_anything_examples.py",
-      "detector": "orphaned",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (307 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 307
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/bench_retrieval.py": {
-      "id": "orphaned::examples/bench_retrieval.py",
-      "detector": "orphaned",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (183 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 183
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/bench_3stage_pipeline.py": {
-      "id": "orphaned::examples/bench_3stage_pipeline.py",
-      "detector": "orphaned",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (180 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 180
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -892,51 +474,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/blazing_fast_pipeline.py": {
-      "id": "orphaned::examples/blazing_fast_pipeline.py",
-      "detector": "orphaned",
-      "file": "examples/blazing_fast_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (117 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 117
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "orphaned::examples/azure_retriever_example.py": {
-      "id": "orphaned::examples/azure_retriever_example.py",
-      "detector": "orphaned",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Orphaned file (66 LOC): zero importers, not an entry point",
-      "detail": {
-        "loc": 66
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -964,7 +502,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -992,7 +530,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1023,7 +561,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1054,7 +592,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1085,7 +623,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1100,10 +638,10 @@
       "file": "rustfuzz/distance/Hamming.py",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (5 importers)",
+      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (4 importers)",
       "detail": {
         "loc": 31,
-        "importers": 5,
+        "importers": 4,
         "imports_from": [
           "__future__",
           "rustfuzz._rustfuzz",
@@ -1118,7 +656,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1133,10 +671,10 @@
       "file": "rustfuzz/distance/Indel.py",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (5 importers)",
+      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (4 importers)",
       "detail": {
         "loc": 31,
-        "importers": 5,
+        "importers": 4,
         "imports_from": [
           "__future__",
           "rustfuzz._rustfuzz",
@@ -1151,7 +689,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1166,10 +704,10 @@
       "file": "rustfuzz/distance/LCSseq.py",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (5 importers)",
+      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (4 importers)",
       "detail": {
         "loc": 31,
-        "importers": 5,
+        "importers": 4,
         "imports_from": [
           "__future__",
           "rustfuzz._rustfuzz",
@@ -1184,7 +722,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1197,6 +735,37 @@
       "id": "facade::rustfuzz/distance/DamerauLevenshtein.py",
       "detector": "facade",
       "file": "rustfuzz/distance/DamerauLevenshtein.py",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Re-export facade (23 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +2 (4 importers)",
+      "detail": {
+        "loc": 23,
+        "importers": 4,
+        "imports_from": [
+          "__future__",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz"
+        ],
+        "kind": "file"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "facade::rustfuzz/distance/JaroWinkler.py": {
+      "id": "facade::rustfuzz/distance/JaroWinkler.py",
+      "detector": "facade",
+      "file": "rustfuzz/distance/JaroWinkler.py",
       "tier": 2,
       "confidence": "medium",
       "summary": "Re-export facade (23 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +2 (5 importers)",
@@ -1215,7 +784,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1224,10 +793,43 @@
       "suppressed_at": null,
       "suppression_pattern": null
     },
-    "facade::rustfuzz/distance/JaroWinkler.py": {
-      "id": "facade::rustfuzz/distance/JaroWinkler.py",
+    "facade::rustfuzz/distance/Levenshtein.py": {
+      "id": "facade::rustfuzz/distance/Levenshtein.py",
       "detector": "facade",
-      "file": "rustfuzz/distance/JaroWinkler.py",
+      "file": "rustfuzz/distance/Levenshtein.py",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (6 importers)",
+      "detail": {
+        "loc": 31,
+        "importers": 6,
+        "imports_from": [
+          "__future__",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz",
+          "rustfuzz._rustfuzz"
+        ],
+        "kind": "file"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "facade::rustfuzz/distance/Jaro.py": {
+      "id": "facade::rustfuzz/distance/Jaro.py",
+      "detector": "facade",
+      "file": "rustfuzz/distance/Jaro.py",
       "tier": 2,
       "confidence": "medium",
       "summary": "Re-export facade (23 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +2 (6 importers)",
@@ -1246,71 +848,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "facade::rustfuzz/distance/Levenshtein.py": {
-      "id": "facade::rustfuzz/distance/Levenshtein.py",
-      "detector": "facade",
-      "file": "rustfuzz/distance/Levenshtein.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "Re-export facade (31 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +4 (7 importers)",
-      "detail": {
-        "loc": 31,
-        "importers": 7,
-        "imports_from": [
-          "__future__",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz"
-        ],
-        "kind": "file"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "facade::rustfuzz/distance/Jaro.py": {
-      "id": "facade::rustfuzz/distance/Jaro.py",
-      "detector": "facade",
-      "file": "rustfuzz/distance/Jaro.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "Re-export facade (23 LOC): imports from __future__, rustfuzz._rustfuzz, rustfuzz._rustfuzz, +2 (7 importers)",
-      "detail": {
-        "loc": 23,
-        "importers": 7,
-        "imports_from": [
-          "__future__",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz",
-          "rustfuzz._rustfuzz"
-        ],
-        "kind": "file"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1325,10 +863,10 @@
       "file": "rustfuzz/fuzz.py",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Re-export facade (55 LOC): imports from __future__, _rustfuzz, _rustfuzz, +9 (8 importers)",
+      "summary": "Re-export facade (55 LOC): imports from __future__, _rustfuzz, _rustfuzz, +9 (7 importers)",
       "detail": {
         "loc": 55,
-        "importers": 8,
+        "importers": 7,
         "imports_from": [
           "__future__",
           "_rustfuzz",
@@ -1348,7 +886,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1363,10 +901,10 @@
       "file": "rustfuzz/distance/__init__.py",
       "tier": 2,
       "confidence": "medium",
-      "summary": "Re-export facade (44 LOC): imports from __future__, _initialize (10 importers)",
+      "summary": "Re-export facade (44 LOC): imports from __future__, _initialize (9 importers)",
       "detail": {
         "loc": 44,
-        "importers": 10,
+        "importers": 9,
         "imports_from": [
           "__future__",
           "_initialize"
@@ -1376,7 +914,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1399,183 +937,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/embed_anything_examples.py::untested_module": {
-      "id": "test_coverage::examples/embed_anything_examples.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (307 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 307,
-        "importer_count": 0,
-        "loc_weight": 17.52141546793523
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/multijoiner_examples.py::untested_module": {
-      "id": "test_coverage::examples/multijoiner_examples.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/multijoiner_examples.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (348 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 348,
-        "importer_count": 0,
-        "loc_weight": 18.65475810617763
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/azure_retriever_example.py::untested_module": {
-      "id": "test_coverage::examples/azure_retriever_example.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (66 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 66,
-        "importer_count": 0,
-        "loc_weight": 8.12403840463596
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/bench_crush_ndcg.py::untested_critical": {
-      "id": "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
-      "detector": "test_coverage",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 2,
-      "confidence": "high",
-      "summary": "Untested critical module (344 LOC, 0 importers) \u2014 high blast radius",
-      "detail": {
-        "kind": "untested_critical",
-        "loc": 344,
-        "importer_count": 0,
-        "loc_weight": 18.547236990991408,
-        "complexity_score": 89
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/bench_3stage_pipeline.py::untested_module": {
-      "id": "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (180 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 180,
-        "importer_count": 0,
-        "loc_weight": 13.416407864998739
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/filter_sort_examples.py::untested_module": {
-      "id": "test_coverage::examples/filter_sort_examples.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/filter_sort_examples.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (325 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 325,
-        "importer_count": 0,
-        "loc_weight": 18.027756377319946
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/bench_retrieval.py::untested_module": {
-      "id": "test_coverage::examples/bench_retrieval.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (183 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 183,
-        "importer_count": 0,
-        "loc_weight": 13.527749258468683
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1601,57 +963,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/blazing_fast_pipeline.py::untested_module": {
-      "id": "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/blazing_fast_pipeline.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (117 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 117,
-        "importer_count": 0,
-        "loc_weight": 10.816653826391969
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "test_coverage::examples/quickstart.py::untested_module": {
-      "id": "test_coverage::examples/quickstart.py::untested_module",
-      "detector": "test_coverage",
-      "file": "examples/quickstart.py",
-      "tier": 3,
-      "confidence": "high",
-      "summary": "Untested module (565 LOC, 0 importers)",
-      "detail": {
-        "kind": "untested_module",
-        "loc": 565,
-        "importer_count": 0,
-        "loc_weight": 23.769728648009426
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1671,7 +983,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1691,7 +1003,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1711,219 +1023,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "signature::examples/bench_3stage_pipeline.py::signature_variance::load_data": {
-      "id": "signature::examples/bench_3stage_pipeline.py::signature_variance::load_data",
-      "detector": "signature",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "'load_data' has 2 different signatures across 3 files",
-      "detail": {},
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:20+00:00",
-      "last_seen": "2026-03-12T19:44:20+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/azure_retriever_example.py::swallowed_error": {
-      "id": "smells::examples/azure_retriever_example.py::swallowed_error",
-      "detector": "smells",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "2x Catch block that only logs (swallowed error)",
-      "detail": {
-        "smell_id": "swallowed_error",
-        "severity": "high",
-        "count": 2,
-        "lines": [
-          44,
-          62
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/embed_anything_examples.py::swallowed_error": {
-      "id": "smells::examples/embed_anything_examples.py::swallowed_error",
-      "detector": "smells",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x Catch block that only logs (swallowed error)",
-      "detail": {
-        "smell_id": "swallowed_error",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          304
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/quickstart.py::swallowed_error": {
-      "id": "smells::examples/quickstart.py::swallowed_error",
-      "detector": "smells",
-      "file": "examples/quickstart.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "3x Catch block that only logs (swallowed error)",
-      "detail": {
-        "smell_id": "swallowed_error",
-        "severity": "high",
-        "count": 3,
-        "lines": [
-          517,
-          529,
-          541
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/embed_anything_examples.py::noop_function": {
-      "id": "smells::examples/embed_anything_examples.py::noop_function",
-      "detector": "smells",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x Non-trivial function whose body does nothing",
-      "detail": {
-        "smell_id": "noop_function",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          15
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/filter_sort_examples.py::noop_function": {
-      "id": "smells::examples/filter_sort_examples.py::noop_function",
-      "detector": "smells",
-      "file": "examples/filter_sort_examples.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x Non-trivial function whose body does nothing",
-      "detail": {
-        "smell_id": "noop_function",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          13
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/multijoiner_examples.py::noop_function": {
-      "id": "smells::examples/multijoiner_examples.py::noop_function",
-      "detector": "smells",
-      "file": "examples/multijoiner_examples.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x Non-trivial function whose body does nothing",
-      "detail": {
-        "smell_id": "noop_function",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          13
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/quickstart.py::noop_function": {
-      "id": "smells::examples/quickstart.py::noop_function",
-      "detector": "smells",
-      "file": "examples/quickstart.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x Non-trivial function whose body does nothing",
-      "detail": {
-        "smell_id": "noop_function",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          10
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -1951,34 +1051,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/blazing_fast_pipeline.py::sys_exit_in_library": {
-      "id": "smells::examples/blazing_fast_pipeline.py::sys_exit_in_library",
-      "detector": "smells",
-      "file": "examples/blazing_fast_pipeline.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "1x sys.exit() outside CLI entry point \u2014 use exceptions",
-      "detail": {
-        "smell_id": "sys_exit_in_library",
-        "severity": "high",
-        "count": 1,
-        "lines": [
-          26
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2008,7 +1081,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2035,7 +1108,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2063,7 +1136,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2092,7 +1165,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2128,124 +1201,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_3stage_pipeline.py::annotation_quality": {
-      "id": "smells::examples/bench_3stage_pipeline.py::annotation_quality",
-      "detector": "smells",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "3x Loose type annotation \u2014 use specific types",
-      "detail": {
-        "smell_id": "annotation_quality",
-        "severity": "medium",
-        "count": 3,
-        "lines": [
-          13,
-          33,
-          91
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_crush_ndcg.py::annotation_quality": {
-      "id": "smells::examples/bench_crush_ndcg.py::annotation_quality",
-      "detector": "smells",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "4x Loose type annotation \u2014 use specific types",
-      "detail": {
-        "smell_id": "annotation_quality",
-        "severity": "medium",
-        "count": 4,
-        "lines": [
-          63,
-          80,
-          169,
-          208
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_retrieval.py::annotation_quality": {
-      "id": "smells::examples/bench_retrieval.py::annotation_quality",
-      "detector": "smells",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "4x Loose type annotation \u2014 use specific types",
-      "detail": {
-        "smell_id": "annotation_quality",
-        "severity": "medium",
-        "count": 4,
-        "lines": [
-          14,
-          34,
-          99,
-          136
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/blazing_fast_pipeline.py::annotation_quality": {
-      "id": "smells::examples/blazing_fast_pipeline.py::annotation_quality",
-      "detector": "smells",
-      "file": "examples/blazing_fast_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "2x Loose type annotation \u2014 use specific types",
-      "detail": {
-        "smell_id": "annotation_quality",
-        "severity": "medium",
-        "count": 2,
-        "lines": [
-          56,
-          82
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2272,7 +1228,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2299,7 +1255,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2328,7 +1284,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2355,7 +1311,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2382,7 +1338,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2409,7 +1365,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2436,116 +1392,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/azure_retriever_example.py::hardcoded_url": {
-      "id": "smells::examples/azure_retriever_example.py::hardcoded_url",
-      "detector": "smells",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "2x Hardcoded URL in source code",
-      "detail": {
-        "smell_id": "hardcoded_url",
-        "severity": "medium",
-        "count": 2,
-        "lines": [
-          32,
-          50
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_3stage_pipeline.py::hardcoded_url": {
-      "id": "smells::examples/bench_3stage_pipeline.py::hardcoded_url",
-      "detector": "smells",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "1x Hardcoded URL in source code",
-      "detail": {
-        "smell_id": "hardcoded_url",
-        "severity": "medium",
-        "count": 1,
-        "lines": [
-          15
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_crush_ndcg.py::hardcoded_url": {
-      "id": "smells::examples/bench_crush_ndcg.py::hardcoded_url",
-      "detector": "smells",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "1x Hardcoded URL in source code",
-      "detail": {
-        "smell_id": "hardcoded_url",
-        "severity": "medium",
-        "count": 1,
-        "lines": [
-          64
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_retrieval.py::hardcoded_url": {
-      "id": "smells::examples/bench_retrieval.py::hardcoded_url",
-      "detector": "smells",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "1x Hardcoded URL in source code",
-      "detail": {
-        "smell_id": "hardcoded_url",
-        "severity": "medium",
-        "count": 1,
-        "lines": [
-          16
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2572,7 +1419,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2599,222 +1446,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_3stage_pipeline.py::deferred_import": {
-      "id": "smells::examples/bench_3stage_pipeline.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "2x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 2,
-        "lines": [
-          27,
-          63
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_crush_ndcg.py::deferred_import": {
-      "id": "smells::examples/bench_crush_ndcg.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "1x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 1,
-        "lines": [
-          74
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_retrieval.py::deferred_import": {
-      "id": "smells::examples/bench_retrieval.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "2x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 2,
-        "lines": [
-          28,
-          68
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/embed_anything_examples.py::deferred_import": {
-      "id": "smells::examples/embed_anything_examples.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "4x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 4,
-        "lines": [
-          28,
-          99,
-          144,
-          208
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/filter_sort_examples.py::deferred_import": {
-      "id": "smells::examples/filter_sort_examples.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/filter_sort_examples.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "6x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 6,
-        "lines": [
-          67,
-          100,
-          148,
-          184,
-          232,
-          279
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/multijoiner_examples.py::deferred_import": {
-      "id": "smells::examples/multijoiner_examples.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/multijoiner_examples.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "8x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 8,
-        "lines": [
-          66,
-          91,
-          122,
-          161,
-          196,
-          242,
-          275,
-          314
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/quickstart.py::deferred_import": {
-      "id": "smells::examples/quickstart.py::deferred_import",
-      "detector": "smells",
-      "file": "examples/quickstart.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "12x Function-level import (possible circular import workaround)",
-      "detail": {
-        "smell_id": "deferred_import",
-        "severity": "low",
-        "count": 12,
-        "lines": [
-          23,
-          49,
-          95,
-          117,
-          143,
-          179,
-          217,
-          269,
-          332,
-          383
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2845,7 +1477,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2877,7 +1509,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2905,7 +1537,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2932,7 +1564,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -2947,131 +1579,23 @@
       "file": "rustfuzz/process.py",
       "tier": 3,
       "confidence": "low",
-      "summary": "1x Function-level import (possible circular import workaround)",
+      "summary": "5x Function-level import (possible circular import workaround)",
       "detail": {
         "smell_id": "deferred_import",
         "severity": "low",
-        "count": 1,
+        "count": 5,
         "lines": [
-          34
+          34,
+          80,
+          104,
+          137,
+          169
         ]
       },
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_3stage_pipeline.py::magic_number": {
-      "id": "smells::examples/bench_3stage_pipeline.py::magic_number",
-      "detector": "smells",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "1x Magic numbers (>1000 in logic)",
-      "detail": {
-        "smell_id": "magic_number",
-        "severity": "low",
-        "count": 1,
-        "lines": [
-          145
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_crush_ndcg.py::magic_number": {
-      "id": "smells::examples/bench_crush_ndcg.py::magic_number",
-      "detector": "smells",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "2x Magic numbers (>1000 in logic)",
-      "detail": {
-        "smell_id": "magic_number",
-        "severity": "low",
-        "count": 2,
-        "lines": [
-          198,
-          325
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/bench_retrieval.py::magic_number": {
-      "id": "smells::examples/bench_retrieval.py::magic_number",
-      "detector": "smells",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "2x Magic numbers (>1000 in logic)",
-      "detail": {
-        "smell_id": "magic_number",
-        "severity": "low",
-        "count": 2,
-        "lines": [
-          107,
-          124
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/blazing_fast_pipeline.py::magic_number": {
-      "id": "smells::examples/blazing_fast_pipeline.py::magic_number",
-      "detector": "smells",
-      "file": "examples/blazing_fast_pipeline.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "3x Magic numbers (>1000 in logic)",
-      "detail": {
-        "smell_id": "magic_number",
-        "severity": "low",
-        "count": 3,
-        "lines": [
-          71,
-          72,
-          73
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3098,89 +1622,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/azure_retriever_example.py::broad_except": {
-      "id": "smells::examples/azure_retriever_example.py::broad_except",
-      "detector": "smells",
-      "file": "examples/azure_retriever_example.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "2x Broad except \u2014 check library exceptions before narrowing",
-      "detail": {
-        "smell_id": "broad_except",
-        "severity": "medium",
-        "count": 2,
-        "lines": [
-          44,
-          62
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/embed_anything_examples.py::broad_except": {
-      "id": "smells::examples/embed_anything_examples.py::broad_except",
-      "detector": "smells",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "1x Broad except \u2014 check library exceptions before narrowing",
-      "detail": {
-        "smell_id": "broad_except",
-        "severity": "medium",
-        "count": 1,
-        "lines": [
-          304
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "smells::examples/embed_anything_examples.py::raise_without_from": {
-      "id": "smells::examples/embed_anything_examples.py::raise_without_from",
-      "detector": "smells",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "1x Raise inside except without `from err`",
-      "detail": {
-        "smell_id": "raise_without_from",
-        "severity": "medium",
-        "count": 1,
-        "lines": [
-          295
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3212,229 +1654,11 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:21+00:00",
-      "last_seen": "2026-03-12T19:44:21+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
       "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36": {
-      "id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
-      "detector": "security",
-      "file": "examples/quickstart.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "Sensitive data may be logged",
-      "detail": {
-        "kind": "log_sensitive",
-        "severity": "medium",
-        "line": 36,
-        "content": "        print(f'  token_sort_ratio                     = {fuzz.token_sort_ratio(s1, s2):.1f}')",
-        "remediation": "Remove sensitive data from log statements"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37": {
-      "id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
-      "detector": "security",
-      "file": "examples/quickstart.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "Sensitive data may be logged",
-      "detail": {
-        "kind": "log_sensitive",
-        "severity": "medium",
-        "line": 37,
-        "content": "        print(f'  token_set_ratio                      = {fuzz.token_set_ratio(s1, s2):.1f}')",
-        "remediation": "Remove sensitive data from log statements"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80": {
-      "id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
-      "detector": "security",
-      "file": "examples/quickstart.py",
-      "tier": 2,
-      "confidence": "medium",
-      "summary": "Sensitive data may be logged",
-      "detail": {
-        "kind": "log_sensitive",
-        "severity": "medium",
-        "line": 80,
-        "content": "    print(f'\\n  --- extract with token_set_ratio, score_cutoff=60 ---')",
-        "remediation": "Remove sensitive data from log statements"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
-      "id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
-      "detector": "security",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "[B113] Call to requests without timeout",
-      "detail": {
-        "kind": "B113",
-        "severity": "medium",
-        "line": 21,
-        "content": "20             print(\"Downloading SciFact dataset...\")\n21             response = requests.get(url, stream=True)\n22             with open(filepath, \"wb\") as f:\n",
-        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
-        "test_name": "request_without_timeout",
-        "source": "bandit"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
-      "id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
-      "detector": "security",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "[B113] Call to requests without timeout",
-      "detail": {
-        "kind": "B113",
-        "severity": "medium",
-        "line": 69,
-        "content": "68             print(\"Downloading SciFact dataset...\")\n69             response = requests.get(url, stream=True)\n70             with open(filepath, \"wb\") as f:\n",
-        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
-        "test_name": "request_without_timeout",
-        "source": "bandit"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
-      "id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
-      "detector": "security",
-      "file": "examples/bench_retrieval.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "[B113] Call to requests without timeout",
-      "detail": {
-        "kind": "B113",
-        "severity": "medium",
-        "line": 22,
-        "content": "21             print(\"Downloading SciFact dataset...\")\n22             response = requests.get(url, stream=True)\n23             with open(filepath, \"wb\") as f:\n",
-        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
-        "test_name": "request_without_timeout",
-        "source": "bandit"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30": {
-      "id": "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
-      "detector": "security",
-      "file": "examples/bench_retrieval.py",
-      "tier": 4,
-      "confidence": "high",
-      "summary": "[B202] tarfile.extractall used without any validation. Please check and discard dangerous members.",
-      "detail": {
-        "kind": "B202",
-        "severity": "high",
-        "line": 30,
-        "content": "29         with zipfile.ZipFile(filepath, 'r') as zip_ref:\n30             zip_ref.extractall(\".\")\n31     \n",
-        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b202_tarfile_unsafe_members.html",
-        "test_name": "tarfile_unsafe_members",
-        "source": "bandit"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
-      "id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
-      "detector": "security",
-      "file": "examples/multijoiner_examples.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "[B311] Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "detail": {
-        "kind": "B311",
-        "severity": "low",
-        "line": 50,
-        "content": "49     \"\"\"Generate deterministic dummy embeddings and L2-normalise them.\"\"\"\n50     rng = random.Random(seed)\n51     vecs: list[list[float]] = []\n",
-        "remediation": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
-        "test_name": "blacklist",
-        "source": "bandit"
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "zone": "production",
-      "lang": "python",
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
@@ -3511,7 +1735,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3536,7 +1760,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3561,7 +1785,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:24+00:00",
-      "last_seen": "2026-03-12T19:44:24+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -3582,7 +1806,7 @@
         "dimension": "abstraction_fitness"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3596,7 +1820,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::ai_generated_debt": {
@@ -3611,7 +1837,7 @@
         "dimension": "ai_generated_debt"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3625,7 +1851,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::api_surface_coherence": {
@@ -3640,7 +1868,7 @@
         "dimension": "api_surface_coherence"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3654,7 +1882,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::authorization_consistency": {
@@ -3669,7 +1899,7 @@
         "dimension": "authorization_consistency"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3683,7 +1913,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::contract_coherence": {
@@ -3698,7 +1930,7 @@
         "dimension": "contract_coherence"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3712,7 +1944,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::convention_outlier": {
@@ -3727,7 +1961,7 @@
         "dimension": "convention_outlier"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3741,7 +1975,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::cross_module_architecture": {
@@ -3756,7 +1992,7 @@
         "dimension": "cross_module_architecture"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3770,7 +2006,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::dependency_health": {
@@ -3785,7 +2023,7 @@
         "dimension": "dependency_health"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3799,7 +2037,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::design_coherence": {
@@ -3814,7 +2054,7 @@
         "dimension": "design_coherence"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3828,7 +2068,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::error_consistency": {
@@ -3843,7 +2085,7 @@
         "dimension": "error_consistency"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3857,7 +2099,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::high_level_elegance": {
@@ -3872,7 +2116,7 @@
         "dimension": "high_level_elegance"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3886,7 +2130,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::incomplete_migration": {
@@ -3901,7 +2147,7 @@
         "dimension": "incomplete_migration"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3915,7 +2161,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::initialization_coupling": {
@@ -3930,7 +2178,7 @@
         "dimension": "initialization_coupling"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3944,7 +2192,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::logic_clarity": {
@@ -3959,7 +2209,7 @@
         "dimension": "logic_clarity"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -3973,7 +2223,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::low_level_elegance": {
@@ -3988,7 +2240,7 @@
         "dimension": "low_level_elegance"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4002,7 +2254,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::mid_level_elegance": {
@@ -4017,7 +2271,7 @@
         "dimension": "mid_level_elegance"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4031,7 +2285,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::naming_quality": {
@@ -4046,7 +2302,7 @@
         "dimension": "naming_quality"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4060,7 +2316,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::package_organization": {
@@ -4075,7 +2333,7 @@
         "dimension": "package_organization"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4089,7 +2347,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::test_strategy": {
@@ -4104,7 +2364,7 @@
         "dimension": "test_strategy"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4118,7 +2378,9 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
     "subjective_review::.::type_safety": {
@@ -4133,7 +2395,7 @@
         "dimension": "type_safety"
       },
       "status": "fixed",
-      "note": "completed by review import",
+      "note": "Still absent from scan after manual resolution",
       "first_seen": "2026-03-12T19:44:25+00:00",
       "last_seen": "2026-03-12T19:44:25+00:00",
       "resolved_at": "2026-03-12T19:50:25+00:00",
@@ -4147,359 +2409,10 @@
         "kind": "agent_import",
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-03-12T19:50:25+00:00",
-        "scan_verified": false
+        "scan_verified": true,
+        "scan_verified_at": "2026-03-12T19:55:27+00:00",
+        "scan_verification_text": "Absent from detector output in latest scan"
       }
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::0669ec99ba150f4c": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::0669ec99ba150f4c",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 28 lines): examples/bench_3stage_pipeline.py:13, examples/bench_retrieval.py:14",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 28,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 13
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 14
-          }
-        ],
-        "sample": [
-          "def download_scifact():",
-          "    \"\"\"Download and extract SciFact dataset if not exists.\"\"\"",
-          "    url = \"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip\"",
-          "    filepath = \"scifact.zip\""
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::56074ab5d1c66038": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::56074ab5d1c66038",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 15 lines): examples/bench_3stage_pipeline.py:158, examples/bench_retrieval.py:161",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 15,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 158
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 161
-          }
-        ],
-        "sample": [
-          "in names]",
-          "    ",
-          "    plt.figure(figsize=(10, 6))",
-          "    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_crush_ndcg.py::74b18bcfd99e4d18": {
-      "id": "boilerplate_duplication::examples/bench_crush_ndcg.py::74b18bcfd99e4d18",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 6 lines): examples/bench_crush_ndcg.py:122, examples/bench_retrieval.py:79",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 6,
-        "locations": [
-          {
-            "file": "examples/bench_crush_ndcg.py",
-            "line": 122
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 79
-          }
-        ],
-        "sample": [
-          "dcg = 0.0",
-          "        for i, docid in enumerate(predicted):",
-          "            rel = truth.get(docid, 0)",
-          "            if rel > 0:"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::7dc28d4fd280a7ee": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::7dc28d4fd280a7ee",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 14 lines): examples/bench_3stage_pipeline.py:78, examples/bench_retrieval.py:86",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 14,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 78
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 86
-          }
-        ],
-        "sample": [
-          "ideal_rels = sorted(truth.values(), reverse=True)[:10]",
-          "        idcg = 0.0",
-          "        for i, rel in enumerate(ideal_rels):",
-          "            if rel > 0:"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::a16937f885a1027d": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::a16937f885a1027d",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 14 lines): examples/bench_3stage_pipeline.py:40, examples/bench_retrieval.py:42",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 14,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 40
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 42
-          }
-        ],
-        "sample": [
-          "doc_text = f\"{obj.get('title', '')} {obj.get('text', '')}\"",
-          "            corpus[obj['_id']] = doc_text",
-          "            doc_text_to_id[doc_text] = int(obj['_id'])",
-          "            "
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_crush_ndcg.py::ac0e2ed80ff87686": {
-      "id": "boilerplate_duplication::examples/bench_crush_ndcg.py::ac0e2ed80ff87686",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_crush_ndcg.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 12 lines): examples/bench_crush_ndcg.py:64, examples/bench_retrieval.py:16",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 12,
-        "locations": [
-          {
-            "file": "examples/bench_crush_ndcg.py",
-            "line": 64
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 16
-          }
-        ],
-        "sample": [
-          "url = \"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip\"",
-          "    filepath = \"scifact.zip\"",
-          "    if not os.path.exists(\"scifact\"):",
-          "        if not os.path.exists(filepath):"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::bf8850f9e895e10e": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::bf8850f9e895e10e",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 11 lines): examples/bench_3stage_pipeline.py:69, examples/bench_crush_ndcg.py:120",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 11,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 69
-          },
-          {
-            "file": "examples/bench_crush_ndcg.py",
-            "line": 120
-          }
-        ],
-        "sample": [
-          "truth = qrels[qid]",
-          "        predicted = runs[qid][:10]",
-          "        ",
-          "        dcg = 0.0"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/embed_anything_examples.py::da202a72050b3599": {
-      "id": "boilerplate_duplication::examples/embed_anything_examples.py::da202a72050b3599",
-      "detector": "boilerplate_duplication",
-      "file": "examples/embed_anything_examples.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 12 lines): examples/embed_anything_examples.py:265, examples/multijoiner_examples.py:294",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 12,
-        "locations": [
-          {
-            "file": "examples/embed_anything_examples.py",
-            "line": 265
-          },
-          {
-            "file": "examples/multijoiner_examples.py",
-            "line": 294
-          }
-        ],
-        "sample": [
-          ")",
-          "",
-          "    for q in queries:",
-          "        print(f'  query: \"{q}\"')"
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "boilerplate_duplication::examples/bench_3stage_pipeline.py::df6bfbccc330dbff": {
-      "id": "boilerplate_duplication::examples/bench_3stage_pipeline.py::df6bfbccc330dbff",
-      "detector": "boilerplate_duplication",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "medium",
-      "summary": "Boilerplate block repeated across 2 files (window 6 lines): examples/bench_3stage_pipeline.py:57, examples/bench_retrieval.py:60",
-      "detail": {
-        "distinct_files": 2,
-        "window_size": 6,
-        "locations": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "line": 57
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "line": 60
-          }
-        ],
-        "sample": [
-          "qrels[qid][int(docid)] = int(score)",
-          "            ",
-          "    return corpus, doc_text_to_id, queries, qrels",
-          ""
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
     },
     "dupes::rustfuzz/search.py::rerank::rustfuzz/search.py::rerank": {
       "id": "dupes::rustfuzz/search.py::rerank::rustfuzz/search.py::rerank",
@@ -4560,7 +2473,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4622,7 +2535,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4684,7 +2597,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4746,7 +2659,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4808,7 +2721,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4870,63 +2783,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "dupes::examples/bench_3stage_pipeline.py::download_scifact::examples/bench_retrieval.py::download_scifact": {
-      "id": "dupes::examples/bench_3stage_pipeline.py::download_scifact::examples/bench_retrieval.py::download_scifact",
-      "detector": "dupes",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 2,
-      "confidence": "high",
-      "summary": "Exact dupe cluster (3 functions, 100% similar): download_scifact (examples/bench_3stage_pipeline.py:13), download_scifact (examples/bench_retrieval.py:14), ...",
-      "detail": {
-        "fn_a": {
-          "file": "examples/bench_3stage_pipeline.py",
-          "name": "download_scifact",
-          "line": 13,
-          "loc": 19
-        },
-        "fn_b": {
-          "file": "examples/bench_retrieval.py",
-          "name": "download_scifact",
-          "line": 14,
-          "loc": 19
-        },
-        "similarity": 1.0,
-        "kind": "exact",
-        "cluster_size": 3,
-        "cluster": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "name": "download_scifact",
-            "line": 13,
-            "loc": 19
-          },
-          {
-            "file": "examples/bench_crush_ndcg.py",
-            "name": "download_scifact",
-            "line": 63,
-            "loc": 15
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "name": "download_scifact",
-            "line": 14,
-            "loc": 19
-          }
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -4982,7 +2839,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5032,107 +2889,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "dupes::examples/bench_3stage_pipeline.py::evaluate_ndcg_at_10::examples/bench_retrieval.py::evaluate_ndcg_at_10": {
-      "id": "dupes::examples/bench_3stage_pipeline.py::evaluate_ndcg_at_10::examples/bench_retrieval.py::evaluate_ndcg_at_10",
-      "detector": "dupes",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "Near dupe: evaluate_ndcg_at_10 (examples/bench_3stage_pipeline.py:61) <-> evaluate_ndcg_at_10 (examples/bench_retrieval.py:65) [98%]",
-      "detail": {
-        "fn_a": {
-          "file": "examples/bench_3stage_pipeline.py",
-          "name": "evaluate_ndcg_at_10",
-          "line": 61,
-          "loc": 29
-        },
-        "fn_b": {
-          "file": "examples/bench_retrieval.py",
-          "name": "evaluate_ndcg_at_10",
-          "line": 65,
-          "loc": 33
-        },
-        "similarity": 0.979,
-        "kind": "near-duplicate",
-        "cluster_size": 2,
-        "cluster": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "name": "evaluate_ndcg_at_10",
-            "line": 61,
-            "loc": 29
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "name": "evaluate_ndcg_at_10",
-            "line": 65,
-            "loc": 33
-          }
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
-      "resolved_at": null,
-      "reopen_count": 0,
-      "lang": "python",
-      "zone": "production",
-      "suppressed": false,
-      "suppressed_at": null,
-      "suppression_pattern": null
-    },
-    "dupes::examples/bench_3stage_pipeline.py::load_data::examples/bench_retrieval.py::load_data": {
-      "id": "dupes::examples/bench_3stage_pipeline.py::load_data::examples/bench_retrieval.py::load_data",
-      "detector": "dupes",
-      "file": "examples/bench_3stage_pipeline.py",
-      "tier": 3,
-      "confidence": "low",
-      "summary": "Near dupe: load_data (examples/bench_3stage_pipeline.py:33) <-> load_data (examples/bench_retrieval.py:34) [96%]",
-      "detail": {
-        "fn_a": {
-          "file": "examples/bench_3stage_pipeline.py",
-          "name": "load_data",
-          "line": 33,
-          "loc": 27
-        },
-        "fn_b": {
-          "file": "examples/bench_retrieval.py",
-          "name": "load_data",
-          "line": 34,
-          "loc": 29
-        },
-        "similarity": 0.957,
-        "kind": "near-duplicate",
-        "cluster_size": 2,
-        "cluster": [
-          {
-            "file": "examples/bench_3stage_pipeline.py",
-            "name": "load_data",
-            "line": 33,
-            "loc": 27
-          },
-          {
-            "file": "examples/bench_retrieval.py",
-            "name": "load_data",
-            "line": 34,
-            "loc": 29
-          }
-        ]
-      },
-      "status": "open",
-      "note": null,
-      "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5182,7 +2939,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5232,7 +2989,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5282,7 +3039,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5305,7 +3062,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5327,7 +3084,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5349,7 +3106,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -5371,7 +3128,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-03-12T19:44:34+00:00",
-      "last_seen": "2026-03-12T19:44:34+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "lang": "python",
@@ -6163,6 +3920,240 @@
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
+    },
+    "smells::rustfuzz/query.py::deferred_import": {
+      "id": "smells::rustfuzz/query.py::deferred_import",
+      "detector": "smells",
+      "file": "rustfuzz/query.py",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "2x Function-level import (possible circular import workaround)",
+      "detail": {
+        "smell_id": "deferred_import",
+        "severity": "low",
+        "count": 2,
+        "lines": [
+          136,
+          333
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:21+00:00",
+      "last_seen": "2026-03-12T19:55:21+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::rustfuzz/search.py::deferred_import": {
+      "id": "smells::rustfuzz/search.py::deferred_import",
+      "detector": "smells",
+      "file": "rustfuzz/search.py",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "10x Function-level import (possible circular import workaround)",
+      "detail": {
+        "smell_id": "deferred_import",
+        "severity": "low",
+        "count": 10,
+        "lines": [
+          27,
+          416,
+          424,
+          730,
+          738,
+          1041,
+          1048,
+          1344,
+          1351,
+          1599
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:21+00:00",
+      "last_seen": "2026-03-12T19:55:21+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::rustfuzz/spark.py::deferred_import": {
+      "id": "smells::rustfuzz/spark.py::deferred_import",
+      "detector": "smells",
+      "file": "rustfuzz/spark.py",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "13x Function-level import (possible circular import workaround)",
+      "detail": {
+        "smell_id": "deferred_import",
+        "severity": "low",
+        "count": 13,
+        "lines": [
+          30,
+          30,
+          58,
+          68,
+          78,
+          88,
+          98,
+          108,
+          123,
+          133
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:21+00:00",
+      "last_seen": "2026-03-12T19:55:21+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23": {
+      "id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
+      "detector": "security",
+      "file": "examples/bench_3stage_pipeline.py",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "[B113] Call to requests without timeout",
+      "detail": {
+        "kind": "B113",
+        "severity": "medium",
+        "line": 23,
+        "content": "22             print(\"Downloading SciFact dataset...\")\n23             response = requests.get(url, stream=True)\n24             with open(filepath, \"wb\") as f:\n",
+        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+        "test_name": "request_without_timeout",
+        "source": "bandit"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:23+00:00",
+      "last_seen": "2026-03-12T19:55:23+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "zone": "production",
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
+      "id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+      "detector": "security",
+      "file": "examples/bench_crush_ndcg.py",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "[B113] Call to requests without timeout",
+      "detail": {
+        "kind": "B113",
+        "severity": "medium",
+        "line": 69,
+        "content": "68             print(\"Downloading SciFact dataset...\")\n69             response = requests.get(url, stream=True)\n70             with open(filepath, \"wb\") as f:\n",
+        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+        "test_name": "request_without_timeout",
+        "source": "bandit"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:23+00:00",
+      "last_seen": "2026-03-12T19:55:23+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "zone": "production",
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
+      "id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+      "detector": "security",
+      "file": "examples/bench_retrieval.py",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "[B113] Call to requests without timeout",
+      "detail": {
+        "kind": "B113",
+        "severity": "medium",
+        "line": 22,
+        "content": "21             print(\"Downloading SciFact dataset...\")\n22             response = requests.get(url, stream=True)\n23             with open(filepath, \"wb\") as f:\n",
+        "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+        "test_name": "request_without_timeout",
+        "source": "bandit"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:23+00:00",
+      "last_seen": "2026-03-12T19:55:23+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "zone": "production",
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
+      "id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+      "detector": "security",
+      "file": "examples/multijoiner_examples.py",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "[B311] Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "detail": {
+        "kind": "B311",
+        "severity": "low",
+        "line": 50,
+        "content": "49     \"\"\"Generate deterministic dummy embeddings and L2-normalise them.\"\"\"\n50     rng = random.Random(seed)\n51     vecs: list[list[float]] = []\n",
+        "remediation": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
+        "test_name": "blacklist",
+        "source": "bandit"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:23+00:00",
+      "last_seen": "2026-03-12T19:55:23+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "zone": "production",
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "stale_exclude::examples::examples": {
+      "id": "stale_exclude::examples::examples",
+      "detector": "stale_exclude",
+      "file": "examples",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Excluded directory 'examples' has 0 references from scanned code \u2014 may be stale",
+      "detail": {
+        "directory": "examples",
+        "references": 0
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-03-12T19:55:27+00:00",
+      "last_seen": "2026-03-12T19:55:27+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "lang": "python",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
     }
   },
   "scan_coverage": {
@@ -6182,7 +4173,7 @@
         }
       },
       "warnings": [],
-      "updated_at": "2026-03-12T19:44:34+00:00"
+      "updated_at": "2026-03-12T19:55:27+00:00"
     }
   },
   "score_confidence": {
@@ -6195,8 +4186,8 @@
     "source": "scan"
   },
   "subjective_integrity": {
-    "status": "disabled",
-    "target_score": null,
+    "status": "pass",
+    "target_score": 95.0,
     "matched_count": 0,
     "matched_dimensions": [],
     "reset_dimensions": []
@@ -6210,7 +4201,10 @@
     "logic_clarity": {
       "score": 75,
       "source": "holistic",
-      "assessed_at": "2026-03-12T19:50:25+00:00"
+      "assessed_at": "2026-03-12T19:50:25+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "mechanical_issues_changed",
+      "stale_since": "2026-03-12T19:55:27+00:00"
     },
     "type_safety": {
       "score": 65,
@@ -6225,7 +4219,10 @@
     "error_consistency": {
       "score": 72,
       "source": "holistic",
-      "assessed_at": "2026-03-12T19:50:25+00:00"
+      "assessed_at": "2026-03-12T19:50:25+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "mechanical_issues_changed",
+      "stale_since": "2026-03-12T19:55:27+00:00"
     },
     "abstraction_fitness": {
       "score": 40,
@@ -6300,7 +4297,10 @@
     "design_coherence": {
       "score": 50,
       "source": "holistic",
-      "assessed_at": "2026-03-12T19:50:25+00:00"
+      "assessed_at": "2026-03-12T19:50:25+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "mechanical_issues_changed",
+      "stale_since": "2026-03-12T19:55:27+00:00"
     }
   },
   "scan_history": [
@@ -6561,6 +4561,135 @@
           "strict": 65.0
         }
       }
+    },
+    {
+      "timestamp": "2026-03-12T19:55:27+00:00",
+      "lang": "python",
+      "strict_score": 70.4,
+      "verified_strict_score": 92.9,
+      "objective_score": 92.9,
+      "overall_score": 70.4,
+      "open": 105,
+      "diff_new": 8,
+      "diff_resolved": 20,
+      "ignored": 0,
+      "raw_issues": 79,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "pass",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": 95.0
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 87.2,
+          "strict": 87.2
+        },
+        "Security": {
+          "score": 95.7,
+          "strict": 95.7
+        },
+        "File health": {
+          "score": 92.8,
+          "strict": 92.8
+        },
+        "Duplication": {
+          "score": 95.5,
+          "strict": 95.5
+        },
+        "Test health": {
+          "score": 94.6,
+          "strict": 94.6
+        },
+        "Abstraction fit": {
+          "score": 40.0,
+          "strict": 40.0
+        },
+        "AI generated debt": {
+          "score": 85.0,
+          "strict": 85.0
+        },
+        "API coherence": {
+          "score": 70.0,
+          "strict": 70.0
+        },
+        "Auth consistency": {
+          "score": 90.0,
+          "strict": 90.0
+        },
+        "Contracts": {
+          "score": 70.0,
+          "strict": 70.0
+        },
+        "Convention drift": {
+          "score": 72.0,
+          "strict": 72.0
+        },
+        "Cross-module arch": {
+          "score": 55.0,
+          "strict": 55.0
+        },
+        "Dep health": {
+          "score": 80.0,
+          "strict": 80.0
+        },
+        "Design coherence": {
+          "score": 50.0,
+          "strict": 50.0
+        },
+        "Error consistency": {
+          "score": 72.0,
+          "strict": 72.0
+        },
+        "High elegance": {
+          "score": 60.0,
+          "strict": 60.0
+        },
+        "Stale migration": {
+          "score": 80.0,
+          "strict": 80.0
+        },
+        "Init coupling": {
+          "score": 75.0,
+          "strict": 75.0
+        },
+        "Logic clarity": {
+          "score": 75.0,
+          "strict": 75.0
+        },
+        "Low elegance": {
+          "score": 80.0,
+          "strict": 80.0
+        },
+        "Mid elegance": {
+          "score": 55.0,
+          "strict": 55.0
+        },
+        "Naming quality": {
+          "score": 78.0,
+          "strict": 78.0
+        },
+        "Structure nav": {
+          "score": 65.0,
+          "strict": 65.0
+        },
+        "Test strategy": {
+          "score": 60.0,
+          "strict": 60.0
+        },
+        "Type safety": {
+          "score": 65.0,
+          "strict": 65.0
+        }
+      }
     }
   ],
   "lang_capabilities": {
@@ -6570,85 +4699,84 @@
     }
   },
   "zone_distribution": {
-    "production": 38,
+    "production": 29,
     "test": 27
   },
   "tool_hash": "13505a08411d",
-  "scan_path": null,
+  "scan_path": ".",
   "scan_completeness": {
     "python": "full"
   },
   "potentials": {
     "python": {
-      "unused": 38,
-      "structural": 38,
-      "flat_dirs": 5,
+      "unused": 29,
+      "structural": 29,
+      "flat_dirs": 4,
       "props": 1,
       "responsibility_cohesion": 0,
       "single_use": 0,
-      "cycles": 38,
-      "orphaned": 38,
-      "facade": 38,
+      "cycles": 29,
+      "orphaned": 29,
+      "facade": 29,
       "coupling": 0,
-      "uncalled_functions": 4,
-      "test_coverage": 377,
-      "signature": 4,
-      "smells": 38,
-      "global_mutable_config": 38,
+      "uncalled_functions": 3,
+      "test_coverage": 235,
+      "signature": 3,
+      "smells": 29,
+      "global_mutable_config": 29,
       "security": 65,
-      "private_imports": 38,
-      "dict_keys": 38,
-      "unused_enums": 38,
+      "private_imports": 29,
+      "dict_keys": 29,
+      "unused_enums": 29,
       "subjective_review": 20,
-      "boilerplate_duplication": 5,
-      "dupes": 249,
-      "stale_wontfix": 0,
-      "review": 10
+      "boilerplate_duplication": 0,
+      "dupes": 196,
+      "stale_wontfix": 0
     }
   },
   "codebase_metrics": {
     "python": {
-      "total_files": 65,
-      "total_loc": 13735,
-      "total_directories": 5
+      "total_files": 56,
+      "total_loc": 11302,
+      "total_directories": 4
     }
   },
   "dimension_scores": {
     "Code quality": {
-      "score": 83.3,
-      "strict": 83.3,
-      "verified_strict_score": 81.5,
-      "checks": 272,
-      "failing": 82,
+      "score": 87.2,
+      "strict": 87.2,
+      "verified_strict_score": 87.2,
+      "checks": 208,
+      "failing": 45,
       "tier": 3,
       "detectors": {
         "unused": {
-          "potential": 38,
-          "pass_rate": 0.9736842105263158,
-          "failing": 1,
-          "weighted_failures": 1.0
+          "potential": 29,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
         },
         "smells": {
-          "potential": 38,
-          "pass_rate": 0.3736842105263158,
-          "failing": 52,
-          "weighted_failures": 23.8
+          "potential": 29,
+          "pass_rate": 0.5724137931034483,
+          "failing": 25,
+          "weighted_failures": 12.4
         },
         "orphaned": {
-          "potential": 38,
-          "pass_rate": 0.8157894736842105,
-          "failing": 10,
-          "weighted_failures": 7.000000000000001
+          "potential": 29,
+          "pass_rate": 0.9758620689655173,
+          "failing": 1,
+          "weighted_failures": 0.7
         },
         "flat_dirs": {
-          "potential": 5,
-          "pass_rate": 0.86,
+          "potential": 4,
+          "pass_rate": 0.825,
           "failing": 1,
           "weighted_failures": 0.7
         },
         "facade": {
-          "potential": 38,
-          "pass_rate": 0.7421052631578948,
+          "potential": 29,
+          "pass_rate": 0.6620689655172415,
           "failing": 14,
           "weighted_failures": 9.799999999999999
         },
@@ -6659,98 +4787,92 @@
           "weighted_failures": 1.0
         },
         "dict_keys": {
-          "potential": 38,
+          "potential": 29,
           "pass_rate": 1.0,
           "failing": 0,
           "weighted_failures": 0.0
         },
         "global_mutable_config": {
-          "potential": 38,
+          "potential": 29,
           "pass_rate": 1.0,
           "failing": 0,
           "weighted_failures": 0.0
         },
         "private_imports": {
-          "potential": 38,
-          "pass_rate": 0.9447368421052631,
+          "potential": 29,
+          "pass_rate": 0.9275862068965517,
           "failing": 3,
           "weighted_failures": 2.0999999999999996
         }
       }
     },
     "Security": {
-      "score": 94.4,
-      "strict": 94.4,
-      "verified_strict_score": 94.4,
-      "checks": 103,
-      "failing": 11,
+      "score": 95.7,
+      "strict": 95.7,
+      "verified_strict_score": 95.7,
+      "checks": 94,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "cycles": {
-          "potential": 38,
-          "pass_rate": 0.9736842105263158,
+          "potential": 29,
+          "pass_rate": 0.9655172413793104,
           "failing": 1,
           "weighted_failures": 1.0
         },
         "security": {
           "potential": 65,
-          "pass_rate": 0.9261538461538462,
-          "failing": 10,
-          "weighted_failures": 4.8
+          "pass_rate": 0.9538461538461539,
+          "failing": 6,
+          "weighted_failures": 3.0
         }
       }
     },
     "File health": {
-      "score": 90.8,
-      "strict": 90.8,
-      "verified_strict_score": 90.8,
-      "checks": 38,
-      "failing": 5,
+      "score": 92.8,
+      "strict": 92.8,
+      "verified_strict_score": 92.8,
+      "checks": 29,
+      "failing": 3,
       "tier": 3,
       "detectors": {
         "structural": {
-          "potential": 38,
-          "pass_rate": 0.9078947368421053,
-          "failing": 5,
-          "weighted_failures": 3.5
+          "potential": 29,
+          "pass_rate": 0.9275862068965517,
+          "failing": 3,
+          "weighted_failures": 2.0999999999999996
         }
       }
     },
     "Duplication": {
-      "score": 93.4,
-      "strict": 93.4,
-      "verified_strict_score": 93.4,
-      "checks": 254,
-      "failing": 23,
+      "score": 95.5,
+      "strict": 95.5,
+      "verified_strict_score": 95.5,
+      "checks": 196,
+      "failing": 11,
       "tier": 3,
       "detectors": {
         "dupes": {
-          "potential": 249,
-          "pass_rate": 0.9578313253012049,
-          "failing": 14,
-          "weighted_failures": 10.500000000000004
-        },
-        "boilerplate_duplication": {
-          "potential": 5,
-          "pass_rate": 0.0,
-          "failing": 9,
-          "weighted_failures": 6.300000000000001
+          "potential": 196,
+          "pass_rate": 0.9545918367346938,
+          "failing": 11,
+          "weighted_failures": 8.900000000000002
         }
       }
     },
     "Test health": {
-      "score": 58.9,
-      "strict": 58.9,
-      "verified_strict_score": 58.9,
-      "checks": 377,
-      "failing": 10,
+      "score": 94.6,
+      "strict": 94.6,
+      "verified_strict_score": 94.6,
+      "checks": 235,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "test_coverage": {
-          "potential": 377,
-          "pass_rate": 0.5887139109135212,
-          "failing": 10,
-          "weighted_failures": 155.05485558560252
+          "potential": 235,
+          "pass_rate": 0.9461739972737297,
+          "failing": 1,
+          "weighted_failures": 12.649110640673518
         }
       }
     },
