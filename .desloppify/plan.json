@@ -1,0 +1,1134 @@
+{
+  "version": 8,
+  "created": "2026-03-12T19:44:34+00:00",
+  "updated": "2026-03-12T19:53:33+00:00",
+  "queue_order": [
+    "workflow::communicate-score",
+    "workflow::create-plan",
+    "triage::observe",
+    "triage::reflect",
+    "triage::organize",
+    "triage::enrich",
+    "triage::sense-check",
+    "triage::commit",
+    "review::.::holistic::abstraction_fitness::bm25_class_duplication",
+    "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
+    "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+    "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+    "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
+    "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
+    "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
+    "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+    "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+    "review::.::holistic::cross_module_architecture::private_attribute_access",
+    "review::.::holistic::dependency_health::swallowed_import_exception_chains",
+    "review::.::holistic::design_coherence::search_module_too_large",
+    "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
+    "review::.::holistic::high_level_elegance::monolithic_search_module",
+    "review::.::holistic::incomplete_migration::result_types_not_consolidated",
+    "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
+    "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
+    "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
+    "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+    "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+    "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+    "review::.::holistic::naming_quality::inconsistent_function_casing",
+    "review::.::holistic::package_organization::search_py_should_be_package",
+    "review::.::holistic::test_strategy::no_base_class_tests",
+    "review::.::holistic::type_safety::overuse_of_any_types"
+  ],
+  "deferred": [],
+  "skipped": {},
+  "active_cluster": null,
+  "overrides": {
+    "unused::examples/azure_retriever_example.py::retriever_aoai:38": {
+      "issue_id": "unused::examples/azure_retriever_example.py::retriever_aoai:38",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:17+00:00"
+    },
+    "unused::examples/azure_retriever_example.py::retriever_acohere:56": {
+      "issue_id": "unused::examples/azure_retriever_example.py::retriever_acohere:56",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:31+00:00"
+    },
+    "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9": {
+      "issue_id": "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:31+00:00"
+    },
+    "unused::examples/bench_retrieval.py::tarfile:3": {
+      "issue_id": "unused::examples/bench_retrieval.py::tarfile:3",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:32+00:00"
+    },
+    "unused::examples/bench_retrieval.py::numpy:7": {
+      "issue_id": "unused::examples/bench_retrieval.py::numpy:7",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:32+00:00"
+    },
+    "unused::examples/bench_retrieval.py::typing.Tuple:8": {
+      "issue_id": "unused::examples/bench_retrieval.py::typing.Tuple:8",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:53:33+00:00"
+    },
+    "test_coverage::examples/embed_anything_examples.py::untested_module": {
+      "issue_id": "test_coverage::examples/embed_anything_examples.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/multijoiner_examples.py::untested_module": {
+      "issue_id": "test_coverage::examples/multijoiner_examples.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/azure_retriever_example.py::untested_module": {
+      "issue_id": "test_coverage::examples/azure_retriever_example.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/bench_crush_ndcg.py::untested_critical": {
+      "issue_id": "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/bench_3stage_pipeline.py::untested_module": {
+      "issue_id": "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/filter_sort_examples.py::untested_module": {
+      "issue_id": "test_coverage::examples/filter_sort_examples.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/bench_retrieval.py::untested_module": {
+      "issue_id": "test_coverage::examples/bench_retrieval.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::rustfuzz/langchain.py::untested_critical": {
+      "issue_id": "test_coverage::rustfuzz/langchain.py::untested_critical",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/blazing_fast_pipeline.py::untested_module": {
+      "issue_id": "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "test_coverage::examples/quickstart.py::untested_module": {
+      "issue_id": "test_coverage::examples/quickstart.py::untested_module",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36": {
+      "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37": {
+      "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80": {
+      "issue_id": "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21": {
+      "issue_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
+      "issue_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
+      "issue_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30": {
+      "issue_id": "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
+      "issue_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611": {
+      "issue_id": "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::663": {
+      "issue_id": "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::663",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "stale_exclude::.cache::.cache": {
+      "issue_id": "stale_exclude::.cache::.cache",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/stale_exclude",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "stale_exclude::.benchmarks::.benchmarks": {
+      "issue_id": "stale_exclude::.benchmarks::.benchmarks",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/stale_exclude",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "stale_exclude::.hypothesis::.hypothesis": {
+      "issue_id": "stale_exclude::.hypothesis::.hypothesis",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/stale_exclude",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "stale_exclude::.cargo::.cargo": {
+      "issue_id": "stale_exclude::.cargo::.cargo",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": "auto/stale_exclude",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::abstraction_fitness": {
+      "issue_id": "subjective::abstraction_fitness",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::ai_generated_debt": {
+      "issue_id": "subjective::ai_generated_debt",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::api_surface_coherence": {
+      "issue_id": "subjective::api_surface_coherence",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::authorization_consistency": {
+      "issue_id": "subjective::authorization_consistency",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::contract_coherence": {
+      "issue_id": "subjective::contract_coherence",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::convention_outlier": {
+      "issue_id": "subjective::convention_outlier",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::cross_module_architecture": {
+      "issue_id": "subjective::cross_module_architecture",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::dependency_health": {
+      "issue_id": "subjective::dependency_health",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::design_coherence": {
+      "issue_id": "subjective::design_coherence",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::error_consistency": {
+      "issue_id": "subjective::error_consistency",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::high_level_elegance": {
+      "issue_id": "subjective::high_level_elegance",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::incomplete_migration": {
+      "issue_id": "subjective::incomplete_migration",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::initialization_coupling": {
+      "issue_id": "subjective::initialization_coupling",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::logic_clarity": {
+      "issue_id": "subjective::logic_clarity",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::low_level_elegance": {
+      "issue_id": "subjective::low_level_elegance",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::mid_level_elegance": {
+      "issue_id": "subjective::mid_level_elegance",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::naming_quality": {
+      "issue_id": "subjective::naming_quality",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::package_organization": {
+      "issue_id": "subjective::package_organization",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::test_strategy": {
+      "issue_id": "subjective::test_strategy",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "subjective::type_safety": {
+      "issue_id": "subjective::type_safety",
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "cluster": null,
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l": {
+      "issue_id": "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-mid_level_elegance",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus": {
+      "issue_id": "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-mid_level_elegance",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::mid_level_elegance::reranked_blend_duplication": {
+      "issue_id": "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-mid_level_elegance",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::cross_module_architecture::duplicated_search_query_helper": {
+      "issue_id": "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-cross_module_architecture",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::cross_module_architecture::duplicated_type_aliases": {
+      "issue_id": "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-cross_module_architecture",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::cross_module_architecture::private_attribute_access": {
+      "issue_id": "review::.::holistic::cross_module_architecture::private_attribute_access",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-cross_module_architecture",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::api_surface_coherence::document_reexport_from_search": {
+      "issue_id": "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-api_surface_coherence",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    },
+    "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals": {
+      "issue_id": "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "cluster": "auto/review-api_surface_coherence",
+      "updated_at": "2026-03-12T19:50:25+00:00"
+    }
+  },
+  "clusters": {
+    "auto/unused": {
+      "name": "auto/unused",
+      "description": "Remove 6 unused issues",
+      "issue_ids": [],
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "updated_at": "2026-03-12T19:44:34+00:00",
+      "auto": true,
+      "cluster_key": "auto::unused",
+      "action": "desloppify autofix unused-imports --dry-run",
+      "user_modified": false
+    },
+    "auto/test_coverage": {
+      "name": "auto/test_coverage",
+      "description": "Fix 10 test coverage issues",
+      "issue_ids": [
+        "test_coverage::examples/embed_anything_examples.py::untested_module",
+        "test_coverage::examples/multijoiner_examples.py::untested_module",
+        "test_coverage::examples/azure_retriever_example.py::untested_module",
+        "test_coverage::examples/bench_crush_ndcg.py::untested_critical",
+        "test_coverage::examples/bench_3stage_pipeline.py::untested_module",
+        "test_coverage::examples/filter_sort_examples.py::untested_module",
+        "test_coverage::examples/bench_retrieval.py::untested_module",
+        "test_coverage::rustfuzz/langchain.py::untested_critical",
+        "test_coverage::examples/blazing_fast_pipeline.py::untested_module",
+        "test_coverage::examples/quickstart.py::untested_module"
+      ],
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "updated_at": "2026-03-12T19:44:34+00:00",
+      "auto": true,
+      "cluster_key": "detector::test_coverage",
+      "action": "add tests for untested production modules \u2014 prioritize by import count",
+      "user_modified": false
+    },
+    "auto/security": {
+      "name": "auto/security",
+      "description": "Fix 10 security issues",
+      "issue_ids": [
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::36",
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::37",
+        "security::examples/quickstart.py::security::log_sensitive::examples/quickstart.py::80",
+        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::21",
+        "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+        "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+        "security::examples/bench_retrieval.py::security::B202::examples/bench_retrieval.py::30",
+        "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+        "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::611",
+        "security::rustfuzz/engine.py::security::B101::rustfuzz/engine.py::663"
+      ],
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "updated_at": "2026-03-12T19:44:34+00:00",
+      "auto": true,
+      "cluster_key": "detector::security",
+      "action": "review and fix security issues \u2014 prioritize by severity",
+      "user_modified": false
+    },
+    "auto/stale_exclude": {
+      "name": "auto/stale_exclude",
+      "description": "Fix 4 stale exclude issues",
+      "issue_ids": [
+        "stale_exclude::.cache::.cache",
+        "stale_exclude::.benchmarks::.benchmarks",
+        "stale_exclude::.hypothesis::.hypothesis",
+        "stale_exclude::.cargo::.cargo"
+      ],
+      "created_at": "2026-03-12T19:44:34+00:00",
+      "updated_at": "2026-03-12T19:44:34+00:00",
+      "auto": true,
+      "cluster_key": "detector::stale_exclude",
+      "action": "remove stale exclusion or verify it's still needed",
+      "user_modified": false
+    },
+    "auto/review-mid_level_elegance": {
+      "name": "auto/review-mid_level_elegance",
+      "description": "Address 3 mid_level_elegance review issues",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+        "review::.::holistic::mid_level_elegance::reranked_blend_duplication"
+      ],
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "updated_at": "2026-03-12T19:50:25+00:00",
+      "auto": true,
+      "cluster_key": "review::mid_level_elegance",
+      "action": "address design quality issues from AI code review",
+      "user_modified": false
+    },
+    "auto/review-cross_module_architecture": {
+      "name": "auto/review-cross_module_architecture",
+      "description": "Address 3 cross_module_architecture review issues",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+        "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+        "review::.::holistic::cross_module_architecture::private_attribute_access"
+      ],
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "updated_at": "2026-03-12T19:50:25+00:00",
+      "auto": true,
+      "cluster_key": "review::cross_module_architecture",
+      "action": "address design quality issues from AI code review",
+      "user_modified": false
+    },
+    "auto/review-api_surface_coherence": {
+      "name": "auto/review-api_surface_coherence",
+      "description": "Address 2 api_surface_coherence review issues",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+        "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals"
+      ],
+      "created_at": "2026-03-12T19:50:25+00:00",
+      "updated_at": "2026-03-12T19:50:25+00:00",
+      "auto": true,
+      "cluster_key": "review::api_surface_coherence",
+      "action": "address design quality issues from AI code review",
+      "user_modified": false
+    }
+  },
+  "superseded": {},
+  "promoted_ids": [],
+  "plan_start_scores": {
+    "strict": 67.6,
+    "overall": 67.6,
+    "objective": 81.4,
+    "verified": 81.4
+  },
+  "refresh_state": {
+    "lifecycle_phase": "execute"
+  },
+  "execution_log": [
+    {
+      "timestamp": "2026-03-12T19:44:34+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:44:34+00:00",
+      "action": "auto_cluster",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:44:34+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:44:34+00:00",
+      "action": "complete_postflight_scan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "scan_count": 1
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:44:34+00:00",
+      "action": "sync_lifecycle_phase",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "phase": "review"
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:50:25+00:00",
+      "action": "sync_communicate_score",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:50:25+00:00",
+      "action": "sync_create_plan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:50:25+00:00",
+      "action": "review_import_sync",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "new_ids": [
+          "review::.::holistic::abstraction_fitness::bm25_class_duplication",
+          "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
+          "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+          "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+          "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
+          "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
+          "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
+          "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+          "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+          "review::.::holistic::cross_module_architecture::private_attribute_access",
+          "review::.::holistic::dependency_health::swallowed_import_exception_chains",
+          "review::.::holistic::design_coherence::search_module_too_large",
+          "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
+          "review::.::holistic::high_level_elegance::monolithic_search_module",
+          "review::.::holistic::incomplete_migration::result_types_not_consolidated",
+          "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
+          "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
+          "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
+          "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+          "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+          "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+          "review::.::holistic::naming_quality::inconsistent_function_casing",
+          "review::.::holistic::package_organization::search_py_should_be_package",
+          "review::.::holistic::test_strategy::no_base_class_tests",
+          "review::.::holistic::type_safety::overuse_of_any_types"
+        ],
+        "added_to_queue": [
+          "review::.::holistic::abstraction_fitness::bm25_class_duplication",
+          "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
+          "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+          "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+          "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
+          "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
+          "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
+          "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+          "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+          "review::.::holistic::cross_module_architecture::private_attribute_access",
+          "review::.::holistic::dependency_health::swallowed_import_exception_chains",
+          "review::.::holistic::design_coherence::search_module_too_large",
+          "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
+          "review::.::holistic::high_level_elegance::monolithic_search_module",
+          "review::.::holistic::incomplete_migration::result_types_not_consolidated",
+          "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
+          "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
+          "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
+          "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+          "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+          "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+          "review::.::holistic::naming_quality::inconsistent_function_casing",
+          "review::.::holistic::package_organization::search_py_should_be_package",
+          "review::.::holistic::test_strategy::no_base_class_tests",
+          "review::.::holistic::type_safety::overuse_of_any_types"
+        ],
+        "workflow_injected_ids": [
+          "workflow::communicate-score",
+          "workflow::create-plan"
+        ],
+        "triage_injected": false,
+        "triage_injected_ids": [],
+        "triage_deferred": true,
+        "diff_new": 25,
+        "diff_reopened": 0,
+        "diff_auto_resolved": 20,
+        "stale_pruned_from_queue": [],
+        "covered_subjective": [
+          "subjective::abstraction_fitness",
+          "subjective::ai_generated_debt",
+          "subjective::api_surface_coherence",
+          "subjective::authorization_consistency",
+          "subjective::contract_coherence",
+          "subjective::convention_outlier",
+          "subjective::cross_module_architecture",
+          "subjective::dependency_health",
+          "subjective::design_coherence",
+          "subjective::error_consistency",
+          "subjective::high_level_elegance",
+          "subjective::incomplete_migration",
+          "subjective::initialization_coupling",
+          "subjective::logic_clarity",
+          "subjective::low_level_elegance",
+          "subjective::mid_level_elegance",
+          "subjective::naming_quality",
+          "subjective::package_organization",
+          "subjective::test_strategy",
+          "subjective::type_safety"
+        ],
+        "stale_sync_injected": [],
+        "stale_sync_pruned": [
+          "subjective::abstraction_fitness",
+          "subjective::ai_generated_debt",
+          "subjective::api_surface_coherence",
+          "subjective::authorization_consistency",
+          "subjective::contract_coherence",
+          "subjective::convention_outlier",
+          "subjective::cross_module_architecture",
+          "subjective::dependency_health",
+          "subjective::design_coherence",
+          "subjective::error_consistency",
+          "subjective::high_level_elegance",
+          "subjective::incomplete_migration",
+          "subjective::initialization_coupling",
+          "subjective::logic_clarity",
+          "subjective::low_level_elegance",
+          "subjective::mid_level_elegance",
+          "subjective::naming_quality",
+          "subjective::package_organization",
+          "subjective::test_strategy",
+          "subjective::type_safety"
+        ],
+        "auto_cluster_changes": 4
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:52:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_acohere:56"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:19+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Reranker import since reranking is done through builder pattern",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:19+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::tarfile:3"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused tarfile import since dataset extraction uses zipfile instead",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:20+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::numpy:7"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused numpy import since the benchmark does not use numpy arrays",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:20+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Tuple import from typing since no function signatures use it",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:52:31+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38",
+        "unused::examples/azure_retriever_example.py::retriever_acohere:56",
+        "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
+        "unused::examples/bench_retrieval.py::tarfile:3",
+        "unused::examples/bench_retrieval.py::numpy:7",
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:52:44+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:03+00:00",
+      "action": "triage_auto_start",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "source": "runner_auto_start",
+        "runner": "claude",
+        "injected_stage_ids": [
+          "observe",
+          "reflect",
+          "organize",
+          "enrich",
+          "sense-check"
+        ]
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:17+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:17+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_aoai:38"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Used retriever_aoai variable in f-string to print doc count, eliminating unused variable warning and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:31+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_acohere:56"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:31+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/azure_retriever_example.py::retriever_acohere:56"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Used retriever_acohere variable in f-string to print doc count, eliminating unused variable warning and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:31+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Reranker import since reranking is done through the builder pattern",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:31+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Reranker import since reranking is done through the builder pattern",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Removed the unused Reranker import since reranking is done through the builder pattern and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:32+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::tarfile:3"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused tarfile import since dataset extraction uses zipfile instead of tar",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:32+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::tarfile:3"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused tarfile import since dataset extraction uses zipfile instead of tar",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Removed the unused tarfile import since dataset extraction uses zipfile instead of tar and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:32+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::numpy:7"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused numpy import since the benchmark code does not use numpy arrays",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:32+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::numpy:7"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused numpy import since the benchmark code does not use numpy arrays",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Removed the unused numpy import since the benchmark code does not use numpy arrays and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:33+00:00",
+      "action": "done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Tuple import from typing module since no function signatures use it",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T19:53:33+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Removed the unused Tuple import from typing module since no function signatures use it",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Removed the unused Tuple import from typing module since no function signatures use it and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-03-12T19:53:33+00:00",
+      "action": "cluster_done",
+      "issue_ids": [
+        "unused::examples/bench_retrieval.py::typing.Tuple:8"
+      ],
+      "cluster_name": "auto/unused",
+      "actor": "user",
+      "note": null,
+      "detail": {}
+    }
+  ],
+  "epic_triage_meta": {
+    "triage_defer_state": {
+      "deferred_review_ids": [
+        "review::.::holistic::abstraction_fitness::bm25_class_duplication",
+        "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
+        "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+        "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+        "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
+        "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
+        "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
+        "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+        "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+        "review::.::holistic::cross_module_architecture::private_attribute_access",
+        "review::.::holistic::dependency_health::swallowed_import_exception_chains",
+        "review::.::holistic::design_coherence::search_module_too_large",
+        "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
+        "review::.::holistic::high_level_elegance::monolithic_search_module",
+        "review::.::holistic::incomplete_migration::result_types_not_consolidated",
+        "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
+        "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
+        "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
+        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+        "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+        "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+        "review::.::holistic::naming_quality::inconsistent_function_casing",
+        "review::.::holistic::package_organization::search_py_should_be_package",
+        "review::.::holistic::test_strategy::no_base_class_tests",
+        "review::.::holistic::type_safety::overuse_of_any_types"
+      ],
+      "last_deferred_scan": 2,
+      "last_deferred_at": "2026-03-12T19:50:25+00:00",
+      "defer_count": 1,
+      "first_deferred_scan": 2,
+      "first_deferred_at": "2026-03-12T19:50:25+00:00"
+    },
+    "triage_recommended": true,
+    "triage_stages": {},
+    "active_triage_issue_ids": [
+      "review::.::holistic::abstraction_fitness::bm25_class_duplication",
+      "review::.::holistic::ai_generated_debt::bm25_variant_boilerplate",
+      "review::.::holistic::api_surface_coherence::document_reexport_from_search",
+      "review::.::holistic::api_surface_coherence::inconsistent_bm25_variant_literals",
+      "review::.::holistic::authorization_consistency::langchain_lazy_class_pattern",
+      "review::.::holistic::contract_coherence::inconsistent_from_column_return_types",
+      "review::.::holistic::convention_outlier::mixed_bm25_algorithm_casing",
+      "review::.::holistic::cross_module_architecture::duplicated_search_query_helper",
+      "review::.::holistic::cross_module_architecture::duplicated_type_aliases",
+      "review::.::holistic::cross_module_architecture::private_attribute_access",
+      "review::.::holistic::dependency_health::swallowed_import_exception_chains",
+      "review::.::holistic::design_coherence::search_module_too_large",
+      "review::.::holistic::error_consistency::explain_raises_valueerror_on_missing_doc",
+      "review::.::holistic::high_level_elegance::monolithic_search_module",
+      "review::.::holistic::incomplete_migration::result_types_not_consolidated",
+      "review::.::holistic::initialization_coupling::bm25_full_rebuild_on_mutation",
+      "review::.::holistic::logic_clarity::process_scorer_resolution_duplication",
+      "review::.::holistic::low_level_elegance::editops_multiword_allocates_per_char",
+      "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25l",
+      "review::.::holistic::mid_level_elegance::duplicate_assignment_bm25plus",
+      "review::.::holistic::mid_level_elegance::reranked_blend_duplication",
+      "review::.::holistic::naming_quality::inconsistent_function_casing",
+      "review::.::holistic::package_organization::search_py_should_be_package",
+      "review::.::holistic::test_strategy::no_base_class_tests",
+      "review::.::holistic::type_safety::overuse_of_any_types"
+    ]
+  },
+  "commit_log": [],
+  "uncommitted_issues": [
+    "unused::examples/azure_retriever_example.py::retriever_aoai:38",
+    "unused::examples/azure_retriever_example.py::retriever_acohere:56",
+    "unused::examples/bench_3stage_pipeline.py::rustfuzz.search.Reranker:9",
+    "unused::examples/bench_retrieval.py::tarfile:3",
+    "unused::examples/bench_retrieval.py::numpy:7",
+    "unused::examples/bench_retrieval.py::typing.Tuple:8"
+  ],
+  "commit_tracking_branch": null,
+  "scan_count_at_plan_start": 1,
+  "previous_plan_start_scores": {
+    "strict": 20.3,
+    "overall": 20.3,
+    "objective": 81.4,
+    "verified": 81.4
+  },
+  "subjective_defer_meta": {
+    "deferred_review_ids": [
+      "subjective::abstraction_fitness",
+      "subjective::ai_generated_debt",
+      "subjective::api_surface_coherence",
+      "subjective::authorization_consistency",
+      "subjective::contract_coherence",
+      "subjective::convention_outlier",
+      "subjective::cross_module_architecture",
+      "subjective::dependency_health",
+      "subjective::design_coherence",
+      "subjective::error_consistency",
+      "subjective::high_level_elegance",
+      "subjective::incomplete_migration",
+      "subjective::initialization_coupling",
+      "subjective::logic_clarity",
+      "subjective::low_level_elegance",
+      "subjective::mid_level_elegance",
+      "subjective::naming_quality",
+      "subjective::package_organization",
+      "subjective::test_strategy",
+      "subjective::type_safety"
+    ],
+    "last_deferred_scan": 2,
+    "last_deferred_at": "2026-03-12T19:50:25+00:00",
+    "defer_count": 1,
+    "first_deferred_scan": 2,
+    "first_deferred_at": "2026-03-12T19:50:25+00:00",
+    "deferred_stale_ids": [],
+    "deferred_under_target_ids": [
+      "subjective::abstraction_fitness",
+      "subjective::ai_generated_debt",
+      "subjective::api_surface_coherence",
+      "subjective::authorization_consistency",
+      "subjective::contract_coherence",
+      "subjective::convention_outlier",
+      "subjective::cross_module_architecture",
+      "subjective::dependency_health",
+      "subjective::design_coherence",
+      "subjective::error_consistency",
+      "subjective::high_level_elegance",
+      "subjective::incomplete_migration",
+      "subjective::initialization_coupling",
+      "subjective::logic_clarity",
+      "subjective::low_level_elegance",
+      "subjective::mid_level_elegance",
+      "subjective::naming_quality",
+      "subjective::package_organization",
+      "subjective::test_strategy",
+      "subjective::type_safety"
+    ],
+    "force_visible_ids": []
+  }
+}
