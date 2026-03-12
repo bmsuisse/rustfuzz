@@ -1,7 +1,7 @@
 {
   "version": 8,
   "created": "2026-03-12T19:44:34+00:00",
-  "updated": "2026-03-12T20:24:05+00:00",
+  "updated": "2026-03-12T20:32:52+00:00",
   "queue_order": [
     "workflow::communicate-score",
     "workflow::create-plan",
@@ -11,6 +11,20 @@
     "review::.::holistic::incomplete_migration::backward_compat_aliases",
     "review::.::holistic::initialization_coupling::full_rebuild_on_mutation",
     "review::.::holistic::low_level_elegance::editops_allocation_in_loop",
+    "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion",
+    "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency",
+    "review::.::holistic::contract_coherence::internal_protocol_usage",
+    "review::.::holistic::convention_outlier::bm25_variant_casing",
+    "review::.::holistic::cross_module_architecture::engine_search_imports",
+    "review::.::holistic::design_coherence::reexport_compat",
+    "review::.::holistic::error_consistency::from_none_import",
+    "review::.::holistic::high_level_elegance::mixed_concerns_search",
+    "review::.::holistic::logic_clarity::reranker_score_detection",
+    "review::.::holistic::mid_level_elegance::reranker_fallback_chain",
+    "review::.::holistic::naming_quality::wratio_pascal_case",
+    "review::.::holistic::package_organization::flat_package_structure",
+    "review::.::holistic::test_strategy::no_property_tests",
+    "review::.::holistic::type_safety::rust_index_any",
     "subjective::abstraction_fitness",
     "subjective::ai_generated_debt",
     "subjective::api_surface_coherence",
@@ -36,24 +50,101 @@
     "triage::organize",
     "triage::enrich",
     "triage::sense-check",
-    "triage::commit",
-    "review::.::holistic::abstraction_fitness::hybrid_corpus_coercion",
-    "review::.::holistic::api_surface_coherence::bm25_literal_inconsistency",
-    "review::.::holistic::contract_coherence::internal_protocol_usage",
-    "review::.::holistic::convention_outlier::bm25_variant_casing",
-    "review::.::holistic::cross_module_architecture::engine_search_imports",
-    "review::.::holistic::design_coherence::reexport_compat",
-    "review::.::holistic::error_consistency::from_none_import",
-    "review::.::holistic::high_level_elegance::mixed_concerns_search",
-    "review::.::holistic::logic_clarity::reranker_score_detection",
-    "review::.::holistic::mid_level_elegance::reranker_fallback_chain",
-    "review::.::holistic::naming_quality::wratio_pascal_case",
-    "review::.::holistic::package_organization::flat_package_structure",
-    "review::.::holistic::test_strategy::no_property_tests",
-    "review::.::holistic::type_safety::rust_index_any"
+    "triage::commit"
   ],
   "deferred": [],
-  "skipped": {},
+  "skipped": {
+    "stale_exclude::.benchmarks::.benchmarks": {
+      "issue_id": "stale_exclude::.benchmarks::.benchmarks",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this stale exclude \u2014 .benchmarks is a valid pytest-benchmark baselines directory, never referenced in source",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:26+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "stale_exclude::.cache::.cache": {
+      "issue_id": "stale_exclude::.cache::.cache",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this stale exclude \u2014 .cache contains ruff and pip caches, never referenced in production source",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:27+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "stale_exclude::.cargo::.cargo": {
+      "issue_id": "stale_exclude::.cargo::.cargo",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this stale exclude \u2014 .cargo is the Rust build cache and registry, never referenced in Python source",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:28+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "stale_exclude::.hypothesis::.hypothesis": {
+      "issue_id": "stale_exclude::.hypothesis::.hypothesis",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this stale exclude \u2014 .hypothesis is the property testing database, never referenced in source",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:30+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "stale_exclude::examples::examples": {
+      "issue_id": "stale_exclude::examples::examples",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this stale exclude \u2014 examples contains runnable demo scripts, intentionally excluded from scanning",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:30+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23": {
+      "issue_id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:49+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69": {
+      "issue_id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:51+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22": {
+      "issue_id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:52+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    },
+    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50": {
+      "issue_id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+      "kind": "permanent",
+      "reason": null,
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect.",
+      "created_at": "2026-03-12T20:32:52+00:00",
+      "review_after": null,
+      "skipped_at_scan": 10
+    }
+  },
   "active_cluster": null,
   "overrides": {
     "unused::examples/azure_retriever_example.py::retriever_aoai:38": {
@@ -817,12 +908,7 @@
     }
   },
   "promoted_ids": [],
-  "plan_start_scores": {
-    "strict": 86.1,
-    "overall": 86.1,
-    "objective": 93.0,
-    "verified": 91.4
-  },
+  "plan_start_scores": {},
   "refresh_state": {
     "lifecycle_phase": "execute"
   },
@@ -2459,6 +2545,176 @@
       "actor": "user",
       "note": null,
       "detail": {}
+    },
+    {
+      "timestamp": "2026-03-12T20:28:37+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:28:37+00:00",
+      "action": "sync_communicate_score",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:28:37+00:00",
+      "action": "sync_create_plan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:28:37+00:00",
+      "action": "sync_triage",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:26+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "stale_exclude::.benchmarks::.benchmarks"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this stale exclude \u2014 .benchmarks is a valid pytest-benchmark baselines directory, never referenced in source",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:27+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "stale_exclude::.cache::.cache"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this stale exclude \u2014 .cache contains ruff and pip caches, never referenced in production source",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:28+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "stale_exclude::.cargo::.cargo"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this stale exclude \u2014 .cargo is the Rust build cache and registry, never referenced in Python source",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:30+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "stale_exclude::.hypothesis::.hypothesis"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this stale exclude \u2014 .hypothesis is the property testing database, never referenced in source",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:30+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "stale_exclude::examples::examples"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this stale exclude \u2014 examples contains runnable demo scripts, intentionally excluded from scanning",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:49+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:51+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:52+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
+    },
+    {
+      "timestamp": "2026-03-12T20:32:52+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "I have reviewed this security issue \u2014 file is in excluded examples directory, not production library code",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
     }
   ],
   "epic_triage_meta": {
@@ -2513,5 +2769,5 @@
     "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
   ],
   "commit_tracking_branch": null,
-  "scan_count_at_plan_start": 9
+  "previous_plan_start_scores": {}
 }

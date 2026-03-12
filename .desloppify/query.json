@@ -1,26 +1,155 @@
 {
-  "command": "resolve",
-  "patterns": [
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
-  ],
-  "status": "fixed",
-  "resolved": [
-    "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50"
-  ],
-  "count": 1,
-  "next_command": "desloppify next",
-  "overall_score": 86.2,
-  "objective_score": 93.3,
-  "strict_score": 86.2,
-  "verified_strict_score": 91.4,
-  "prev_overall_score": 86.1,
-  "prev_objective_score": 93.3,
-  "prev_strict_score": 86.1,
-  "prev_verified_strict_score": 91.4,
-  "attestation": "I have actually File in excluded examples/ directory - not production library code, only demo scripts and I am not gaming the score.",
+  "command": "show",
+  "query": "<chronic>",
+  "status_filter": "open",
+  "total": 9,
+  "summary": {
+    "by_tier": {
+      "T3": 4,
+      "T4": 5
+    },
+    "by_detector": {
+      "stale_exclude": 5,
+      "security": 4
+    },
+    "files": 9
+  },
+  "by_file": {
+    ".benchmarks": [
+      {
+        "id": "stale_exclude::.benchmarks::.benchmarks",
+        "tier": 4,
+        "confidence": "low",
+        "summary": "Excluded directory '.benchmarks' has 0 references from scanned code \u2014 may be stale",
+        "detail": {
+          "directory": ".benchmarks",
+          "references": 0
+        }
+      }
+    ],
+    ".cache": [
+      {
+        "id": "stale_exclude::.cache::.cache",
+        "tier": 4,
+        "confidence": "low",
+        "summary": "Excluded directory '.cache' has 0 references from scanned code \u2014 may be stale",
+        "detail": {
+          "directory": ".cache",
+          "references": 0
+        }
+      }
+    ],
+    ".cargo": [
+      {
+        "id": "stale_exclude::.cargo::.cargo",
+        "tier": 4,
+        "confidence": "low",
+        "summary": "Excluded directory '.cargo' has 0 references from scanned code \u2014 may be stale",
+        "detail": {
+          "directory": ".cargo",
+          "references": 0
+        }
+      }
+    ],
+    ".hypothesis": [
+      {
+        "id": "stale_exclude::.hypothesis::.hypothesis",
+        "tier": 4,
+        "confidence": "low",
+        "summary": "Excluded directory '.hypothesis' has 0 references from scanned code \u2014 may be stale",
+        "detail": {
+          "directory": ".hypothesis",
+          "references": 0
+        }
+      }
+    ],
+    "examples": [
+      {
+        "id": "stale_exclude::examples::examples",
+        "tier": 4,
+        "confidence": "low",
+        "summary": "Excluded directory 'examples' has 0 references from scanned code \u2014 may be stale",
+        "detail": {
+          "directory": "examples",
+          "references": 0
+        }
+      }
+    ],
+    "examples/bench_3stage_pipeline.py": [
+      {
+        "id": "security::examples/bench_3stage_pipeline.py::security::B113::examples/bench_3stage_pipeline.py::23",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "[B113] Call to requests without timeout",
+        "detail": {
+          "kind": "B113",
+          "severity": "medium",
+          "line": 23,
+          "content": "22             print(\"Downloading SciFact dataset...\")\n23             response = requests.get(url, stream=True)\n24             with open(filepath, \"wb\") as f:\n",
+          "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+          "test_name": "request_without_timeout",
+          "source": "bandit"
+        }
+      }
+    ],
+    "examples/bench_crush_ndcg.py": [
+      {
+        "id": "security::examples/bench_crush_ndcg.py::security::B113::examples/bench_crush_ndcg.py::69",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "[B113] Call to requests without timeout",
+        "detail": {
+          "kind": "B113",
+          "severity": "medium",
+          "line": 69,
+          "content": "68             print(\"Downloading SciFact dataset...\")\n69             response = requests.get(url, stream=True)\n70             with open(filepath, \"wb\") as f:\n",
+          "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+          "test_name": "request_without_timeout",
+          "source": "bandit"
+        }
+      }
+    ],
+    "examples/bench_retrieval.py": [
+      {
+        "id": "security::examples/bench_retrieval.py::security::B113::examples/bench_retrieval.py::22",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "[B113] Call to requests without timeout",
+        "detail": {
+          "kind": "B113",
+          "severity": "medium",
+          "line": 22,
+          "content": "21             print(\"Downloading SciFact dataset...\")\n22             response = requests.get(url, stream=True)\n23             with open(filepath, \"wb\") as f:\n",
+          "remediation": "https://bandit.readthedocs.io/en/1.9.4/plugins/b113_request_without_timeout.html",
+          "test_name": "request_without_timeout",
+          "source": "bandit"
+        }
+      }
+    ],
+    "examples/multijoiner_examples.py": [
+      {
+        "id": "security::examples/multijoiner_examples.py::security::B311::examples/multijoiner_examples.py::50",
+        "tier": 3,
+        "confidence": "low",
+        "summary": "[B311] Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+        "detail": {
+          "kind": "B311",
+          "severity": "low",
+          "line": 50,
+          "content": "49     \"\"\"Generate deterministic dummy embeddings and L2-normalise them.\"\"\"\n50     rng = random.Random(seed)\n51     vecs: list[list[float]] = []\n",
+          "remediation": "https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random",
+          "test_name": "blacklist",
+          "source": "bandit"
+        }
+      }
+    ]
+  },
+  "total_matching": 9,
+  "noise_budget": 10,
+  "noise_global_budget": 0,
   "narrative": {
-    "phase": "refinement",
-    "headline": "All T1 items cleared! (20 review issues \u2014 run `desloppify show review --status open`)",
+    "phase": "stagnation",
+    "headline": "\u26a0 4 security issues \u2014 review before other cleanup. All T1 items cleared! (20 review issues \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -231,12 +360,34 @@
         "dimension": "Code quality",
         "priority": 14,
         "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "stale_exclude",
+        "count": 5,
+        "description": "5 stale_exclude issues \u2014 remove stale exclusion or verify it's still needed",
+        "command": "desloppify show stale_exclude --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 15,
+        "lane": "refactor_2"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "security",
+        "count": 4,
+        "description": "4 security issues \u2014 review and fix security issues \u2014 prioritize by severity",
+        "command": "desloppify show security --status open",
+        "impact": 0.0,
+        "dimension": "Security",
+        "priority": 16,
+        "lane": "refactor_3"
       }
     ],
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 131,
+        "total_count": 140,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -279,6 +430,24 @@
           "automation": "manual",
           "run_first": false
         },
+        "refactor_2": {
+          "actions": [
+            15
+          ],
+          "file_count": 5,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "refactor_3": {
+          "actions": [
+            16
+          ],
+          "file_count": 4,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
         "test_coverage": {
           "actions": [
             9
@@ -290,7 +459,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 20 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "6 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 20 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -323,7 +492,7 @@
       "command": "desloppify show orphaned --status open",
       "description": "1 orphaned issues \u2014 delete dead files or relocate with `desloppify move`"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 20 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "6 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 20 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -331,36 +500,19 @@
     "risk_flags": [],
     "strict_target": {
       "target": 95.0,
-      "current": 86.2,
-      "gap": 8.8,
+      "current": 86.1,
+      "gap": 8.9,
       "state": "below",
       "warning": null
     },
-    "reminders": [
-      {
-        "type": "rereview_needed",
-        "message": "Subjective results may be stale after resolve. Re-run `desloppify review --prepare` to refresh, or reset with `desloppify scan --reset-subjective` before a clean rerun.",
-        "command": "desloppify review --prepare",
-        "priority": 1,
-        "severity": "high"
-      },
-      {
-        "type": "rescan_needed",
-        "message": "Rescan to verify \u2014 cascading effects may create new issues.",
-        "command": "desloppify scan",
-        "priority": 1,
-        "severity": "high"
-      }
-    ],
+    "reminders": [],
     "reminder_history": {
       "zone_classification": 3,
-      "report_scores": 6,
+      "report_scores": 7,
       "review_issues_pending": 3,
       "feedback_nudge": 3,
       "review_not_run": 3,
-      "stagnant_nudge": 3,
-      "rereview_needed": 1,
-      "rescan_needed": 1
+      "stagnant_nudge": 3
     }
   },
   "config": {

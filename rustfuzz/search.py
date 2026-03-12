@@ -910,15 +910,35 @@ class Reranker:
         self._model = model_or_callable
         self.blend_alpha = blend_alpha
         self.adaptive_blend = adaptive_blend
-        # Auto-detect common model interfaces
-        if hasattr(model_or_callable, "predict"):
-            self._score_fn = self._st_predict_wrapper
-        elif hasattr(model_or_callable, "compute_scores"):
+        self._score_fn = self._resolve_score_fn(model_or_callable)
 
-            def _compute_scores(q: str, texts: list[str]) -> list[float]:
+    @staticmethod
+    def _resolve_score_fn(
+        model: Any,
+    ) -> Callable[[str, list[str]], list[float]]:
+        """Auto-detect the scoring interface of a reranker model.
+
+        Dispatch order:
+        1. ``.predict(pairs)`` — SentenceTransformers CrossEncoder
+        2. ``.compute_scores(queries, docs, n)`` — FlagEmbedding / BGE
+        3. ``.score(query, texts)`` — direct score method
+        4. Bare callable ``fn(query, texts) -> list[float]``
+        """
+        if hasattr(model, "predict"):
+
+            def _predict_wrapper(query: str, texts: list[str]) -> list[float]:
+                pairs = [(query, t) for t in texts]
+                scores = model.predict(pairs)
+                return scores.tolist() if hasattr(scores, "tolist") else list(scores)
+
+            return _predict_wrapper
+
+        if hasattr(model, "compute_scores"):
+
+            def _compute_wrapper(query: str, texts: list[str]) -> list[float]:
                 scores: list[float] = []
                 for t in texts:
-                    result = model_or_callable.compute_scores([q], [t], 1)
+                    result = model.compute_scores([query], [t], 1)
                     val = (
                         result[0]
                         if isinstance(result[0], (int, float))
@@ -927,27 +947,18 @@ class Reranker:
                     scores.append(float(val))
                 return scores
 
-            self._score_fn = _compute_scores
-        elif hasattr(model_or_callable, "score"):
+            return _compute_wrapper
 
-            def _score(q: str, texts: list[str]) -> list[float]:
-                return model_or_callable.score(q, texts)
+        if hasattr(model, "score"):
+            return model.score
 
-            self._score_fn = _score
-        elif callable(model_or_callable):
-            self._score_fn = model_or_callable
-        else:
-            raise ValueError(
-                "Reranker model must be callable or provide a "
-                "`.predict()`/`.score()` method."
-            )
+        if callable(model):
+            return model
 
-    def _st_predict_wrapper(self, query: str, texts: list[str]) -> list[float]:
-        pairs = [(query, t) for t in texts]
-        scores = self._model.predict(pairs)
-        if hasattr(scores, "tolist"):
-            return scores.tolist()
-        return list(scores)
+        raise ValueError(
+            "Reranker model must be callable or provide a "
+            "`.predict()`/`.compute_scores()`/`.score()` method."
+        )
 
     def rerank(
         self,
