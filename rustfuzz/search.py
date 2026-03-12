@@ -130,7 +130,7 @@ class _BaseBM25:
             Column(s) to extract as per-row metadata dicts.
         """
         meta = _extract_metadata(df, metadata_columns) if metadata_columns else None
-        return cls(_extract_column(df, column), metadata=meta, **kwargs)
+        return cls(_extract_column(df, column), metadata=meta, **kwargs)  # type: ignore[call-arg]
 
     # ── Properties ────────────────────────────────────────────
 
@@ -966,7 +966,7 @@ class Reranker:
             return model.score
 
         if callable(model):
-            return model
+            return cast("Callable[[str, list[str]], list[float]]", model)
 
         raise ValueError(
             "Reranker model must be callable or provide a "
