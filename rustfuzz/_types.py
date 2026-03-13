@@ -44,7 +44,7 @@ class EmbeddingCallback(Protocol):
 
 def _search_query(owner: Any) -> Any:
     """Lazy import to avoid circular dependency."""
-    from .query import SearchQuery
+    from .search.query import SearchQuery
 
     return SearchQuery(owner)
 

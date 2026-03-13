@@ -41,6 +41,7 @@ from typing import Any
 from ._types import MetaResult as _MetaResult
 from ._types import Result as _Result
 from ._types import _search_query
+from .compat import _extract_column, _extract_metadata
 from .document import Document  # noqa: F401
 from .search import (
     BM25,
@@ -50,8 +51,6 @@ from .search import (
     BM25Plus,
     HybridSearch,
     Reranker,
-    _extract_column,
-    _extract_metadata,
 )
 
 # Default HuggingFace embedding model — small, fast, no PyTorch
