@@ -79,66 +79,111 @@ class HybridSearch:
         delta: float | None = None,
         normalize_scores: bool = False,
         metadata: Iterable[Any] | None = None,
+        memory_map: bool | str = False,
     ) -> None:
-        # ── Coerce corpus (handles str, Document, LangChain) ──
-        texts, auto_metadata = _coerce_corpus(corpus)
-        self._corpus = texts
-        self._embeddings = embeddings
         self._normalize_scores = normalize_scores
         self._k1 = k1
         self._b = b
         self._algorithm = algorithm
         self._delta = delta
 
-        # Explicit metadata overrides auto-extracted metadata
-        if metadata is not None:
-            self._metadata = _validate_metadata(metadata, len(self._corpus))
-        elif auto_metadata is not None:
-            self._metadata = auto_metadata
+        if memory_map:
+            import tempfile
+
+            if isinstance(memory_map, bool):
+                self._mmap_temp = tempfile.TemporaryDirectory(
+                    prefix="rustfuzz_hybrid_mmap_"
+                )
+                mmap_path = self._mmap_temp.name
+            else:
+                mmap_path = str(memory_map)
+                self._mmap_temp = None
+
+            # If embeddings is a callable but corpus is an iterator, it would be consumed.
+            # Realistically, for huge memory-mapped hybrid indices, users supply embeddings as arrays
+            # or pre-computed generators to bypass the Python memory bounds.
+            emb_list: list[list[float]] | None = None
+            if embeddings is not None and not callable(embeddings):
+                try:
+                    if hasattr(embeddings, "shape") and hasattr(embeddings, "tolist"):
+                        emb_list = embeddings.tolist()
+                    else:
+                        emb_list = [list(row) for row in embeddings]
+                except Exception:
+                    pass
+
+            _rustfuzz.save_mmap_hybrid(
+                mmap_path,
+                corpus,
+                k1,
+                b,
+                True,  # normalize
+                emb_list,
+                False,  # include_positions
+            )
+            self._index = _rustfuzz.MmapHybridSearchIndex.load(mmap_path)
+            self._corpus = []
+            self._embeddings = emb_list
+            self._metadata = list(metadata) if metadata is not None else None
+            self._corpus_index = None
+
         else:
-            self._metadata = None
+            # ── Coerce corpus (handles str, Document, LangChain) ──
+            texts, auto_metadata = _coerce_corpus(corpus)
+            self._corpus = texts
+            self._embeddings = embeddings
 
-        self._corpus_index: dict[str, int] | None = (
-            _build_corpus_index(self._corpus) if self._metadata is not None else None
-        )
+            # Explicit metadata overrides auto-extracted metadata
+            if metadata is not None:
+                self._metadata = _validate_metadata(metadata, len(self._corpus))
+            elif auto_metadata is not None:
+                self._metadata = auto_metadata
+            else:
+                self._metadata = None
 
-        # ── Handle embeddings: callback or static matrix ──
-        self._embed_fn: Callable[[list[str]], list[list[float]]] | None = None
-        emb_list: list[list[float]] | None = None
+            self._corpus_index: dict[str, int] | None = (
+                _build_corpus_index(self._corpus)
+                if self._metadata is not None
+                else None
+            )
 
-        if callable(embeddings):
-            embed_fn = cast(Callable[[list[str]], list[list[float]]], embeddings)
-            self._embed_fn = embed_fn
-            if self._corpus:
-                emb_list = embed_fn(self._corpus)
+            # ── Handle embeddings: callback or static matrix ──
+            self._embed_fn: Callable[[list[str]], list[list[float]]] | None = None
+            emb_list = None
+
+            if callable(embeddings):
+                embed_fn = cast(Callable[[list[str]], list[list[float]]], embeddings)
+                self._embed_fn = embed_fn
+                if self._corpus:
+                    emb_list = embed_fn(self._corpus)
+                    if len(emb_list) != len(self._corpus):
+                        raise ValueError(
+                            f"Embedding callback returned {len(emb_list)} vectors "
+                            f"for {len(self._corpus)} documents"
+                        )
+            elif embeddings is not None:
+                try:
+                    if hasattr(embeddings, "shape") and hasattr(embeddings, "tolist"):
+                        emb_list = embeddings.tolist()
+                    else:
+                        emb_list = [list(row) for row in embeddings]
+                except Exception as e:
+                    raise ValueError(
+                        "embeddings must be convertible to a list of lists of floats"
+                    ) from e
                 if len(emb_list) != len(self._corpus):
                     raise ValueError(
-                        f"Embedding callback returned {len(emb_list)} vectors "
-                        f"for {len(self._corpus)} documents"
+                        f"Length mismatch: {len(self._corpus)} documents, "
+                        f"{len(emb_list)} embeddings"
                     )
-        elif embeddings is not None:
-            try:
-                if hasattr(embeddings, "shape") and hasattr(embeddings, "tolist"):
-                    emb_list = embeddings.tolist()
-                else:
-                    emb_list = [list(row) for row in embeddings]
-            except Exception as e:
-                raise ValueError(
-                    "embeddings must be convertible to a list of lists of floats"
-                ) from e
-            if len(emb_list) != len(self._corpus):
-                raise ValueError(
-                    f"Length mismatch: {len(self._corpus)} documents, "
-                    f"{len(emb_list)} embeddings"
-                )
 
-        # Keep a Python-side reference for pickle support
-        self._embeddings = emb_list
+            # Keep a Python-side reference for pickle support
+            self._embeddings = emb_list
 
-        # ── Build Rust index ──
-        self._index = _rustfuzz.HybridSearchIndex(
-            self._corpus, emb_list, k1, b, algorithm, delta
-        )
+            self._mmap_temp = None
+            self._index = _rustfuzz.HybridSearchIndex(
+                self._corpus, emb_list, k1, b, algorithm, delta
+            )
 
         # ── Push metadata to Rust for blazing-fast filter evaluation ──
         if self._metadata is not None:

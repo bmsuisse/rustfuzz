@@ -533,6 +533,30 @@ def test_bm25_rustfuzz_top_n(benchmark: pytest.FixtureRequest) -> None:
     benchmark(bm25.get_top_n, BM25_QUERY, n=5)
 
 
+def test_mmap_bm25_rustfuzz_top_n(benchmark: pytest.FixtureRequest, tmp_path) -> None:
+    from rustfuzz.search import BM25, MmapBM25
+
+    bm25 = BM25(BM25_CORPUS)
+    mmap_path = str(tmp_path / "bm25_mmap")
+    MmapBM25.build(mmap_path, bm25)
+
+    mmap_idx = MmapBM25.load(mmap_path)
+    benchmark(mmap_idx.get_top_n, BM25_QUERY, n=5)
+
+
+def test_mmap_bm25_rustfuzz_fuzzy_rrf(
+    benchmark: pytest.FixtureRequest, tmp_path
+) -> None:
+    from rustfuzz.search import BM25, MmapBM25
+
+    bm25 = BM25(BM25_CORPUS)
+    mmap_path = str(tmp_path / "bm25_mmap")
+    MmapBM25.build(mmap_path, bm25)
+
+    mmap_idx = MmapBM25.load(mmap_path)
+    benchmark(mmap_idx.get_top_n_rrf, BM25_QUERY, n=5)
+
+
 def test_bm25_rustfuzz_fuzzy_rrf(benchmark: pytest.FixtureRequest) -> None:
     from rustfuzz.search import BM25
 

@@ -413,13 +413,48 @@ class BM25(_BaseBM25):
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
         normalize_scores: bool = False,
+        memory_map: bool | str = False,
     ) -> None:
-        corpus_list = _init_common(
-            self, corpus, k1, b, metadata, normalize, normalize_scores
-        )
-        self._index = _rustfuzz.BM25Index(corpus_list, k1, b, normalize)
+        if memory_map:
+            import tempfile
+
+            if isinstance(memory_map, bool):
+                self._mmap_temp = tempfile.TemporaryDirectory(prefix="rustfuzz_mmap_")
+                mmap_path = self._mmap_temp.name
+            else:
+                mmap_path = str(memory_map)
+                self._mmap_temp = None
+
+            _rustfuzz.save_mmap_bm25(
+                mmap_path,
+                corpus,
+                k1,
+                b,
+                normalize,
+                False,
+            )
+            self._index = _rustfuzz.MmapBM25Index.load(mmap_path)
+            self._k1 = k1
+            self._b = b
+            self._normalize = normalize
+            self._normalize_scores = normalize_scores
+            self._metadata = list(metadata) if metadata is not None else None
+            self._corpus_index = None
+            self._corpus = []
+        else:
+            corpus_list = _init_common(
+                self, corpus, k1, b, metadata, normalize, normalize_scores
+            )
+            self._mmap_temp = None
+            self._index = _rustfuzz.BM25Index(corpus_list, k1, b, normalize)
 
     def _rebuild_index(self) -> None:
+        if getattr(self, "_mmap_temp", None) is not None or isinstance(
+            self._index, _rustfuzz.MmapBM25Index
+        ):
+            raise NotImplementedError(
+                "MmapBM25 is immutable; cannot be dynamically rebuilt in-memory via corpus mutations."
+            )
         self._index = _rustfuzz.BM25Index(
             self._corpus, self._k1, self._b, self._normalize
         )
@@ -617,4 +652,58 @@ class BM25T(_BaseBM25):
                 self._normalize,
                 self._normalize_scores,
             ),
+        )
+
+
+class MmapBM25(_BaseBM25):
+    """
+    Memory-mapped inverted index for BM25.
+
+    Provides massive RAM savings and instant load times for large corpora.
+    To construct, use `MmapBM25.build(path, bm25_index)`.
+    To load, use `MmapBM25.load(path)`.
+    """
+
+    def __init__(self, index: Any) -> None:
+        self._index = index
+        self._normalize_scores = False
+        self._corpus = []
+        self._metadata = None
+        self._corpus_index = None
+
+    @classmethod
+    def build(cls, path: str, bm25: BM25) -> None:
+        """Build and save an mmap BM25 repository from an existing BM25 index."""
+        _rustfuzz.save_mmap_bm25(
+            path,
+            bm25._corpus,
+            bm25._k1,
+            bm25._b,
+            bm25._normalize,
+            False,
+        )
+
+    @classmethod
+    def load(cls, path: str) -> Self:
+        """Load an mmap BM25 repository dynamically."""
+        index = _rustfuzz.MmapBM25Index.load(path)
+        return cls(index)
+
+    def _rebuild_index(self) -> None:
+        raise NotImplementedError("MmapBM25 is immutable; cannot be rebuilt in-memory.")
+
+    def add_documents(
+        self, docs: Iterable[str], metadata: Iterable[Any] | None = None
+    ) -> None:
+        raise NotImplementedError("MmapBM25 is immutable.")
+
+    def remove_documents(self, indices: list[int]) -> None:
+        raise NotImplementedError("MmapBM25 is immutable.")
+
+    def to_hybrid(self, embeddings: Any) -> HybridSearch:
+        raise NotImplementedError("MmapBM25 hybrid is not supported yet.")
+
+    def __reduce__(self) -> tuple[type, tuple[str]]:
+        raise NotImplementedError(
+            "MmapBM25 cannot be pickled, only saved and loaded via path."
         )
