@@ -2507,13 +2507,15 @@ pub struct Posting {
 }
 
 #[pyfunction]
-#[pyo3(signature = (path, corpus_iter, k1, b, normalize, include_positions=false))]
+#[pyo3(signature = (path, corpus_iter, k1, b, normalize, algorithm="bm25", delta=None, include_positions=false))]
 pub fn save_mmap_bm25(
     path: &str,
     corpus_iter: &pyo3::Bound<'_, pyo3::types::PyAny>,
     k1: f64,
     b: f64,
     normalize: bool,
+    algorithm: &str,
+    delta: Option<f64>,
     include_positions: bool,
 ) -> PyResult<()> {
     let mut corpus: Vec<String> = Vec::new();
@@ -2574,7 +2576,12 @@ pub fn save_mmap_bm25(
     // Process each term: compute IDF, compute tf_norm for each posting
     for (term, (df, raw_postings)) in term_raw_postings {
         let df_f = df as f64;
-        let idf_val = ((n - df_f + 0.5) / (df_f + 0.5) + 1.0).ln();
+        let idf_val = match algorithm {
+            "bm25l" => ((n + 1.0) / (df_f + 0.5)).ln(),
+            "bm25plus" | "bm25+" => ((n + 1.0) / df_f).ln(),
+            // default bm25 and bm25t
+            _ => ((n - df_f + 0.5) / (df_f + 0.5) + 1.0).ln(),
+        };
         idf.insert(term.clone(), idf_val);
         
         let post_start = postings_vec.len();
@@ -2583,10 +2590,42 @@ pub fn save_mmap_bm25(
         let post_len = raw_postings.len();
         let mut total_pos_len = 0;
         
+        // Pre-compute k1dash for bm25t at the term level
+        let k1dash = if algorithm == "bm25t" {
+            let base_gk1 = if (k1 - 1.0).abs() < f64::EPSILON { 1.0 } else { (k1 / (k1 - 1.0)) * k1.ln() };
+            let mut k1dash_num = 0.0;
+            for &(doc_id, tf, _) in &raw_postings {
+                let dl = doc_lengths[doc_id as usize] as f64;
+                let ctd = (tf as f64) / (1.0 - b + b * dl / avgdl);
+                k1dash_num += (ctd + 1.0).ln();
+            }
+            (base_gk1 - k1dash_num / df_f).powi(2)
+        } else {
+            0.0
+        };
+        
         for (doc_id, tf, positions) in raw_postings {
             let dl = doc_lengths[doc_id as usize] as f64;
             let tf_f = tf as f64;
-            let norm = tf_f * (k1 + 1.0) / (tf_f + k1 * (1.0 - b + b * dl / avgdl));
+            
+            let norm = match algorithm {
+                "bm25l" => {
+                    let d = delta.unwrap_or(0.5);
+                    let ctd = tf_f / (1.0 - b + b * dl / avgdl);
+                    (k1 + 1.0) * (ctd + d) / (k1 + ctd + d)
+                },
+                "bm25plus" | "bm25+" => {
+                    let d = delta.unwrap_or(1.0);
+                    d + (tf_f * (k1 + 1.0)) / (k1 * (1.0 - b + b * dl / avgdl) + tf_f)
+                },
+                "bm25t" => {
+                    let ctd = tf_f / (1.0 - b + b * dl / avgdl);
+                    (ctd * (k1dash + 1.0)) / (k1dash + ctd)
+                },
+                _ => { // default bm25
+                    tf_f * (k1 + 1.0) / (tf_f + k1 * (1.0 - b + b * dl / avgdl))
+                }
+            };
             
             let pos_len = positions.len() as u32;
             total_pos_len += positions.len();
@@ -3014,17 +3053,19 @@ impl MmapBM25Index {
 // ============================================================================
 
 #[pyfunction]
-#[pyo3(signature = (path, corpus_iter, k1, b, normalize, embeddings, include_positions=false))]
+#[pyo3(signature = (path, corpus_iter, k1, b, normalize, algorithm="bm25", delta=None, embeddings=None, include_positions=false))]
 pub fn save_mmap_hybrid(
     path: &str,
     corpus_iter: &pyo3::Bound<'_, pyo3::types::PyAny>,
     k1: f64,
     b: f64,
     normalize: bool,
+    algorithm: &str,
+    delta: Option<f64>,
     embeddings: Option<Vec<Vec<f32>>>,
     include_positions: bool,
 ) -> PyResult<()> {
-    save_mmap_bm25(path, corpus_iter, k1, b, normalize, include_positions)?;
+    save_mmap_bm25(path, corpus_iter, k1, b, normalize, algorithm, delta, include_positions)?;
     
     if let Some(emb) = embeddings {
         let dim = if emb.is_empty() { 0 } else { emb[0].len() };

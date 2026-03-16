@@ -155,3 +155,35 @@ def test_mmap_bm25_generator(tmp_path) -> None:
 
     # Check that Python doesn't hold the corpus since memory_map=True
     assert len(bm25._corpus) == 0
+
+
+def test_mmap_bm25_variants(tmp_path) -> None:
+    import math
+
+    from rustfuzz.search import BM25L, BM25T, BM25Plus
+
+    query = "the quick brown fox"
+
+    # Test BM25L
+    bm25l_ram = BM25L(CORPUS, delta=0.7)
+    bm25l_mmap = BM25L(CORPUS, delta=0.7, memory_map=str(tmp_path / "bm25l"))
+
+    # Test BM25Plus
+    bm25plus_ram = BM25Plus(CORPUS, delta=1.5)
+    bm25plus_mmap = BM25Plus(CORPUS, delta=1.5, memory_map=str(tmp_path / "bm25plus"))
+
+    # Test BM25T
+    bm25t_ram = BM25T(CORPUS)
+    bm25t_mmap = BM25T(CORPUS, memory_map=str(tmp_path / "bm25t"))
+    # Due to `tf_norm: f32` downcasting in mmap binary structs vs `f64` in memory indices,
+    # we verify they are extremely close rather than exact match
+    for ram, mmap in [
+        (bm25l_ram, bm25l_mmap),
+        (bm25plus_ram, bm25plus_mmap),
+        (bm25t_ram, bm25t_mmap),
+    ]:
+        ram_scores = ram.get_scores(query)
+        mmap_scores = mmap.get_scores(query)
+        assert len(ram_scores) == len(mmap_scores)
+        for r, m in zip(ram_scores, mmap_scores, strict=True):
+            assert math.isclose(r, m, rel_tol=1e-5, abs_tol=1e-8)

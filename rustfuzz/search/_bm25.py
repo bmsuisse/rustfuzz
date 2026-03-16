@@ -431,6 +431,8 @@ class BM25(_BaseBM25):
                 k1,
                 b,
                 normalize,
+                "bm25",
+                None,
                 False,
             )
             self._index = _rustfuzz.MmapBM25Index.load(mmap_path)
@@ -501,12 +503,44 @@ class BM25L(_BaseBM25):
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
         normalize_scores: bool = False,
+        memory_map: bool | str = False,
     ) -> None:
-        corpus_list = _init_common(
-            self, corpus, k1, b, metadata, normalize, normalize_scores
-        )
-        self._delta = delta
-        self._index = _rustfuzz.BM25L(corpus_list, k1, b, delta, normalize)
+        if memory_map:
+            import tempfile
+
+            if isinstance(memory_map, bool):
+                self._mmap_temp = tempfile.TemporaryDirectory(prefix="rustfuzz_mmap_")
+                mmap_path = self._mmap_temp.name
+            else:
+                mmap_path = str(memory_map)
+                self._mmap_temp = None
+
+            _rustfuzz.save_mmap_bm25(
+                mmap_path,
+                corpus,
+                k1,
+                b,
+                normalize,
+                "bm25l",
+                delta,
+                False,
+            )
+            self._index = _rustfuzz.MmapBM25Index.load(mmap_path)
+            self._k1 = k1
+            self._b = b
+            self._delta = delta
+            self._normalize = normalize
+            self._normalize_scores = normalize_scores
+            self._metadata = list(metadata) if metadata is not None else None
+            self._corpus_index = None
+            self._corpus = []
+        else:
+            corpus_list = _init_common(
+                self, corpus, k1, b, metadata, normalize, normalize_scores
+            )
+            self._mmap_temp = None
+            self._delta = delta
+            self._index = _rustfuzz.BM25L(corpus_list, k1, b, delta, normalize)
 
     def _rebuild_index(self) -> None:
         self._index = _rustfuzz.BM25L(
@@ -559,12 +593,44 @@ class BM25Plus(_BaseBM25):
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
         normalize_scores: bool = False,
+        memory_map: bool | str = False,
     ) -> None:
-        corpus_list = _init_common(
-            self, corpus, k1, b, metadata, normalize, normalize_scores
-        )
-        self._delta = delta
-        self._index = _rustfuzz.BM25Plus(corpus_list, k1, b, delta, normalize)
+        if memory_map:
+            import tempfile
+
+            if isinstance(memory_map, bool):
+                self._mmap_temp = tempfile.TemporaryDirectory(prefix="rustfuzz_mmap_")
+                mmap_path = self._mmap_temp.name
+            else:
+                mmap_path = str(memory_map)
+                self._mmap_temp = None
+
+            _rustfuzz.save_mmap_bm25(
+                mmap_path,
+                corpus,
+                k1,
+                b,
+                normalize,
+                "bm25plus",
+                delta,
+                False,
+            )
+            self._index = _rustfuzz.MmapBM25Index.load(mmap_path)
+            self._k1 = k1
+            self._b = b
+            self._delta = delta
+            self._normalize = normalize
+            self._normalize_scores = normalize_scores
+            self._metadata = list(metadata) if metadata is not None else None
+            self._corpus_index = None
+            self._corpus = []
+        else:
+            corpus_list = _init_common(
+                self, corpus, k1, b, metadata, normalize, normalize_scores
+            )
+            self._mmap_temp = None
+            self._delta = delta
+            self._index = _rustfuzz.BM25Plus(corpus_list, k1, b, delta, normalize)
 
     def _rebuild_index(self) -> None:
         self._index = _rustfuzz.BM25Plus(
@@ -616,11 +682,42 @@ class BM25T(_BaseBM25):
         metadata: Iterable[Any] | None = None,
         normalize: bool = False,
         normalize_scores: bool = False,
+        memory_map: bool | str = False,
     ) -> None:
-        corpus_list = _init_common(
-            self, corpus, k1, b, metadata, normalize, normalize_scores
-        )
-        self._index = _rustfuzz.BM25T(corpus_list, k1, b, normalize)
+        if memory_map:
+            import tempfile
+
+            if isinstance(memory_map, bool):
+                self._mmap_temp = tempfile.TemporaryDirectory(prefix="rustfuzz_mmap_")
+                mmap_path = self._mmap_temp.name
+            else:
+                mmap_path = str(memory_map)
+                self._mmap_temp = None
+
+            _rustfuzz.save_mmap_bm25(
+                mmap_path,
+                corpus,
+                k1,
+                b,
+                normalize,
+                "bm25t",
+                None,
+                False,
+            )
+            self._index = _rustfuzz.MmapBM25Index.load(mmap_path)
+            self._k1 = k1
+            self._b = b
+            self._normalize = normalize
+            self._normalize_scores = normalize_scores
+            self._metadata = list(metadata) if metadata is not None else None
+            self._corpus_index = None
+            self._corpus = []
+        else:
+            corpus_list = _init_common(
+                self, corpus, k1, b, metadata, normalize, normalize_scores
+            )
+            self._mmap_temp = None
+            self._index = _rustfuzz.BM25T(corpus_list, k1, b, normalize)
 
     def _rebuild_index(self) -> None:
         self._index = _rustfuzz.BM25T(self._corpus, self._k1, self._b, self._normalize)
@@ -680,6 +777,8 @@ class MmapBM25(_BaseBM25):
             bm25._k1,
             bm25._b,
             bm25._normalize,
+            "bm25",
+            None,
             False,
         )
 

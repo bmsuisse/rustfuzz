@@ -118,6 +118,8 @@ class HybridSearch:
                 k1,
                 b,
                 True,  # normalize
+                algorithm,
+                delta,
                 emb_list,
                 False,  # include_positions
             )
