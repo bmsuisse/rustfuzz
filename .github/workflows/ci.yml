@@ -217,7 +217,7 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - uses: actions/checkout@v6
 
       - name: Install uv
@@ -233,5 +233,5 @@ jobs:
         with:
           path: site
 
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
